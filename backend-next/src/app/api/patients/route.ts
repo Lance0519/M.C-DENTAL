@@ -10,7 +10,7 @@ export async function OPTIONS() {
 }
 
 const baseSelect =
-  'id, username, email, full_name, phone, date_of_birth, gender, address, profile_image, created_at, updated_at';
+  'id, username, email, full_name, phone, date_of_birth, gender, address, profile_image, profile_image_url, created_at, updated_at';
 
 const createSchema = z.object({
   fullName: z.string(),

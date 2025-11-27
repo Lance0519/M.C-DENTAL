@@ -11,21 +11,21 @@ export async function OPTIONS() {
 
 const createSchema = z.object({
   name: z.string(),
-  specialty: z.string(),
-  available: z.boolean().optional(),
+  specialization: z.string().optional(),
+  active: z.boolean().optional(),
 });
 
 const updateSchema = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
-  specialty: z.string().optional(),
-  available: z.boolean().optional(),
+  specialization: z.string().optional(),
+  active: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest) {
   const supabase = supabaseAdmin();
   const id = req.nextUrl.searchParams.get('id');
-  const available = req.nextUrl.searchParams.get('available');
+  const active = req.nextUrl.searchParams.get('active');
 
   if (id) {
     const { data, error: dbErr } = await supabase.from('doctors').select('*').eq('id', id).single();
@@ -42,9 +42,9 @@ export async function GET(req: NextRequest) {
 
   let query = supabase.from('doctors').select('*').order('name', { ascending: true });
 
-  if (available !== null) {
-    const isAvailable = available === 'true';
-    query = query.eq('available', isAvailable);
+  if (active !== null) {
+    const isActive = active === 'true';
+    query = query.eq('active', isActive);
   }
 
   const { data, error: listErr } = await query;
@@ -66,15 +66,15 @@ export async function POST(req: NextRequest) {
     return error('Missing required fields', 400, { issues: parsed.error.flatten() });
   }
 
-  const { name, specialty, available = true } = parsed.data;
+  const { name, specialization, active = true } = parsed.data;
   const supabase = supabaseAdmin();
   const id = `doc${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
 
   const { error: insertErr } = await supabase.from('doctors').insert({
     id,
     name,
-    specialty,
-    available,
+    specialization,
+    active,
   });
 
   if (insertErr) {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     userId: auth.id,
     userName: auth.fullName ?? 'Unknown',
     userRole: auth.role,
-    details: { doctorId: id, doctorName: name, specialty },
+    details: { doctorId: id, doctorName: name, specialization },
     ipAddress: getIpFromRequest(req.headers),
   });
 
@@ -110,8 +110,8 @@ export async function PUT(req: NextRequest) {
 
   const updates: Record<string, unknown> = {};
   if (parsed.data.name !== undefined) updates.name = parsed.data.name;
-  if (parsed.data.specialty !== undefined) updates.specialty = parsed.data.specialty;
-  if (parsed.data.available !== undefined) updates.available = parsed.data.available;
+  if (parsed.data.specialization !== undefined) updates.specialization = parsed.data.specialization;
+  if (parsed.data.active !== undefined) updates.active = parsed.data.active;
 
   if (Object.keys(updates).length === 0) {
     return error('No fields to update', 400);
