@@ -9,6 +9,9 @@ export function Header() {
   // Subscribe to auth store - this will cause re-render when user changes
   const user = useAuthStore((state) => state.user);
   
+  // Mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   // Always check sessionStorage directly as source of truth
   // This prevents stale data from showing Dashboard when user is logged out
   const [actualUser, setActualUser] = useState<typeof user>(() => StorageService.getCurrentUser());
@@ -156,13 +159,77 @@ export function Header() {
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggle size="sm" />
-            <button className="p-2 text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-colors">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="relative z-50 p-2 text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gold-200/20 dark:border-gold-800/30 bg-white dark:bg-black-950 py-4">
+            <nav className="flex flex-col gap-1 px-2">
+              <Link 
+                to="/" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 text-base font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/services" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 text-base font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                Services
+              </Link>
+              <Link 
+                to="/about" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 text-base font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                About
+              </Link>
+              <Link 
+                to="/contact" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 text-base font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                Contact
+              </Link>
+              <div className="border-t border-gold-200/20 dark:border-gold-800/30 my-2"></div>
+              {actualUser ? (
+                <Link 
+                  to={dashboardPath || '/login'} 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mx-2 px-4 py-3 text-center text-base font-semibold text-white bg-gold-500 hover:bg-gold-600 rounded-lg shadow-md transition-all duration-200"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mx-2 px-4 py-3 text-center text-base font-semibold text-white bg-gold-500 hover:bg-gold-600 rounded-lg shadow-md transition-all duration-200"
+                >
+                  Login/Signup
+                </Link>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
