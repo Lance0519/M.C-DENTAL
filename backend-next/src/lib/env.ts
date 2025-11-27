@@ -12,6 +12,9 @@ type RequiredEnv = (typeof required)[number];
 
 const cache: Partial<Record<RequiredEnv, string>> = {};
 
+// Check if we're in build phase (no runtime env vars available)
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
 export function getEnv(name: RequiredEnv): string {
   if (cache[name]) {
     return cache[name] as string;
@@ -26,6 +29,12 @@ export function getEnv(name: RequiredEnv): string {
   }
 
   if (!value) {
+    // During build, return placeholder to avoid errors
+    // The actual value will be used at runtime
+    if (isBuildPhase) {
+      console.warn(`[Build] Environment variable ${name} not set, using placeholder`);
+      return `__BUILD_PLACEHOLDER_${name}__`;
+    }
     throw new Error(`Missing environment variable: ${name}`);
   }
 
