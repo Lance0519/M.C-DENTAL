@@ -69,10 +69,10 @@ ON CONFLICT (id) DO NOTHING;
 
 -- =====================
 -- CREATE DEFAULT ADMIN USER
--- Password: Admin@123 (hashed with bcrypt)
+-- Password: Admin@123
 -- =====================
 INSERT INTO users (id, username, email, password_hash, role, full_name) VALUES
-  ('admin001', 'admin', 'admin@mcdental.com', '$2b$10$rICGQPmKBHBhL7Q8vQ8nVuTHMJkKlKY6cK5k0JzK5yKZ5yKZ5yKZ5', 'admin', 'System Administrator')
+  ('admin001', 'admin', 'admin@mcdental.com', 'Admin@123', 'admin', 'System Administrator')
 ON CONFLICT (id) DO NOTHING;
 
 -- =====================

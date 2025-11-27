@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
 
     const user = (users?.[0] ?? patients?.[0]) as Record<string, any> | undefined;
 
-    if (!user || user.password !== password) {
+    // Check password - users table uses 'password_hash', patients table uses 'password'
+    const storedPassword = user?.password_hash || user?.password;
+    if (!user || storedPassword !== password) {
       return error('Invalid username or password', 401);
     }
 
