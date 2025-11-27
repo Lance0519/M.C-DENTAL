@@ -10,7 +10,7 @@ export async function OPTIONS() {
 
 const createSchema = z.object({
   action: z.string(),
-  details: z.record(z.unknown()).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
   userId: z.string().optional(),
   userName: z.string().optional(),
   userRole: z.string().optional(),

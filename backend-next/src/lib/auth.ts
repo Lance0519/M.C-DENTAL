@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from './env';
 import { responses } from './response';
 import { NextRequest } from 'next/server';
@@ -6,6 +6,9 @@ import { NextRequest } from 'next/server';
 export type AuthPayload = {
   id: string;
   role: 'admin' | 'staff' | 'patient';
+  fullName?: string;
+  email?: string;
+  username?: string;
   [key: string]: unknown;
 };
 
@@ -44,7 +47,8 @@ export function requireRole(req: NextRequest, ...roles: AuthPayload['role'][]): 
   return auth;
 }
 
-export function createToken(payload: AuthPayload, expiresIn = '24h') {
-  return jwt.sign(payload, env.jwtSecret(), { expiresIn });
+export function createToken(payload: AuthPayload, expiresIn: SignOptions['expiresIn'] = '24h') {
+  const options: SignOptions = { expiresIn };
+  return jwt.sign(payload as object, env.jwtSecret(), options);
 }
 

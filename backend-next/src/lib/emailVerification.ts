@@ -124,7 +124,7 @@ async function checkMXRecords(domain: string) {
 async function verifySMTP(domain: string, mxHosts: string[]) {
   if (!mxHosts.length) {
     const mxCheck = await checkMXRecords(domain);
-    if (!mxCheck.valid) {
+    if (!mxCheck.valid || !mxCheck.mxHosts) {
       return { valid: false, message: 'No MX records found for verification' };
     }
     mxHosts = mxCheck.mxHosts;
@@ -230,8 +230,8 @@ export async function verifyEmailAddress(email: string) {
   }
 
   const mxCheck = await checkMXRecords(domain);
-  if (!mxCheck.valid) {
-    return { valid: false, message: mxCheck.message };
+  if (!mxCheck.valid || !mxCheck.mxHosts || mxCheck.mxHosts.length === 0) {
+    return { valid: false, message: mxCheck.message || 'No MX records found' };
   }
 
   const smtpResult = await verifySMTP(domain, mxCheck.mxHosts);

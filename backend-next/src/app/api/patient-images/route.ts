@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { authenticate } from '@/lib/auth';
 import { logAudit, getIpFromRequest } from '@/lib/audit';
+import { supabaseAdmin } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Get supabase client lazily to avoid build-time errors
+const getSupabase = () => supabaseAdmin();
 
 // Helper function to create notifications for staff when patient uploads document (excludes admin)
 async function notifyStaffOfPatientUpload(patientId: string, patientName: string, imageType: string) {
   try {
+    const supabase = getSupabase();
     // Only notify staff, NOT admin (admin doesn't need patient-related notifications)
     const { data: staffUsers, error: fetchErr } = await supabase
       .from('users')
@@ -71,6 +70,7 @@ const updateSchema = z.object({
 // GET - Fetch all images for a patient
 export async function GET(req: NextRequest) {
   try {
+    const supabase = getSupabase();
     const { searchParams } = new URL(req.url);
     const patientId = searchParams.get('patientId');
     const imageId = searchParams.get('id');
@@ -115,10 +115,11 @@ export async function GET(req: NextRequest) {
 // POST - Create a new patient image
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabase();
     // Authentication - allow patients to upload their own images
     const auth = authenticate(req);
-    if (!auth) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (auth instanceof Response) {
+      return auth;
     }
 
     const body = await req.json();
@@ -216,10 +217,11 @@ export async function POST(req: NextRequest) {
 // PUT - Update an existing patient image
 export async function PUT(req: NextRequest) {
   try {
+    const supabase = getSupabase();
     // Authentication
     const auth = authenticate(req);
-    if (!auth) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (auth instanceof Response) {
+      return auth;
     }
 
     const { searchParams } = new URL(req.url);
@@ -303,10 +305,11 @@ export async function PUT(req: NextRequest) {
 // DELETE - Delete a patient image
 export async function DELETE(req: NextRequest) {
   try {
+    const supabase = getSupabase();
     // Authentication
     const auth = authenticate(req);
-    if (!auth) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (auth instanceof Response) {
+      return auth;
     }
 
     const { searchParams } = new URL(req.url);
