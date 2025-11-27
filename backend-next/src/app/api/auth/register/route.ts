@@ -25,41 +25,60 @@ export async function POST(req: NextRequest) {
     const { fullName, username, email, password, phone, dateOfBirth, address } = parsed.data;
     const supabase = supabaseAdmin();
 
-    const usernameCheck = await supabase.rpc('check_username_exists', { username_input: username });
-    if (usernameCheck.error) {
-      if (usernameCheck.error.code === 'PGRST201' || usernameCheck.error.message.includes('function')) {
-        // fallback: manual union query if RPC not available
-        const { data, error: manualErr } = await supabase
-          .rpc('check_unique_username', { username_input: username });
-        if (manualErr) {
-          return error('Database error while checking username', 500);
-        }
-        if (data?.exists) {
-          return error('Username already exists');
-        }
-      } else {
-        return error('Database error while checking username', 500);
-      }
-    } else if (usernameCheck.data?.exists) {
-      return error('Username already exists');
+    // Check username in patients table
+    const { data: patientUsername, error: patUsernameErr } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (patUsernameErr) {
+      console.error('Username check error (patients):', patUsernameErr);
+      return error('Database error while checking username', 500);
     }
 
-    const emailCheck = await supabase.rpc('check_email_exists', { email_input: email });
-    if (emailCheck.error) {
-      if (emailCheck.error.code === 'PGRST201' || emailCheck.error.message.includes('function')) {
-        const { data, error: manualErr } = await supabase
-          .rpc('check_unique_email', { email_input: email });
-        if (manualErr) {
-          return error('Database error while checking email', 500);
-        }
-        if (data?.exists) {
-          return error('Email already exists');
-        }
-      } else {
-        return error('Database error while checking email', 500);
-      }
-    } else if (emailCheck.data?.exists) {
-      return error('Email already exists');
+    // Check username in staff table
+    const { data: staffUsername, error: staffUsernameErr } = await supabase
+      .from('staff')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (staffUsernameErr) {
+      console.error('Username check error (staff):', staffUsernameErr);
+      return error('Database error while checking username', 500);
+    }
+
+    if (patientUsername || staffUsername) {
+      return error('Username already exists', 400);
+    }
+
+    // Check email in patients table
+    const { data: patientEmail, error: patEmailErr } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (patEmailErr) {
+      console.error('Email check error (patients):', patEmailErr);
+      return error('Database error while checking email', 500);
+    }
+
+    // Check email in staff table
+    const { data: staffEmail, error: staffEmailErr } = await supabase
+      .from('staff')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (staffEmailErr) {
+      console.error('Email check error (staff):', staffEmailErr);
+      return error('Database error while checking email', 500);
+    }
+
+    if (patientEmail || staffEmail) {
+      return error('Email already exists', 400);
     }
 
     const id = `pat${Date.now()}`;
@@ -77,6 +96,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (insertErr) {
+      console.error('Insert error:', insertErr);
       return error('Registration failed', 500, { details: insertErr.message });
     }
 

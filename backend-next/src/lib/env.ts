@@ -17,7 +17,13 @@ export function getEnv(name: RequiredEnv): string {
     return cache[name] as string;
   }
 
-  const value = process.env[name];
+  // Get value and trim any whitespace/BOM characters
+  let value = process.env[name];
+  
+  if (value) {
+    // Remove BOM and trim whitespace
+    value = value.replace(/^\uFEFF/, '').trim();
+  }
 
   if (!value) {
     throw new Error(`Missing environment variable: ${name}`);
