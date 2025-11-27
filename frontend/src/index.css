@@ -1,0 +1,88 @@
+@import './styles/design-system.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Premium Gold, White, Black Design System - Light Mode */
+  --background: 0 0% 100%; /* Pure white */
+  --foreground: 0 0% 10%; /* Near black */
+  --card: 0 0% 100%; /* White */
+  --card-foreground: 0 0% 10%; /* Black text */
+  --popover: 0 0% 100%; /* White */
+  --popover-foreground: 0 0% 10%; /* Black text */
+  --primary: 45 80% 50%; /* Gold #D4AF37 */
+  --primary-foreground: 0 0% 100%; /* White text on gold */
+  --secondary: 0 0% 10%; /* Black */
+  --secondary-foreground: 0 0% 100%; /* White text on black */
+  --muted: 0 0% 96%; /* Light gray */
+  --muted-foreground: 0 0% 45%; /* Medium gray */
+  --accent: 45 80% 50%; /* Gold accent */
+  --accent-foreground: 0 0% 10%; /* Black text on gold */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 90%; /* Light border */
+  --input: 0 0% 96%; /* Light input background */
+  --ring: 45 80% 50%; /* Gold focus ring */
+  --radius: 0.75rem;
+  
+  /* Custom clinic colors */
+  --gold-primary: #D4AF37;
+  --gold-light: #FFD966;
+  --gold-dark: #B8941F;
+  --black-primary: #1A1A1A;
+  --black-light: #333333;
+  --white-pure: #FFFFFF;
+  --white-warm: #FAFBFC;
+}
+
+.dark {
+  /* Premium Gold, White, Black Design System - Dark Mode */
+  --background: 0 0% 10%; /* Near black */
+  --foreground: 0 0% 95%; /* Near white */
+  --card: 0 0% 15%; /* Dark gray */
+  --card-foreground: 0 0% 95%; /* Light text */
+  --popover: 0 0% 15%; /* Dark gray */
+  --popover-foreground: 0 0% 95%; /* Light text */
+  --primary: 45 80% 50%; /* Gold #D4AF37 - same in dark mode */
+  --primary-foreground: 0 0% 10%; /* Dark text on gold */
+  --secondary: 0 0% 20%; /* Dark gray */
+  --secondary-foreground: 0 0% 95%; /* Light text */
+  --muted: 0 0% 20%; /* Dark gray */
+  --muted-foreground: 0 0% 65%; /* Medium gray */
+  --accent: 45 80% 50%; /* Gold accent */
+  --accent-foreground: 0 0% 10%; /* Dark text on gold */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 25%; /* Dark border */
+  --input: 0 0% 20%; /* Dark input background */
+  --ring: 45 80% 50%; /* Gold focus ring */
+  
+  /* Custom clinic colors - adjusted for dark mode */
+  --gold-primary: #D4AF37;
+  --gold-light: #FFD966;
+  --gold-dark: #B8941F;
+  --black-primary: #0F0F0F;
+  --black-light: #1A1A1A;
+  --white-pure: #E5E5E5;
+  --white-warm: #2A2A2A;
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground antialiased transition-colors duration-200;
+}
+
+button,
+input,
+textarea {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+.legacy-page {
+  @apply min-h-screen bg-background text-foreground;
+}

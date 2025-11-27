@@ -1,0 +1,851 @@
+/* Services page styles - Based on Poster Design */
+
+:root {
+    --clinic-bg: #fdf9ee;
+    --clinic-surface: #ffffff;
+    --clinic-surface-alt: #fbf6e8;
+    --clinic-border: rgba(0, 0, 0, 0.08);
+    --clinic-text: #111111;
+    --clinic-text-muted: #4f4f4f;
+    --clinic-accent: #d4af37;
+    --clinic-accent-bright: #ffd966;
+}
+
+ /* Contact page styles */
+.page-hero {
+    background: linear-gradient(135deg, var(--clinic-surface) 0%, #fdfdfb 100%);
+    color: var(--clinic-text);
+    padding: 6rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 216, 76, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: floatAnimation 6s ease-in-out infinite;
+}
+
+.page-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 216, 76, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: floatAnimation 8s ease-in-out infinite reverse;
+}
+
+@keyframes floatAnimation {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+    }
+    50% {
+        transform: translateY(-20px) translateX(10px);
+    }
+}
+
+/* Curved decorative shapes like in poster */
+.page-hero .container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #FFD84C 0%, transparent 100%);
+    border-radius: 50% 0 0 50%;
+    opacity: 0.3;
+}
+
+.page-hero .container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, #FFD84C 0%, transparent 100%);
+    border-radius: 0 50% 50% 0;
+    opacity: 0.3;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s ease-out;
+    
+}
+
+/* Promos Section */
+.promos-section {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, var(--clinic-surface) 0%, var(--clinic-surface-alt) 100%);
+    border-bottom: 3px solid rgba(212, 175, 55, 0.35);   
+    
+}
+
+.section-title {
+    text-align: center;
+    color: var(--clinic-accent);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--clinic-accent) 0%, var(--clinic-accent-bright) 100%);
+    border-radius: 2px;
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+}
+
+.section-subtitle {
+    font-size: 1.125rem;
+    color: var(--clinic-text-muted);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 400;
+}
+
+.promos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.promo-card {
+    background: var(--clinic-surface);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--clinic-border);
+    display: flex;
+    flex-direction: column;
+    animation: promoCardFadeIn 0.6s ease-out backwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.promo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--clinic-accent) 0%, var(--clinic-accent-bright) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.promo-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+    border-radius: 0 0 0 120px;
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+@keyframes promoCardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.promo-card:nth-child(1) { animation-delay: 0.1s; }
+.promo-card:nth-child(2) { animation-delay: 0.2s; }
+.promo-card:nth-child(3) { animation-delay: 0.3s; }
+.promo-card:nth-child(4) { animation-delay: 0.4s; }
+
+.promo-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 20px -12px rgba(212, 175, 55, 0.25);
+}
+
+.promo-card:hover::before {
+    transform: scaleX(1);
+}
+
+.promo-card:hover::after {
+    opacity: 1;
+}
+
+.promo-badge {
+    background: linear-gradient(135deg, var(--clinic-accent), var(--clinic-accent-bright));
+    color: var(--clinic-text);
+    padding: 0.5rem 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.promo-content {
+    padding: 1.5rem;
+}
+
+.promo-content h3 {
+    color: var(--clinic-accent);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.promo-description {
+    color: var(--clinic-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.promo-pricing {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.original-price {
+    color: rgba(0, 0, 0, 0.35);
+    text-decoration: line-through;
+    font-size: 1.125rem;
+}
+
+.promo-price {
+    color: var(--clinic-accent);
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.promo-validity {
+    color: var(--clinic-accent);
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    background: rgba(212, 175, 55, 0.12);
+    border-radius: 0.375rem;
+    text-align: center;
+}
+
+/* Services Section */
+.services-section {
+    padding: 4rem 0;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.service-card {
+    background: var(--clinic-surface);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--clinic-border);
+    display: flex;
+    flex-direction: column;
+    animation: serviceCardFadeIn 0.6s ease-out backwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--clinic-accent) 0%, var(--clinic-accent-bright) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+    border-radius: 0 0 0 100px;
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+@keyframes serviceCardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.service-card:nth-child(1) { animation-delay: 0.1s; }
+.service-card:nth-child(2) { animation-delay: 0.2s; }
+.service-card:nth-child(3) { animation-delay: 0.3s; }
+.service-card:nth-child(4) { animation-delay: 0.4s; }
+.service-card:nth-child(5) { animation-delay: 0.5s; }
+.service-card:nth-child(6) { animation-delay: 0.6s; }
+
+.service-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 20px -12px rgba(212, 175, 55, 0.25);
+    border-color: var(--clinic-accent);
+}
+
+.service-card:hover::before {
+    transform: scaleX(1);
+}
+
+.service-card:hover::after {
+    opacity: 1;
+}
+
+.service-card {
+    cursor: pointer;
+}
+
+.service-view-btn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.service-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--clinic-accent) 0%, var(--clinic-accent-bright) 100%);
+    color: var(--clinic-text);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    border: 3px solid rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-icon::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(138, 43, 226, 0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.service-card:hover .service-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4), 0 0 20px rgba(138, 43, 226, 0.2);
+}
+
+.service-card:hover .service-icon::after {
+    opacity: 1;
+}
+
+.service-card h3 {
+    color: var(--clinic-text);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.service-card p {
+    color: var(--clinic-text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    font-weight: 400;
+    flex-grow: 1;
+}
+
+.service-features {
+    margin-bottom: 1.5rem;
+}
+
+.service-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--clinic-text);
+    font-weight: 500;
+}
+
+.checkmark {
+    width: 24px;
+    height: 24px;
+    background: var(--clinic-accent-bright);
+    color: var(--clinic-text);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.service-book-btn {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+}
+
+/* CTA Section */
+
+.cta-section {
+    background: linear-gradient(135deg, #FFD84C 0%, #FFD84C 100%);
+    color: #000000;
+    padding: 5rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.03) 10px,
+        rgba(0, 0, 0, 0.03) 20px
+    );
+    pointer-events: none;
+}
+
+.cta-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section h2 {
+    font-size: 2.75rem;
+    margin-bottom: 1rem;
+    color: #000000 !important;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.cta-section p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #000000;
+    font-weight: 500;
+}
+
+.cta-section .btn {
+    background-color: var(--clinic-text) !important;
+    color: #FFFFFF !important;
+    border: 3px solid var(--clinic-text) !important;
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+}
+
+.cta-section .btn:hover {
+    background-color: #000000 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive */
+
+/* Service Modal */
+.service-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.service-modal.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service-modal-content {
+    background: var(--clinic-surface);
+    border-radius: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+.service-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.service-modal-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+.service-details-header {
+    padding: 2.5rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--clinic-border);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(255, 255, 255, 0.95));
+}
+
+.service-details-header h2 {
+    color: var(--clinic-text);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.service-details-body {
+    padding: 2rem 2.5rem;
+}
+
+.service-details-description {
+    margin-bottom: 2rem;
+}
+
+.service-details-description h3 {
+    color: var(--clinic-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.service-details-description p {
+    color: var(--clinic-text-muted);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.service-details-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(212, 175, 55, 0.08);
+    border-radius: 1rem;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.service-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.service-info-item:last-child {
+    border-bottom: none;
+}
+
+.service-info-label {
+    font-weight: 600;
+    color: var(--clinic-text);
+    font-size: 1rem;
+}
+
+.service-info-value {
+    font-weight: 700;
+    color: var(--clinic-accent);
+    font-size: 1.125rem;
+}
+
+.service-info-value.price-value {
+    font-size: 1.5rem;
+    color: #D4AF37;
+}
+
+.service-details-features {
+    margin-bottom: 2rem;
+}
+
+.service-details-features h3 {
+    color: var(--clinic-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.service-details-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.service-details-features li {
+    padding: 0.75rem 0;
+    color: var(--clinic-text-muted);
+    font-size: 1rem;
+    border-bottom: 1px solid var(--clinic-border);
+}
+
+.service-details-features li:last-child {
+    border-bottom: none;
+}
+
+.service-details-actions {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #E2E8F0;
+}
+
+.service-details-actions .btn {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Responsive - Modern & Sleek */
+@media (max-width: 1024px) {
+    .page-hero {
+        padding: 4rem 0;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .promos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .page-hero {
+        padding: 3rem 0;
+    }
+    
+    .page-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .page-hero p {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9375rem;
+    }
+    
+    .services-section {
+        padding: 2.5rem 0;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .service-card {
+        padding: 1.5rem;
+    }
+    
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .service-card h3 {
+        font-size: 1.25rem;
+    }
+    
+    .service-card p {
+        font-size: 0.9375rem;
+    }
+    
+    .promos-section {
+        padding: 2.5rem 0;
+    }
+    
+    .promos-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .promo-card {
+        padding: 1.5rem;
+    }
+    
+    .cta-section {
+        padding: 2.5rem 0;
+    }
+    
+    .cta-section h2 {
+        font-size: 1.75rem;
+    }
+    
+    .service-modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .service-details-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .service-details-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .service-details-body {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-hero {
+        padding: 2.5rem 0;
+    }
+    
+    .page-hero h1 {
+        font-size: 1.75rem;
+    }
+    
+    .page-hero p {
+        font-size: 0.9375rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .service-card {
+        padding: 1.25rem;
+    }
+    
+    .service-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.75rem;
+    }
+    
+    .service-card h3 {
+        font-size: 1.125rem;
+    }
+    
+    .promo-card {
+        padding: 1.25rem;
+    }
+    
+    .service-modal-content {
+        max-width: 100%;
+        margin: 0.5rem;
+        border-radius: 1rem;
+    }
+    
+    .service-details-header {
+        padding: 1.25rem 1.25rem 1rem;
+    }
+    
+    .service-details-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .service-details-body {
+        padding: 1.25rem;
+    }
+}
+

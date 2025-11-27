@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - M.C DENTAL CLINIC</title>
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="book.css">
+</head>
+<body>
+    <div class="booking-page-container">
+        <!-- Header -->
+        <header class="booking-header">
+            <div class="logo-section">
+                <img src="../assets/images/logo.png" alt="M.C DENTAL CLINIC Logo" class="booking-logo">
+                <div class="logo-text">
+                    <h1>M.C. Dental Clinic</h1>
+                    <p>Affordable • Professional • Caring</p>
+                </div>
+            </div>
+            <nav class="booking-nav">
+                <a href="../home/index.html">Home</a>
+                <a href="../services/services.html">Services</a>
+                <a href="../about/about.html">About</a>
+                <a href="../contact/contact.html">Contact</a>
+            </nav>
+            <button onclick="window.location.href='../home/index.html'" class="btn-modal-close">✕</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="booking-main">
+            <div class="container-fluid">
+                <h2 class="section-title">Book Your Appointment</h2>
+                <p class="section-subtitle">Fill in your details below to schedule your dental appointment</p>
+
+                <div class="booking-layout">
+                    <!-- Booking Form - Full Width -->
+                    <div class="booking-form-section">
+                        <div class="form-card">
+                            <h3>Book Your Appointment</h3>
+                            <form id="bookingForm">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" id="customerName" name="customerName" class="form-control" placeholder="Full Name" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Age</label>
+                                    <input type="number" id="customerAge" name="customerAge" class="form-control" placeholder="Age" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Contact Number</label>
+                                    <input type="tel" id="customerContact" name="customerContact" class="form-control" placeholder="09XXXXXXXXX or +639XXXXXXXXX" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Dental Procedure</label>
+                                    <select id="dentalProcedure" class="form-control" required>
+                                        <option value="">Select Procedure</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Select Dentist <span style="color: red;">*</span></label>
+                                    <select id="selectedDoctor" name="selectedDoctor" class="form-control" required>
+                                        <option value="">Select a dentist first</option>
+                                    </select>
+                                    <small style="color: var(--text-secondary); font-size: 0.85rem;">Please select a dentist to see their available dates and times</small>
+                                </div>
+
+                                <!-- Custom Calendar and Time Slots -->
+                                <div class="form-group" id="calendarTimeGroup" style="display: none;">
+                                    <label>Select Date and Time <span style="color: red;">*</span></label>
+                                    
+                                    <div class="calendar-time-container">
+                                        <!-- Calendar Section -->
+                                        <div class="calendar-wrapper">
+                                            <div class="calendar-header">
+                                                <button type="button" class="calendar-nav-btn" id="prevMonthBtn" onclick="changeMonth(-1)">‹</button>
+                                                <h3 class="calendar-month" id="calendarMonthYear">December 2025</h3>
+                                                <button type="button" class="calendar-nav-btn" id="nextMonthBtn" onclick="changeMonth(1)">›</button>
+                                            </div>
+                                            <div class="calendar-weekdays">
+                                                <div class="weekday">M</div>
+                                                <div class="weekday">T</div>
+                                                <div class="weekday">W</div>
+                                                <div class="weekday">T</div>
+                                                <div class="weekday">F</div>
+                                                <div class="weekday">S</div>
+                                                <div class="weekday">S</div>
+                                            </div>
+                                            <div class="calendar-grid" id="calendarGrid">
+                                                <!-- Calendar dates will be generated here -->
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Time Slots Section -->
+                                        <div class="time-slots-wrapper">
+                                            <div class="selected-date-display" id="selectedDateDisplay">
+                                                Select a date
+                                            </div>
+                                            <div class="timezone-display">
+                                                TIME ZONE: <span class="timezone-link">MANILA (GMT+08:00)</span>
+                                            </div>
+                                            <div class="time-slots-container" id="timeSlotsContainer">
+                                                <div class="no-time-slots">Select a date to see available time slots</div>
+                                            </div>
+                                            
+                                            <!-- Appointment Confirmation Section -->
+                                            <div class="appointment-confirmation" id="appointmentConfirmation" style="display: none;">
+                                                <div class="confirmation-icon">✓</div>
+                                                <h3 class="confirmation-title">Appointment Selected</h3>
+                                                <div class="confirmation-details">
+                                                    <div class="confirmation-item">
+                                                        <span class="confirmation-label">Date:</span>
+                                                        <span class="confirmation-value" id="confirmationDate">-</span>
+                                                    </div>
+                                                    <div class="confirmation-item">
+                                                        <span class="confirmation-label">Time:</span>
+                                                        <span class="confirmation-value" id="confirmationTime">-</span>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn-change-time" onclick="showTimeSlots(true)">
+                                                    Change Time
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hidden input to store selected date for form submission -->
+                                    <input type="hidden" id="appointmentDate" required>
+                                    <input type="hidden" id="preferredTime" required>
+                                </div>
+                                
+                                <!-- Fallback message when doctor not selected -->
+                                <div class="form-group" id="calendarDisabledMessage">
+                                    <small style="color: var(--text-secondary); font-size: 0.85rem;">Select a dentist first to enable date and time selection</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Payment Method</label>
+                                    <select id="paymentMethod" class="form-control" required>
+                                        <option value="">Select Payment Method</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Gcash">Gcash</option>
+                                        <option value="Maya">Maya</option>
+                                        <option value="Online Banking">Online Banking</option>
+                                        <option value="Debit Card">Debit Card</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                    </select>
+                                </div>
+                                <div id="cardTypeContainer" class="form-group" style="display: none;">
+                                    <label>Card Type</label>
+                                    <select id="cardType" class="form-control">
+                                        <option value="">Select Card Type</option>
+                                        <option value="Mastercard">Mastercard</option>
+                                        <option value="Visa Card">Visa Card</option>
+                                        <option value="JBC">JBC</option>
+                                        <option value="Union Pay">Union Pay</option>
+                                        <option value="American Express">American Express</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn-book-now">Book Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="booking-footer">
+            <p>&copy; 2025 M.C. Dental Clinic. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Health Screening Modal -->
+    <div id="healthScreeningModal" class="health-modal">
+        <div class="health-modal-content">
+            <div class="health-modal-header">
+                <div class="logo-section">
+                    <img src="../assets/images/logo.png" alt="M.C DENTAL CLINIC Logo" class="booking-logo">
+                    <div class="logo-text">
+                        <h2>M.C. Dental Clinic</h2>
+                        <p>Affordable • Professional • Caring</p>
+                    </div>
+                </div>
+                <button onclick="goBackFromScreening()" class="btn-modal-close">✕</button>
+            </div>
+            
+            <div class="health-modal-body">
+                <div class="warning-text">
+                    If you answer yes to any of these questions please inform us ASAP.
+                </div>
+
+                <form id="healthScreeningForm">
+                    <!-- Question 1 -->
+                    <div class="question-item">
+                        <label class="question-label">
+                            <span class="question-number">1.</span>
+                            <span class="question-text">Do you have fever or are you feeling feverish?</span>
+                        </label>
+                        <div class="answer-options">
+                            <label class="radio-option">
+                                <input type="radio" name="q1" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="q1" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question-item">
+                        <label class="question-label">
+                            <span class="question-number">2.</span>
+                            <span class="question-text">Do you have cough or shortness of breath? Do you have sore throat?</span>
+                        </label>
+                        <div class="answer-options">
+                            <label class="radio-option">
+                                <input type="radio" name="q2" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="q2" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question-item">
+                        <label class="question-label">
+                            <span class="question-number">3.</span>
+                            <span class="question-text">Do you have loss sense of taste or smell?</span>
+                        </label>
+                        <div class="answer-options">
+                            <label class="radio-option">
+                                <input type="radio" name="q3" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="q3" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="question-item">
+                        <label class="question-label">
+                            <span class="question-number">4.</span>
+                            <span class="question-text">Have you had a positive for COVID-19 test for active virus in the past 10 days?</span>
+                        </label>
+                        <div class="answer-options">
+                            <label class="radio-option">
+                                <input type="radio" name="q4" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="q4" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="question-item">
+                        <label class="question-label">
+                            <span class="question-number">5.</span>
+                            <span class="question-text">Have you been around anyone else with these symptoms in the last 14 days? Are you living with them?</span>
+                        </label>
+                        <div class="answer-options">
+                            <label class="radio-option">
+                                <input type="radio" name="q5" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="q5" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="info-text">
+                        If you are having any of these symptoms, it is recommended that you stay at home and contact your health care provider.
+                    </div>
+
+                    <button type="submit" class="btn-submit-screening">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../common/storage.js"></script>
+    <script src="../common/common.js"></script>
+    <script src="../common/service-durations.js"></script>
+    <script src="book.js"></script>
+</body>
+</html>

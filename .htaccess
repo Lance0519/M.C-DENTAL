@@ -1,0 +1,51 @@
+# Allow access to all files and directories
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    Require all granted
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# Enable directory browsing (optional - remove if you don't want directory listing)
+Options +Indexes +FollowSymLinks
+
+# Allow PHP execution
+<FilesMatch "\.php$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# Allow access to static files
+<FilesMatch "\.(html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# Set default index files
+DirectoryIndex index.html index.php
+
+# Prevent access to sensitive files
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.env|config\.php|database\.php)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+

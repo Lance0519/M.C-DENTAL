@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Clinic Appointment System</title>
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="services.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="../home/index.html" class="logo">
+                    <img src="../assets/images/logo.png" alt="M.C DENTAL CLINIC Logo" class="logo-img">
+                    <span class="logo-text">M.C DENTAL CLINIC</span>
+                </a>
+                <nav>
+                    <ul>
+                        <li><a href="../home/index.html">Home</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="../about/about.html">About</a></li>
+                        <li><a href="../contact/contact.html">Contact</a></li>
+                        <li><a href="../login/login.html" class="btn btn-primary">Login</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="promos-section" id="promosSection">
+            <div class="container">
+                <h2 class="section-title">Special Promotions</h2>
+                <p class="section-subtitle">Limited time offers on selected dental services</p>
+                <div id="promosList" class="promos-grid"></div>
+            </div>
+        </section>
+
+        <!-- Hero Section -->
+        <section class="page-hero">
+            <div class="container">
+                <h1>Our Dental Services</h1>
+                <p>Comprehensive dental care services tailored to your needs</p>
+            </div>
+        </section>
+
+        <!-- Special Promotions Section -->
+        <!-- <section class="promos-section" id="promosSection">
+            <div class="container">
+                <h2 class="section-title">Special Promotions</h2>
+                <p class="section-subtitle">Limited time offers on selected dental services</p>
+                <div id="promosList" class="promos-grid"></div>
+            </div>
+        </section> -->
+
+        <!-- Services Section -->
+        <section class="services-section">
+            <div class="container">
+                <h2 class="section-title">Our Services</h2>
+                <p class="section-subtitle">Comprehensive dental care services tailored to your needs</p>
+                <div id="servicesList" class="services-grid"></div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Schedule Your Appointment?</h2>
+                <p>Book your appointment now and take the first step towards a healthier, brighter smile</p>
+                <a href="../book/book.html" class="btn btn-primary btn-lg">Book Appointment</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 M.C DENTAL CLINIC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Service Details Modal -->
+    <div id="serviceDetailsModal" class="service-modal">
+        <div class="service-modal-content">
+            <button class="service-modal-close" onclick="closeServiceDetailsModal()">✕</button>
+            <div id="serviceDetailsContent"></div>
+        </div>
+    </div>
+
+    <script src="../common/storage.js"></script>
+    <script src="../common/common.js"></script>
+    <script src="../common/service-durations.js"></script>
+    <script src="services.js"></script>
+</body>
+</html>
+

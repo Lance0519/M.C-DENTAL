@@ -1,0 +1,476 @@
+/* Modern Button Enhancements - Gold Theme */
+
+/* Enhanced Primary Buttons */
+.btn-primary,
+.btn-primary.btn-lg {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #FFD84C 100%) !important;
+  color: #000000 !important;
+  border: none !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
+  box-shadow: 
+    0 4px 15px rgba(212, 175, 55, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+.btn-primary::before,
+.btn-primary.btn-lg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-primary.btn-lg:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FFD84C 0%, #F4D03F 50%, #D4AF37 100%) !important;
+  color: #000000 !important;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 12px 30px rgba(212, 175, 55, 0.5),
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    0 0 40px rgba(255, 216, 76, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled)::before,
+.btn-primary.btn-lg:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.btn-primary:active:not(:disabled),
+.btn-primary.btn-lg:active:not(:disabled) {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 
+    0 6px 20px rgba(212, 175, 55, 0.4),
+    0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Outline Buttons */
+.btn-outline,
+.btn-outline.btn-lg {
+  position: relative;
+  background: transparent !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.btn-outline::before,
+.btn-outline.btn-lg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(135deg, #FFD84C 0%, #F4D03F 100%);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-outline:hover:not(:disabled),
+.btn-outline.btn-lg:hover:not(:disabled) {
+  color: #000000 !important;
+  border-color: #FFD84C !important;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 12px 30px rgba(255, 216, 76, 0.4),
+    0 6px 15px rgba(0, 0, 0, 0.1),
+    0 0 30px rgba(255, 216, 76, 0.2);
+}
+
+.btn-outline:hover:not(:disabled)::before,
+.btn-outline.btn-lg:hover:not(:disabled)::before {
+  width: 100%;
+}
+
+.btn-outline:active:not(:disabled),
+.btn-outline.btn-lg:active:not(:disabled) {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* Button Block (Full Width) */
+.btn-block {
+  width: 100%;
+  display: block;
+}
+
+/* Button Sizes */
+.btn-lg {
+  padding: 1.25rem 2.75rem !important;
+  font-size: 1.125rem !important;
+  border-radius: 50px !important;
+}
+
+.btn {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Pulse Animation for CTA Buttons */
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 
+      0 4px 15px rgba(212, 175, 55, 0.3),
+      0 0 0 0 rgba(255, 216, 76, 0.4);
+  }
+  50% {
+    box-shadow: 
+      0 4px 15px rgba(212, 175, 55, 0.5),
+      0 0 0 10px rgba(255, 216, 76, 0);
+  }
+}
+
+.btn-primary.pulse {
+  animation: pulseGold 2s ease-in-out infinite;
+}
+
+/* Modern Card Enhancements */
+.feature-card,
+.service-card,
+.value-card,
+.promo-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1.5rem;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card::before,
+.service-card::before,
+.value-card::before,
+.promo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover,
+.service-card:hover,
+.value-card:hover,
+.promo-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 
+    0 20px 40px -10px rgba(212, 175, 55, 0.3),
+    0 10px 20px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 216, 76, 0.1);
+}
+
+.feature-card:hover::before,
+.service-card:hover::before,
+.value-card:hover::before,
+.promo-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Action Card Enhancements */
+.action-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1.5rem;
+  background: #FFFFFF;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.action-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 76, 0.2), transparent);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-6px);
+  border-color: #FFD84C;
+  box-shadow: 
+    0 16px 32px rgba(255, 216, 76, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.action-card:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Service View Button */
+.service-view-btn {
+  margin-top: 1rem;
+  width: 100%;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%) !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 0.875rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-view-btn:hover {
+  background: linear-gradient(135deg, #FFD84C 0%, #D4AF37 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* CTA Section Button */
+.cta .btn-primary.btn-lg,
+.cta-section .btn-primary.btn-lg {
+  animation: pulseGold 3s ease-in-out infinite;
+}
+
+/* Form Submit Buttons */
+.contact-form .btn-primary,
+.contact-form .btn-block {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%) !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-form .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.contact-form .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FFD84C 0%, #D4AF37 100%) !important;
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 30px rgba(212, 175, 55, 0.5),
+    0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.contact-form .btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+/* Enhanced Section Titles */
+.section-title {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 5px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-title:hover::after {
+  width: 150px;
+}
+
+/* Enhanced Action Cards */
+.action-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1.5rem;
+  background: #FFFFFF;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-card:hover {
+  transform: translateY(-6px);
+  border-color: #FFD84C;
+  box-shadow: 
+    0 16px 32px rgba(255, 216, 76, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.action-card:hover::before {
+  transform: scaleX(1);
+}
+
+.action-card .btn {
+  margin-top: 1rem;
+}
+
+/* Enhanced Info Icons */
+.info-icon {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.info-item:hover .info-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+}
+
+/* Enhanced Form Controls */
+.contact-form-wrapper .form-control:focus,
+.contact-form-wrapper input:focus,
+.contact-form-wrapper textarea:focus {
+  border-color: #FFD84C;
+  box-shadow: 
+    0 0 0 3px rgba(255, 216, 76, 0.15),
+    0 4px 12px rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Enhanced Value Cards */
+.value-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.value-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 76, 0.15), transparent);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.value-card:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Enhanced Doctor Cards */
+.doctor-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.doctor-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.doctor-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Responsive Button Adjustments */
+@media (max-width: 768px) {
+  .btn-lg {
+    padding: 1rem 2rem !important;
+    font-size: 1rem !important;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .hero-buttons .btn {
+    width: 100%;
+  }
+  
+  .section-title::after {
+    width: 60px;
+  }
+  
+  .section-title:hover::after {
+    width: 80px;
+  }
+}
+

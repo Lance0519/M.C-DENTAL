@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Clinic Appointment System</title>
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="../../assets/images/logo.png" alt="M.C DENTAL CLINIC" class="login-logo">
+                <h1>M.C DENTAL CLINIC</h1>
+                <p>Welcome back! Please login to your account</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="loginUsername">Username or Email</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="Enter your username or email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.25rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </div>
+                <div class="form-links">
+                    <a href="#" id="showForgotPassword">Forgot Password?</a>
+                    <a href="#" id="showRegister">Create Account</a>
+                </div>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create Patient Account</h2>
+                
+                <h3 style="color: var(--gold-primary); margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">Personal Details</h3>
+                <div class="grid grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="regFirstName">First Name</label>
+                        <input type="text" id="regFirstName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regLastName">Last Name</label>
+                        <input type="text" id="regLastName" class="form-control" required>
+                    </div>
+                </div>
+                <div class="grid grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="regDOB">Date of Birth</label>
+                        <input type="date" id="regDOB" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regGender">Gender</label>
+                        <select id="regGender" class="form-control" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--gold-primary); margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">Address</h3>
+                <div class="form-group">
+                    <label for="regAddress">Complete Address</label>
+                    <textarea id="regAddress" class="form-control" rows="2" required></textarea>
+                </div>
+                
+                <h3 style="color: var(--gold-primary); margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">Contact Details</h3>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <div style="position: relative;">
+                        <input type="email" id="regEmail" class="form-control" required autocomplete="email">
+                        <span id="regEmailIcon" class="validation-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;"></span>
+                    </div>
+                    <small id="regEmailMessage" class="validation-message" style="display: none; font-size: 0.85rem; margin-top: 0.25rem;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" class="form-control" required>
+                </div>
+                
+                <h3 style="color: var(--gold-primary); margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">Account Details</h3>
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <div style="position: relative;">
+                        <input type="text" id="regUsername" class="form-control" required autocomplete="username">
+                        <span id="regUsernameIcon" class="validation-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; pointer-events: none;"></span>
+                    </div>
+                    <small id="regUsernameMessage" class="validation-message" style="display: none; font-size: 0.85rem; margin-top: 0.25rem;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="regPassword" class="form-control" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.25rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirm Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="regConfirmPassword" class="form-control" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('regConfirmPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.25rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </div>
+                <div class="form-links">
+                    <a href="#" id="showLogin">Already have an account? Login</a>
+                </div>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form id="forgotPasswordForm" class="auth-form" style="display: none;">
+                <h2>Forgot Password</h2>
+                <p class="form-description">Enter your email address to recover your password</p>
+                <div class="form-group">
+                    <label for="forgotEmail">Email</label>
+                    <input type="email" id="forgotEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Recover Password</button>
+                </div>
+                <div class="form-links">
+                    <a href="#" id="backToLogin">Back to Login</a>
+                </div>
+            </form>
+
+            <div class="back-home">
+                <a href="../home/index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../common/storage.js"></script>
+    <script src="../common/common.js"></script>
+    <script src="../common/api.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
+

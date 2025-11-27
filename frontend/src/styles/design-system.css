@@ -1,0 +1,227 @@
+/* Premium Gold, White, Black Design System */
+
+/* Color Variables */
+:root {
+  --gold-primary: #D4AF37;
+  --gold-light: #FFD966;
+  --gold-dark: #B8941F;
+  --black-primary: #1A1A1A;
+  --black-light: #333333;
+  --white-pure: #FFFFFF;
+  --white-warm: #FAFBFC;
+}
+
+/* Typography */
+.text-gold {
+  color: var(--gold-primary);
+}
+
+.text-black-primary {
+  color: var(--black-primary);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #FFD84C 100%);
+}
+
+.bg-black-gradient {
+  background: linear-gradient(180deg, #1A1A1A 0%, #0F0F0F 100%);
+}
+
+/* Premium Card Styles */
+.premium-card {
+  background: var(--white-pure);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .premium-card {
+  background: var(--black-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 
+    0 20px 40px -10px rgba(212, 175, 55, 0.3),
+    0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+.premium-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Gold Accent Line */
+.gold-accent-line {
+  position: relative;
+  display: inline-block;
+}
+
+.gold-accent-line::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 5px;
+  background: linear-gradient(90deg, #D4AF37, #F4D03F, #FFD84C);
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+}
+
+/* Section Spacing */
+.section-spacing {
+  padding: 5rem 0;
+}
+
+@media (max-width: 768px) {
+  .section-spacing {
+    padding: 3rem 0;
+  }
+}
+
+/* Premium Button Styles */
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+  color: #000000;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #FFD84C 0%, #D4AF37 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.5);
+}
+
+.btn-black {
+  background: var(--black-primary);
+  color: var(--white-pure);
+  font-weight: 700;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-black:hover {
+  background: var(--black-light);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Dashboard Specific Styles */
+.dashboard-sidebar {
+  background: linear-gradient(180deg, #1A1A1A 0%, #0F0F0F 100%);
+  border-right: 2px solid var(--gold-primary);
+}
+
+.dashboard-sidebar-item {
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.dashboard-sidebar-item:hover {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-primary);
+}
+
+.dashboard-sidebar-item.active {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(138, 43, 226, 0.15));
+  color: var(--gold-primary);
+  border-left: 4px solid var(--gold-primary);
+}
+
+.dashboard-card {
+  background: var(--white-pure);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Patient Dashboard Specific */
+.patient-card {
+  background: var(--white-pure);
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.patient-card:hover {
+  border-color: var(--gold-primary);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+}
+
+/* Staff Dashboard Specific */
+.staff-action-btn {
+  background: var(--gold-primary);
+  color: #000000;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.staff-action-btn:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+
+/* Admin Dashboard Specific */
+.admin-section-header {
+  border-bottom: 3px solid var(--gold-primary);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-control-btn {
+  background: var(--gold-primary);
+  color: #000000;
+  font-weight: 700;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.admin-control-btn:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .premium-card {
+    border-radius: 1rem;
+  }
+  
+  .dashboard-card {
+    border-radius: 0.75rem;
+  }
+}
+

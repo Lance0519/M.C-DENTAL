@@ -1,0 +1,495 @@
+/* About page styles */
+
+:root {
+    --clinic-bg: #fdf9ee;
+    --clinic-surface: #ffffff;
+    --clinic-surface-alt: #fbf6e8;
+    --clinic-border: rgba(0, 0, 0, 0.08);
+    --clinic-text: #111111;
+    --clinic-text-muted: #4f4f4f;
+    --clinic-accent: #d4af37;
+    --clinic-accent-bright: #ffd966;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--clinic-surface) 0%, #fdfdfb 100%);
+    color: var(--clinic-text);
+    padding: 6rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 216, 76, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: floatAnimation 6s ease-in-out infinite;
+}
+
+.page-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 216, 76, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: floatAnimation 8s ease-in-out infinite reverse;
+}
+
+@keyframes floatAnimation {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+    }
+    50% {
+        transform: translateY(-20px) translateX(10px);
+    }
+}
+
+/* Curved decorative shapes like in poster */
+.page-hero .container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #FFD84C 0%, transparent 100%);
+    border-radius: 50% 0 0 50%;
+    opacity: 0.3;
+}
+
+.page-hero .container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, #FFD84C 0%, transparent 100%);
+    border-radius: 0 50% 50% 0;
+    opacity: 0.3;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s ease-out;
+    
+}
+
+
+/* Mission Section */
+.mission-section {
+    padding: 4rem 0;
+    background: var(--clinic-surface);
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.content-text h2 {
+    color: var(--clinic-accent);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.content-text p {
+    color: var(--clinic-text-muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.image-placeholder {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(253, 248, 233, 0.9));
+    border-radius: 1rem;
+    padding: 3.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 18px 35px -18px rgba(0, 0, 0, 0.25);
+}
+
+.image-placeholder svg {
+    stroke: var(--clinic-accent);
+    transition: all 0.3s ease;
+}
+
+/* Values Section */
+.values-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--clinic-surface) 0%, var(--clinic-surface-alt) 100%);
+    border-top: 1px solid var(--clinic-border);
+    border-bottom: 1px solid var(--clinic-border);
+}
+
+.section-title {
+    text-align: center;
+    color: var(--clinic-accent);
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    font-weight: bold;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--clinic-text-muted);
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.value-card {
+    background: var(--clinic-surface);
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--clinic-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.value-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--clinic-accent), var(--clinic-accent-bright));
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.value-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 10px 25px -5px rgba(212, 175, 55, 0.3);
+    border-color: #D4AF37;
+}
+
+.value-card:hover::before {
+    transform: scaleX(1);
+}
+
+.value-icon {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+}
+
+.value-icon svg {
+    stroke: #D4AF37;
+    transition: all 0.3s ease;
+}
+
+.value-card:hover .value-icon svg {
+    stroke: #FFD700;
+    transform: scale(1.1);
+}
+
+.value-card h3 {
+    color: var(--clinic-accent);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.value-card p {
+    color: var(--clinic-text-muted);
+    line-height: 1.6;
+}
+
+/* Team Section */
+.team-section {
+    padding: 4rem 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.team-member {
+    background: var(--clinic-surface);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--clinic-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.team-member::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--clinic-accent), var(--clinic-accent-bright));
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.team-member:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 10px 25px -5px rgba(212, 175, 55, 0.3);
+    border-color: #D4AF37;
+}
+
+.team-member:hover::before {
+    transform: scaleX(1);
+}
+
+.member-avatar {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.member-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.member-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37, #F4D03F);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.team-member h3 {
+    color: var(--clinic-accent);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.member-specialty {
+    color: var(--clinic-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.member-bio {
+    color: var(--clinic-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+/* Stats Section */
+.stats-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--clinic-accent), var(--clinic-accent-bright));
+    color: var(--clinic-text);
+}
+
+.stats-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.125rem;
+    opacity: 0.9;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 4rem 0;
+    text-align: center;
+    background: linear-gradient(135deg, var(--clinic-surface) 0%, var(--clinic-surface-alt) 100%);
+    border-top: 1px solid var(--clinic-border);
+}
+
+.cta-section h2 {
+    color: var(--clinic-accent);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.cta-section p {
+    color: var(--clinic-text-muted);
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+}
+
+/* Responsive */
+/* Responsive - Modern & Sleek */
+@media (max-width: 1024px) {
+    .page-hero {
+        padding: 4rem 0;
+    }
+    
+    .content-wrapper {
+        gap: 2rem;
+    }
+    
+    .values-grid,
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .page-hero {
+        padding: 3rem 0;
+    }
+    
+    .page-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .page-hero p {
+        font-size: 1rem;
+    }
+    
+    .content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .image-placeholder {
+        font-size: 4rem;
+        padding: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9375rem;
+    }
+    
+    .values-grid,
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .stats-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+    }
+    
+    .cta-section {
+        padding: 2.5rem 0;
+    }
+    
+    .cta-section h2 {
+        font-size: 1.75rem;
+    }
+    
+    .cta-section p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-hero {
+        padding: 2.5rem 0;
+    }
+    
+    .page-hero h1 {
+        font-size: 1.75rem;
+    }
+    
+    .page-hero p {
+        font-size: 0.9375rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .image-placeholder {
+        font-size: 3rem;
+        padding: 1rem;
+    }
+    
+    .stats-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .cta-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .cta-section p {
+        font-size: 0.9375rem;
+    }
+}
+
