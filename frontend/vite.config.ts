@@ -26,17 +26,13 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunks
           if (id.includes('node_modules')) {
-            // React and React DOM
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            // React and React DOM (include lucide-react with react to avoid initialization issues)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('lucide-react')) {
               return 'react-vendor';
             }
             // Chart libraries (likely large)
             if (id.includes('chart.js') || id.includes('recharts')) {
               return 'charts-vendor';
-            }
-            // Icon library
-            if (id.includes('lucide-react')) {
-              return 'icons-vendor';
             }
             // UI libraries
             if (id.includes('@radix-ui') || id.includes('shadcn-ui') || id.includes('tailwind')) {
