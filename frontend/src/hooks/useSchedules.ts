@@ -15,10 +15,26 @@ const normalizeTime = (time: string | null | undefined): string => {
   return time.substring(0, 5);
 };
 
+// Convert day_of_week number (1-7) to day name
+const DAY_NAMES = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const normalizeDayOfWeek = (dayValue: any): string => {
+  // If it's already a string day name, return it
+  if (typeof dayValue === 'string' && isNaN(Number(dayValue))) {
+    return dayValue;
+  }
+  // If it's a number (1-7), convert to day name
+  const dayNum = typeof dayValue === 'number' ? dayValue : parseInt(dayValue, 10);
+  if (dayNum >= 1 && dayNum <= 7) {
+    return DAY_NAMES[dayNum];
+  }
+  return String(dayValue);
+};
+
 const normalizeSchedule = (raw: any): Schedule => ({
   id: raw.id,
   doctorId: raw.doctor_id ?? raw.doctorId,
-  day: raw.day_of_week ?? raw.day ?? raw.dayOfWeek ?? '',
+  day: normalizeDayOfWeek(raw.day_of_week ?? raw.day ?? raw.dayOfWeek ?? ''),
   startTime: normalizeTime(raw.start_time ?? raw.startTime),
   endTime: normalizeTime(raw.end_time ?? raw.endTime),
 });
