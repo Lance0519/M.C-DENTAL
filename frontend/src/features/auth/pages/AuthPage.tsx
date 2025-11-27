@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { AuthService } from '@/lib/auth-service';
 import { validateEmailFormat, validatePasswordStrength, validatePhone, validateUsername } from '@/lib/validators';
 import { useAuthStore } from '@/store/auth-store';
@@ -8,8 +8,9 @@ import { StorageService } from '@/lib/storage';
 import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { ClaimAccountModal } from '@/components/modals/ClaimAccountModal';
 import clinicLogo from '@/assets/images/logo.png';
+import api from '@/lib/api';
 
-type ViewMode = 'login' | 'register' | 'forgot';
+type ViewMode = 'login' | 'register' | 'forgot' | 'reset';
 
 type MessageState = {
   type: 'success' | 'error' | 'info';
@@ -19,15 +20,30 @@ type MessageState = {
 export function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login, register, recoverPassword } = useAuthStore();
   const [mode, setMode] = useState<ViewMode>('login');
   const [message, setMessage] = useState<MessageState>(null);
   const [loading, setLoading] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const hasCheckedAuth = useRef(false);
   const registerFormRef = useRef<HTMLFormElement>(null);
   const forgotPasswordFormRef = useRef<HTMLFormElement>(null);
+  const resetPasswordFormRef = useRef<HTMLFormElement>(null);
+
+  // Check for reset token in URL
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const isReset = searchParams.get('reset') === 'true';
+    
+    if (token && isReset) {
+      setResetToken(token);
+      setMode('reset');
+      setMessage({ type: 'info', text: 'Please enter your new password below.' });
+    }
+  }, [searchParams]);
 
   // Redirect authenticated users to their dashboard (only on mount)
   useEffect(() => {
@@ -36,6 +52,11 @@ export function AuthPage() {
       return;
     }
     hasCheckedAuth.current = true;
+
+    // Don't redirect if in reset mode
+    if (mode === 'reset') {
+      return;
+    }
 
     // Don't redirect if already on dashboard
     if (location.pathname.startsWith('/dashboard/')) {
@@ -59,7 +80,7 @@ export function AuthPage() {
     }
     // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mode]);
 
   const switchMode = (view: ViewMode) => {
     setMode(view);
@@ -198,6 +219,62 @@ export function AuthPage() {
     }
   }
 
+  async function handleResetPassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const newPassword = form.get('newPassword')?.toString() ?? '';
+    const confirmPassword = form.get('confirmNewPassword')?.toString() ?? '';
+
+    if (!newPassword || !confirmPassword) {
+      setMessage({ type: 'error', text: 'Please fill in all fields.' });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match.' });
+      return;
+    }
+
+    const passwordValidation = validatePasswordStrength(newPassword);
+    if (!passwordValidation.valid) {
+      setMessage({ type: 'error', text: passwordValidation.message });
+      return;
+    }
+
+    if (!resetToken) {
+      setMessage({ type: 'error', text: 'Invalid reset token. Please request a new password reset.' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.request('/auth/reset', {
+        method: 'POST',
+        body: JSON.stringify({ token: resetToken, new_password: newPassword }),
+      });
+
+      setLoading(false);
+      
+      // Reset form
+      if (resetPasswordFormRef.current) {
+        resetPasswordFormRef.current.reset();
+      }
+      
+      // Clear URL params and switch to login
+      setResetToken(null);
+      navigate('/login', { replace: true });
+      setMode('login');
+      setMessage({ 
+        type: 'success', 
+        text: 'Password reset successfully! You can now login with your new password.' 
+      });
+    } catch (error) {
+      setLoading(false);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset password. The link may have expired.';
+      setMessage({ type: 'error', text: errorMessage });
+    }
+  }
+
   type MessageType = NonNullable<MessageState>['type'];
   const messageVariants: Record<MessageType, string> = {
     success: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
@@ -240,13 +317,15 @@ export function AuthPage() {
             </div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-600 dark:text-gold-400 mb-2">M.C DENTAL CLINIC</p>
             <h1 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 dark:from-gold-400 dark:via-gold-300 dark:to-gold-400 bg-clip-text text-transparent mb-2">
-              {mode === 'login' ? 'Welcome Back' : mode === 'register' ? 'Create Account' : 'Reset Password'}
+              {mode === 'login' ? 'Welcome Back' : mode === 'register' ? 'Create Account' : mode === 'reset' ? 'New Password' : 'Reset Password'}
             </h1>
             <p className="text-base text-gray-600 dark:text-gray-300 mt-2">
               {mode === 'login' 
                 ? 'Sign in to access your account and manage your appointments' 
                 : mode === 'register' 
                 ? 'Join us today and start your journey to better dental health'
+                : mode === 'reset'
+                ? 'Enter your new password below'
                 : 'Enter your email to recover your password'}
             </p>
           </div>
@@ -522,6 +601,54 @@ export function AuthPage() {
             </button>
             <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <button type="button" onClick={() => switchMode('login')} className="text-sm font-semibold text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors flex items-center justify-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Login
+              </button>
+            </div>
+          </form>
+
+          {/* Reset Password Form */}
+          <form
+            ref={resetPasswordFormRef}
+            id="resetPasswordForm"
+            className={`space-y-6 ${mode === 'reset' ? 'block' : 'hidden'}`}
+            onSubmit={handleResetPassword}
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Set New Password</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Enter your new password below</p>
+            </div>
+            <div className="space-y-4">
+              <PasswordInput id="newPassword" name="newPassword" label="New Password" required />
+              <PasswordInput id="confirmNewPassword" name="confirmNewPassword" label="Confirm New Password" required />
+            </div>
+            <button type="submit" className={primaryButtonClasses} disabled={loading}>
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Resetting Password...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Reset Password
+                </span>
+              )}
+            </button>
+            <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+              <button type="button" onClick={() => { setMode('login'); setResetToken(null); navigate('/login', { replace: true }); }} className="text-sm font-semibold text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors flex items-center justify-center gap-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
