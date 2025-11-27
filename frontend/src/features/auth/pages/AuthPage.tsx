@@ -27,6 +27,7 @@ export function AuthPage() {
   const [showClaimModal, setShowClaimModal] = useState(false);
   const hasCheckedAuth = useRef(false);
   const registerFormRef = useRef<HTMLFormElement>(null);
+  const forgotPasswordFormRef = useRef<HTMLFormElement>(null);
 
   // Redirect authenticated users to their dashboard (only on mount)
   useEffect(() => {
@@ -188,7 +189,10 @@ export function AuthPage() {
 
     if (result.success) {
       setMessage({ type: 'success', text: result.data ?? 'Password recovery email sent.' });
-      event.currentTarget.reset();
+      // Reset form using ref (event.currentTarget may be null in async code)
+      if (forgotPasswordFormRef.current) {
+        forgotPasswordFormRef.current.reset();
+      }
     } else {
       setMessage({ type: 'error', text: result.message });
     }
@@ -475,6 +479,7 @@ export function AuthPage() {
 
           {/* Forgot Password Form */}
           <form
+            ref={forgotPasswordFormRef}
             id="forgotPasswordForm"
             className={`space-y-6 ${mode === 'forgot' ? 'block' : 'hidden'}`}
             onSubmit={handleForgotPassword}
