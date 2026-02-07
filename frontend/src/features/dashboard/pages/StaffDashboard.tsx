@@ -10,6 +10,8 @@ import { DoctorsTab } from '../components/DoctorsTab';
 import { SchedulesTab } from '../components/SchedulesTab';
 import { ClinicScheduleTab } from '../components/ClinicScheduleTab';
 import { PromosTab } from '../components/PromosTab';
+import { GalleryTab } from '../components/GalleryTab';
+import { SettingsTab } from '../components/SettingsTab';
 
 export function StaffDashboard() {
   const [activeTab, setActiveTab] = useState('appointments');
@@ -82,6 +84,10 @@ function DashboardContent({ activeTab }: { activeTab: string }) {
       return <ClinicScheduleTab role="staff" />;
     case 'promos':
       return <PromosTab role="staff" />;
+    case 'gallery':
+      return <GalleryTab role="staff" />;
+    case 'settings':
+      return <SettingsTab role="staff" />;
     default:
       return <AppointmentsTab />;
   }

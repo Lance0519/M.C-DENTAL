@@ -69,12 +69,16 @@ export async function POST(req: NextRequest) {
       role: user.role,
       email: user.email,
       fullName: user.full_name,
+      jobTitle: user.job_title ?? null,
+      phone: user.phone ?? user.contact_number ?? null,
+      profileImage: user.profile_image ?? user.profile_image_url ?? null,
     };
 
     if (user.role === 'patient') {
-      userData.phone = user.phone ?? null;
+      userData.phone = user.phone ?? user.contact_number ?? null;
       userData.dateOfBirth = user.date_of_birth ?? null;
       userData.address = user.address ?? null;
+      userData.profileImage = user.profile_image ?? user.profile_image_url ?? null;
     }
 
     // Log successful login

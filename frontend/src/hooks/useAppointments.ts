@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import api from '@/lib/api';
 import type { Appointment } from '@/types/dashboard';
 
@@ -82,7 +82,7 @@ export function useAppointments() {
       if (params?.doctorId) queryParams.doctor_id = params.doctorId;
       if (params?.date) queryParams.date = params.date;
       if (params?.public) queryParams.public = 'true';
-      
+
       const response = await api.getAppointments(Object.keys(queryParams).length > 0 ? queryParams : undefined);
       const data = Array.isArray(response) ? response : (response as any)?.data ?? [];
       const normalized = (data as any[]).map(normalizeAppointment);
@@ -116,7 +116,7 @@ export function useAppointments() {
       }
 
       // Build services array with service name
-      const services = appointment.services 
+      const services = appointment.services
         ? buildServicesPayload(appointment.services)
         : [{ serviceId: String(serviceId), serviceName: serviceName }];
 

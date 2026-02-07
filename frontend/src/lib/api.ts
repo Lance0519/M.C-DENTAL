@@ -33,6 +33,13 @@ const getAPIBaseURL = (): string => {
     return `${protocol}//${hostname}:3000/api`;
   }
 
+  // For IP addresses (mobile/network access), always use port 3000 for backend API
+  // Check if hostname is an IP address (IPv4)
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (ipv4Regex.test(hostname)) {
+    return `${protocol}//${hostname}:3000/api`;
+  }
+
   // For production: assume API is on same domain at /api
   if (port) {
     return `${protocol}//${hostname}:${port}/api`;
@@ -92,7 +99,10 @@ class ApiClient {
         } catch (e) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
+        const errorDetails = errorData.details ? ` Details: ${JSON.stringify(errorData.details)}` : '';
+        console.error('API Error Response:', errorData);
+        throw new Error(errorMessage + errorDetails);
       }
 
       const data: ApiResponse<T> = await response.json();
@@ -327,6 +337,65 @@ class ApiClient {
     });
   }
 
+  // Gallery
+  async getGalleryCases(params?: { treatment?: string }) {
+    const query = params?.treatment ? `?treatment=${encodeURIComponent(params.treatment)}` : '';
+    return this.request(`/gallery${query}`);
+  }
+
+  async getGalleryCase(id: string) {
+    return this.request(`/gallery?id=${id}`);
+  }
+
+  async createGalleryCase(data: {
+    title: string;
+    description?: string;
+    treatment: string;
+    beforeImageUrl: string;
+    afterImageUrl: string;
+  }) {
+    return this.request('/gallery', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateGalleryCase(id: string, data: {
+    title?: string;
+    description?: string;
+    treatment?: string;
+    beforeImageUrl?: string;
+    afterImageUrl?: string;
+  }) {
+    return this.request(`/gallery?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteGalleryCase(id: string) {
+    return this.request(`/gallery?id=${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Settings
+  async getSettings(category?: string) {
+    const query = category ? `?category=${encodeURIComponent(category)}` : '';
+    return this.request(`/settings${query}`);
+  }
+
+  async getSetting(key: string) {
+    return this.request(`/settings?key=${encodeURIComponent(key)}`);
+  }
+
+  async updateSetting(key: string, value: string, description?: string) {
+    return this.request('/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ key, value, description }),
+    });
+  }
+
   // Medical History
   async getMedicalHistory(patientId?: string) {
     const query = patientId ? `?patient_id=${patientId}` : '';
@@ -418,6 +487,50 @@ class ApiClient {
 
   async claimAccount(email: string, newPassword: string): Promise<ApiResponse<{ claimed: boolean; username: string; email: string }>> {
     return this.post('/auth/claim-account', { email, newPassword });
+  }
+
+  // Clinic Schedule
+  async getClinicSchedule(day?: string) {
+    const query = day ? `?day=${encodeURIComponent(day)}` : '';
+    return this.request(`/clinic-schedule${query}`);
+  }
+
+  async updateClinicSchedule(day: string, schedule: {
+    isOpen?: boolean;
+    startTime?: string;
+    endTime?: string;
+    breakStartTime?: string;
+    breakEndTime?: string;
+  }) {
+    return this.request(`/clinic-schedule?day=${encodeURIComponent(day)}`, {
+      method: 'PUT',
+      body: JSON.stringify(schedule),
+    });
+  }
+
+  // Check if user exists (for validation)
+  async checkUserExists(username?: string, email?: string): Promise<{ exists: boolean; field?: 'username' | 'email' }> {
+    try {
+      if (username) {
+        const staff = await this.getStaff();
+        const patients = await this.getPatients();
+        const allUsers = [...(Array.isArray(staff) ? staff : []), ...(Array.isArray(patients) ? patients : [])];
+        if (allUsers.some((u: any) => u.username === username)) {
+          return { exists: true, field: 'username' };
+        }
+      }
+      if (email) {
+        const staff = await this.getStaff();
+        const patients = await this.getPatients();
+        const allUsers = [...(Array.isArray(staff) ? staff : []), ...(Array.isArray(patients) ? patients : [])];
+        if (allUsers.some((u: any) => u.email?.toLowerCase() === email.toLowerCase())) {
+          return { exists: true, field: 'email' };
+        }
+      }
+      return { exists: false };
+    } catch {
+      return { exists: false };
+    }
   }
 }
 

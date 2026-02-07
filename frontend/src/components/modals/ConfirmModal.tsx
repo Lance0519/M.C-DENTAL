@@ -53,7 +53,7 @@ export function ConfirmModal({
       onClick={(e) => e.stopPropagation() && onClose()}
     >
       <div
-        className="bg-white dark:bg-black-900 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+        className="bg-white dark:bg-black-900 rounded-xl shadow-2xl max-w-md w-full border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">

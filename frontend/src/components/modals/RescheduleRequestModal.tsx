@@ -221,18 +221,13 @@ export function RescheduleRequestModal({
         return;
       }
 
-      // Store reschedule request in notes
-      const rescheduleRequest = `RESCHEDULE REQUEST\nRequested Date: ${selectedDate}\nRequested Time: ${selectedTime}\nOriginal Date: ${appointment.date || (appointment as any).appointmentDate}\nOriginal Time: ${appointment.time || (appointment as any).appointmentTime}\n\n`;
-      const updatedNotes = appointment.notes 
-        ? `${appointment.notes}\n\n${rescheduleRequest}`
-        : rescheduleRequest;
-
       // Update appointment with reschedule request status via API
+      // Use database fields only - don't store in notes to avoid duplication
       const result = await updateAppointment(String(appointment.id), {
-        notes: updatedNotes,
         rescheduleRequestedDate: selectedDate,
         rescheduleRequestedTime: selectedTime,
         rescheduleRequested: true,
+        status: 'reschedule_requested' as any,
       });
 
       if (!result.success) {

@@ -32,12 +32,12 @@ export function ServiceModal({ service, isOpen, onClose }: ServiceModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 dark:bg-black/85 p-4 transition-opacity duration-300" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-md p-4 transition-opacity duration-300" 
       onClick={onClose}
       style={{ animation: 'fadeIn 0.3s ease-out' }}
     >
       <div 
-        className="relative bg-white dark:bg-black-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700" 
+        className="relative bg-white dark:bg-black-900 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700" 
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'slideUp 0.3s ease-out' }}
       >

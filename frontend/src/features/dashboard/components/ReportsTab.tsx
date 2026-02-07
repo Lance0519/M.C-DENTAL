@@ -192,18 +192,7 @@ export function ReportsTab() {
       scheduled: filteredApts.length,
       completed: filteredApts.filter((a) => a.status === 'completed').length,
       cancelled: filteredApts.filter((a) => a.status === 'cancelled').length,
-      noShow: filteredApts.filter((a) => {
-        const aptDateStr = a.date || (a as any).appointmentDate;
-        if (!aptDateStr) return false;
-        try {
-          const aptDate = new Date(aptDateStr);
-          if (isNaN(aptDate.getTime())) return false;
-          aptDate.setHours(0, 0, 0, 0);
-          return a.status === 'pending' && aptDate < todayStart;
-        } catch {
-          return false;
-        }
-      }).length,
+      noShow: filteredApts.filter((a) => a.status === 'no-show').length,
     };
 
     const noShowRate = statusCounts.scheduled > 0 

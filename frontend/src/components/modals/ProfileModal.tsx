@@ -13,6 +13,9 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalProps) {
+  const setUser = useAuthStore((state) => state.setUser);
+  const currentUser = useAuthStore((state) => state.user);
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -27,13 +30,15 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
 
   useEffect(() => {
     if (isOpen && user) {
+      // Get profile image from either StaffProfile or PatientProfile
+      const profileImage = (user as StaffProfile).profileImage || (user as PatientProfile).profileImage || '';
       setFormData({
         fullName: user.fullName || '',
         email: user.email || '',
         phone: user.phone || '',
         jobTitle: (user as StaffProfile).jobTitle || '',
         profileImage: null,
-        profileImagePreview: (user as StaffProfile).profileImage || '',
+        profileImagePreview: profileImage,
       });
       setError(null);
     }
@@ -78,25 +83,48 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
       const updates: Record<string, unknown> = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        phone: formData.phone.trim() || undefined,
       };
 
+      // Handle phone - send null if empty, otherwise send the trimmed value
+      const phoneValue = formData.phone.trim();
+      if (phoneValue) {
+        updates.phone = phoneValue;
+      } else {
+        updates.phone = null;
+      }
+
       if ((user as StaffProfile).jobTitle !== undefined) {
-        updates.jobTitle = formData.jobTitle.trim() || undefined;
+        const jobTitleValue = formData.jobTitle.trim();
+        // Always send jobTitle, even if empty (send null to clear it)
+        updates.jobTitle = jobTitleValue || null;
       }
 
       // Handle profile image
+      const currentProfileImage = (user as StaffProfile).profileImage || (user as PatientProfile).profileImage || '';
+      
+      // If a new image file was selected, convert it to base64
       if (formData.profileImage) {
         const reader = new FileReader();
-        const imageData = await new Promise<string>((resolve) => {
-          reader.onloadend = () => resolve(reader.result as string);
+        const imageData = await new Promise<string>((resolve, reject) => {
+          reader.onerror = () => reject(new Error('Failed to read image file'));
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            if (!result || !result.startsWith('data:image/')) {
+              reject(new Error('Invalid image data'));
+            } else {
+              resolve(result);
+            }
+          };
           reader.readAsDataURL(formData.profileImage!);
         });
         updates.profileImage = imageData;
-      } else if (!formData.profileImagePreview) {
-        // Image was removed
+      } 
+      // If preview is empty and there was a previous image, image was removed
+      else if (!formData.profileImagePreview && currentProfileImage) {
         updates.profileImage = null;
-      } else if (formData.profileImagePreview !== (user as StaffProfile).profileImage) {
+      }
+      // If preview exists and is different from current, update it (for cases where image was set but file wasn't selected)
+      else if (formData.profileImagePreview && formData.profileImagePreview !== currentProfileImage && formData.profileImagePreview.startsWith('data:image/')) {
         updates.profileImage = formData.profileImagePreview;
       }
 
@@ -106,23 +134,57 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
         ? `/patients?id=${user.id}` 
         : `/staff?id=${user.id}`;
 
-      await api.request(endpoint, {
+      console.log('Sending profile update:', { endpoint, updates });
+      
+      const response = await api.request(endpoint, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
 
+      // Check if the response indicates an error
+      if (response && typeof response === 'object' && 'success' in response && !(response as any).success) {
+        throw new Error((response as any).message || 'Failed to update profile');
+      }
+
       // Update auth store with new user info
-      const authStore = useAuthStore.getState();
-      if (authStore.user && authStore.user.id === user.id) {
-        authStore.setUser({
-          ...authStore.user,
+      if (currentUser && currentUser.id === user.id) {
+        let nextProfileImage: string | undefined;
+        if (updates.profileImage === null) {
+          nextProfileImage = undefined;
+        } else if (typeof updates.profileImage === 'string') {
+          nextProfileImage = updates.profileImage;
+        } else if (formData.profileImagePreview) {
+          nextProfileImage = formData.profileImagePreview;
+        } else {
+          nextProfileImage = currentProfileImage || (currentUser.profileImage as string | undefined);
+        }
+
+        const updatedUser: any = {
+          ...currentUser,
           fullName: formData.fullName.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim() || undefined,
-          profileImage: updates.profileImage as string | undefined,
-        });
+          profileImage: nextProfileImage,
+        };
+
+        // Include jobTitle if it's a staff member
+        if ((user as StaffProfile).jobTitle !== undefined) {
+          const jobTitleValue = formData.jobTitle.trim();
+          updatedUser.jobTitle = jobTitleValue || null;
+        }
+
+        setUser(updatedUser);
       }
 
+      // Wait a bit to ensure the database update is complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Dispatch event to notify other components (like StaffTab) to refresh
+      // This ensures StaffTab stays in sync when profiles are updated
+      if (user.role === 'staff') {
+        window.dispatchEvent(new CustomEvent('userUpdated', { detail: { userId: user.id, role: user.role } }));
+      }
+      
       setShowSuccessModal(true);
       await onUpdate();
     } catch (err) {

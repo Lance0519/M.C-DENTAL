@@ -104,11 +104,10 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
           {inactiveCount > 0 && (
             <button
               onClick={() => setShowInactive(!showInactive)}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                showInactive
-                  ? 'bg-gray-700 dark:bg-gray-600 text-white dark:text-white'
-                  : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-              }`}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${showInactive
+                ? 'bg-gray-700 dark:bg-gray-600 text-white dark:text-white'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                }`}
             >
               {showInactive ? 'Show Active Only' : `Show Inactive (${inactiveCount})`}
             </button>
@@ -189,10 +188,10 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
               <div>
                 <p className="text-sm font-semibold text-gold-700 dark:text-gold-300 mb-1">Average Duration</p>
                 <p className="text-3xl font-bold text-gold-900 dark:text-gold-200">
-                  {services.length > 0 
+                  {services.length > 0
                     ? ServiceDurations.minutesToTime(
-                        Math.round(services.reduce((sum, s) => sum + ServiceDurations.getDuration(s), 0) / services.length)
-                      )
+                      Math.round(services.reduce((sum, s) => sum + ServiceDurations.getDuration(s), 0) / services.length)
+                    )
                     : 'N/A'}
                 </p>
               </div>
@@ -235,16 +234,14 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
             return (
               <div
                 key={service.id}
-                className={`bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden transform hover:-translate-y-1 flex flex-col min-h-[400px] ${
-                  isActive
-                    ? 'border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-500'
-                    : 'border-gray-300 dark:border-gray-600 opacity-75'
-                }`}
+                className={`bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden transform hover:-translate-y-1 flex flex-col min-h-[400px] ${isActive
+                  ? 'border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-500'
+                  : 'border-gray-300 dark:border-gray-600 opacity-75'
+                  }`}
               >
                 {/* Service Header with Icon and Edit Button */}
-                <div className={`bg-gradient-to-r px-6 py-4 ${
-                  isActive ? 'from-gold-500 to-gold-400' : 'from-gray-400 to-gray-500'
-                }`}>
+                <div className={`bg-gradient-to-r px-6 py-4 ${isActive ? 'from-gold-500 to-gold-400' : 'from-gray-400 to-gray-500'
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <h3 className="text-xl font-bold text-black">{service.name}</h3>
@@ -309,7 +306,7 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
                   </div>
 
                   {/* Service Actions - Admin and Staff (Bottom buttons for better visibility) */}
-                  <div className="flex gap-2 pt-4 border-t-2 border-gray-200 dark:border-gray-700 flex-shrink-0">
+                  <div className="flex flex-wrap gap-2 pt-4 border-t-2 border-gray-200 dark:border-gray-700 flex-shrink-0">
                     {(role === 'admin' || role === 'staff') ? (
                       <>
                         <button
@@ -324,11 +321,10 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
                         </button>
                         <button
                           onClick={() => handleDeactivate(service)}
-                          className={`flex-1 px-4 py-3 rounded-lg transition-all font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-2 ${
-                            isActive
-                              ? 'text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 border-orange-600'
-                              : 'text-white bg-gradient-to-r from-green-500 to-green-400 hover:from-green-600 hover:to-green-500 border-green-600'
-                          }`}
+                          className={`flex-1 px-4 py-3 rounded-lg transition-all font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-2 ${isActive
+                            ? 'text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 border-orange-600'
+                            : 'text-white bg-gradient-to-r from-green-500 to-green-400 hover:from-green-600 hover:to-green-500 border-green-600'
+                            }`}
                           title={isActive ? 'Deactivate this service' : 'Activate this service'}
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -453,7 +449,7 @@ function CreateServiceModal({
   onClose: () => void;
   onSuccess: (serviceName: string) => void;
   createService: (
-    service: Partial<ServiceItem>,
+    service: Omit<ServiceItem, 'id'>,
   ) => Promise<{ success: boolean; message?: string }>;
 }) {
   const [formData, setFormData] = useState({
@@ -513,7 +509,7 @@ function CreateServiceModal({
         return;
       }
 
-      const serviceData: Partial<ServiceItem> = {
+      const serviceData: Omit<ServiceItem, 'id'> = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         duration: normalizeDuration(formData.duration),

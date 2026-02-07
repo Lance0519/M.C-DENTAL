@@ -7,6 +7,7 @@ import { useDoctors } from '@/hooks/useDoctors';
 import api from '@/lib/api';
 import { AppointmentModal } from '@/components/modals/AppointmentModal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { PaymentModal } from '@/components/modals/PaymentModal';
 import { AppointmentDetailsModal } from '@/components/modals/AppointmentDetailsModal';
 import { Modal } from '@/components/modals/Modal';
 import { filterAppointments } from '@/lib/appointment-filters';
@@ -26,6 +27,8 @@ export function AppointmentsTab() {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: string; appointmentId: string } | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentAppointment, setPaymentAppointment] = useState<Appointment | null>(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDateAppointments, setSelectedDateAppointments] = useState<Appointment[]>([]);
@@ -49,7 +52,8 @@ export function AppointmentsTab() {
     dateFilter,
     serviceFilter,
     patientFilter,
-    statusFilter
+    statusFilter,
+    patients
   );
 
   const handleCreateSuccess = () => {
@@ -101,9 +105,13 @@ export function AppointmentsTab() {
         throw new Error('Missing reschedule request details');
       }
 
+      // Determine the new status after reschedule approval
+      const newStatus = rescheduleAppointment.patientId ? 'confirmed' : 'pending';
+      
       const result = await updateAppointment(rescheduleAppointment.id, {
         date: requestedDate,
         time: requestedTime,
+        status: newStatus as Appointment['status'],
         rescheduleRequested: false,
         rescheduleRequestedDate: null as any,
         rescheduleRequestedTime: null as any,
@@ -124,7 +132,75 @@ export function AppointmentsTab() {
   };
 
   const handleCompleteAppointment = (appointmentId: string) => {
-    setConfirmAction({ type: 'complete', appointmentId });
+    const appointment = appointments.find((apt) => String(apt.id) === String(appointmentId));
+    if (appointment) {
+      setPaymentAppointment(appointment);
+      setShowPaymentModal(true);
+    }
+  };
+
+  const handleCompleteWithPayment = async (paymentAmount: number) => {
+    if (!paymentAppointment) return;
+
+    try {
+      const updates: Partial<Appointment> = {
+        status: 'completed',
+        paymentAmount: paymentAmount,
+        completedAt: new Date().toISOString(),
+      };
+      
+      const result = await updateAppointment(paymentAppointment.id, updates);
+      if (!result.success) throw new Error(result.message || 'Failed to complete appointment');
+
+      const serviceId =
+        paymentAppointment.services?.[0]?.serviceId ?? (paymentAppointment.serviceId as string | undefined);
+      const serviceName =
+        paymentAppointment.services?.map((s) => s.serviceName).join(', ') ||
+        services.find((s) => String(s.id) === String(serviceId))?.name ||
+        'dental service';
+      const patientId = paymentAppointment.patientId;
+
+      if (patientId) {
+        const history = await api.getMedicalHistory(String(patientId));
+        const appointmentDate = paymentAppointment.date || (paymentAppointment as any).appointmentDate || '';
+        const appointmentTime = paymentAppointment.time || (paymentAppointment as any).appointmentTime || '';
+
+        const hasExistingRecord = Array.isArray(history)
+          ? history.some(
+              (record: any) =>
+                record.date === appointmentDate &&
+                record.time === appointmentTime &&
+                (record.serviceId === String(serviceId ?? '') ||
+                  record.serviceName === serviceName) &&
+                (record.doctorId === String(paymentAppointment.doctorId || '') ||
+                  record.doctorName ===
+                    doctors.find((d) => String(d.id) === String(paymentAppointment.doctorId))?.name),
+            )
+          : false;
+
+        if (!hasExistingRecord) {
+          await api.createMedicalHistory({
+            patientId: String(patientId),
+            serviceId: serviceId ? String(serviceId) : undefined,
+            doctorId: paymentAppointment.doctorId ? String(paymentAppointment.doctorId) : undefined,
+            date: appointmentDate,
+            time: appointmentTime,
+            treatment: paymentAppointment.notes || `Completed appointment for ${serviceName}`,
+            remarks: `Appointment completed on ${new Date().toLocaleDateString()}`,
+          });
+        }
+      }
+
+      await loadAppointments();
+      setShowPaymentModal(false);
+      setPaymentAppointment(null);
+    } catch (error) {
+      throw error; // Re-throw to let PaymentModal handle the error
+    }
+  };
+
+  const handleNoShowAppointment = (appointmentId: string) => {
+    setConfirmAction({ type: 'no-show', appointmentId });
     setShowConfirmModal(true);
   };
 
@@ -187,55 +263,26 @@ export function AppointmentsTab() {
         });
         if (!result.success) throw new Error(result.message);
       } else if (confirmAction.type === 'reject_reschedule') {
+        // Reset status to previous status (pending or confirmed)
+        const currentStatus = appointment.status || 'pending';
+        const previousStatus = currentStatus === 'reschedule_requested' 
+          ? (appointment.patientId ? 'confirmed' : 'pending')  // Default to confirmed if patient exists, else pending
+          : currentStatus;
         const result = await updateAppointment(appointment.id, {
+          status: previousStatus as Appointment['status'],
           rescheduleRequested: false,
           rescheduleRequestedDate: null as any,
           rescheduleRequestedTime: null as any,
         });
         if (!result.success) throw new Error(result.message);
-      } else if (confirmAction.type === 'complete') {
-        const result = await updateAppointment(appointment.id, { status: 'completed' });
-        if (!result.success) throw new Error(result.message);
-
-        const serviceId =
-          appointment.services?.[0]?.serviceId ?? (appointment.serviceId as string | undefined);
-        const serviceName =
-          appointment.services?.map((s) => s.serviceName).join(', ') ||
-          services.find((s) => String(s.id) === String(serviceId))?.name ||
-          'dental service';
-        const patientId = appointment.patientId;
-
-        if (patientId) {
-          const history = await api.getMedicalHistory(String(patientId));
-          const appointmentDate = appointment.date || (appointment as any).appointmentDate || '';
-          const appointmentTime = appointment.time || (appointment as any).appointmentTime || '';
-
-          const hasExistingRecord = Array.isArray(history)
-            ? history.some(
-                (record: any) =>
-                  record.date === appointmentDate &&
-                  record.time === appointmentTime &&
-                  (record.serviceId === String(serviceId ?? '') ||
-                    record.serviceName === serviceName) &&
-                  (record.doctorId === String(appointment.doctorId || '') ||
-                    record.doctorName ===
-                      doctors.find((d) => String(d.id) === String(appointment.doctorId))?.name),
-              )
-            : false;
-
-          if (!hasExistingRecord) {
-            await api.createMedicalHistory({
-              patientId: String(patientId),
-              serviceId: serviceId ? String(serviceId) : undefined,
-              doctorId: appointment.doctorId ? String(appointment.doctorId) : undefined,
-              date: appointmentDate,
-              time: appointmentTime,
-              treatment: appointment.notes || `Completed appointment for ${serviceName}`,
-              remarks: `Appointment completed on ${new Date().toLocaleDateString()}`,
-            });
-          }
-        }
+      } else if (confirmAction.type === 'no-show') {
+        const updates: Partial<Appointment> = {
+          status: 'no-show',
+        };
+        const result = await updateAppointment(appointment.id, updates);
+        if (!result.success) throw new Error(result.message || 'Failed to mark appointment as no-show');
       }
+      // Note: 'complete' action is now handled by PaymentModal, not here
 
       await loadAppointments();
       setShowConfirmModal(false);
@@ -252,6 +299,7 @@ export function AppointmentsTab() {
     confirmed: appointments.filter(a => a.status === 'confirmed').length,
     completed: appointments.filter(a => a.status === 'completed').length,
     cancelled: appointments.filter(a => a.status === 'cancelled' || a.status === 'cancellation_requested').length,
+    rescheduleRequests: appointments.filter(a => a.rescheduleRequested || a.status === 'reschedule_requested').length,
   };
 
   return (
@@ -299,7 +347,7 @@ export function AppointmentsTab() {
 
       {/* Statistics Cards */}
       {!isCalendarView && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-5 border-2 border-blue-200 dark:border-blue-700 shadow-md">
             <div className="flex items-center justify-between">
               <div>
@@ -361,6 +409,19 @@ export function AppointmentsTab() {
               <div className="w-12 h-12 bg-red-200 dark:bg-red-800 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-red-700 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 rounded-xl p-5 border-2 border-orange-200 dark:border-orange-700 shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-orange-700 dark:text-orange-300 mb-1">Reschedule Requests</p>
+                <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">{stats.rescheduleRequests}</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-200 dark:bg-orange-800 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-700 dark:text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
@@ -443,11 +504,13 @@ export function AppointmentsTab() {
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 px-4 py-3 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 font-semibold bg-white dark:bg-black-800 text-gray-900 dark:text-white shadow-sm transition-all"
             >
               <option value="all">All Statuses</option>
+              <option value="reschedule_requested">Reschedule-Requested</option>
               <option value="cancellation_requested">Cancellation Requested</option>
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
+              <option value="no-show">No-Show</option>
             </select>
           </div>
         </div>
@@ -490,6 +553,7 @@ export function AppointmentsTab() {
           onConfirm={handleConfirmAppointment}
           onCancel={handleCancelAppointment}
           onComplete={handleCompleteAppointment}
+          onNoShow={handleNoShowAppointment}
           onViewDetails={(apt) => setSelectedAppointment(apt)}
           onApproveCancellation={handleApproveCancellation}
           onRejectCancellation={handleRejectCancellation}
@@ -514,8 +578,8 @@ export function AppointmentsTab() {
         title={
           confirmAction?.type === 'confirm'
             ? 'Confirm Appointment'
-            : confirmAction?.type === 'complete'
-            ? 'Mark as Completed'
+            : confirmAction?.type === 'no-show'
+            ? 'Mark as No-Show'
             : confirmAction?.type === 'approve_cancellation'
             ? 'Approve Cancellation'
             : confirmAction?.type === 'reject_cancellation'
@@ -527,8 +591,8 @@ export function AppointmentsTab() {
         message={
           confirmAction?.type === 'confirm'
             ? 'Are you sure you want to confirm this appointment?'
-            : confirmAction?.type === 'complete'
-            ? 'Are you sure you want to mark this appointment as completed?'
+            : confirmAction?.type === 'no-show'
+            ? 'Are you sure you want to mark this appointment as no-show? This indicates the patient did not attend the appointment.'
             : confirmAction?.type === 'approve_cancellation'
             ? 'Are you sure you want to approve this cancellation request? This action cannot be undone.'
             : confirmAction?.type === 'reject_cancellation'
@@ -540,8 +604,8 @@ export function AppointmentsTab() {
         confirmText={
           confirmAction?.type === 'confirm'
             ? 'Confirm'
-            : confirmAction?.type === 'complete'
-            ? 'Mark as Completed'
+            : confirmAction?.type === 'no-show'
+            ? 'Mark as No-Show'
             : confirmAction?.type === 'approve_cancellation'
             ? 'Yes, Approve'
             : confirmAction?.type === 'reject_cancellation'
@@ -551,10 +615,22 @@ export function AppointmentsTab() {
         variant={
           confirmAction?.type === 'cancel' || confirmAction?.type === 'approve_cancellation'
             ? 'danger'
-            : confirmAction?.type === 'reject_cancellation'
+            : confirmAction?.type === 'no-show' || confirmAction?.type === 'reject_cancellation'
             ? 'warning'
             : 'info'
         }
+      />
+
+      {/* Payment Modal for Completing Appointments */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setPaymentAppointment(null);
+        }}
+        onConfirm={handleCompleteWithPayment}
+        appointment={paymentAppointment}
+        services={services}
       />
 
       {/* Date Appointments Modal */}
@@ -826,6 +902,7 @@ function DateAppointmentsModal({
       confirmed: { bg: 'bg-blue-500', text: 'text-white', label: 'Confirmed' },
       completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
+      'no-show': { bg: 'bg-orange-500', text: 'text-white', label: 'No-Show' },
       cancellation_requested: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Cancellation Pending' },
     };
 
@@ -872,7 +949,13 @@ function DateAppointmentsModal({
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatTime(appointmentTime)}</div>
-                        {getStatusBadge(apt.status || 'pending')}
+                        {(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                            Reschedule-Requested
+                          </span>
+                        ) : (
+                          getStatusBadge(apt.status || 'pending')
+                        )}
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
@@ -1022,14 +1105,15 @@ function getFilteredAppointments(
   dateFilter: string,
   serviceFilter: string,
   patientFilter: string,
-  statusFilter: string
+  statusFilter: string,
+  patients?: PatientProfile[]
 ): Appointment[] {
   return filterAppointments(appointments, {
     dateFilter: dateFilter as 'all' | 'today' | 'week' | 'month',
     serviceFilter,
     patientFilter,
     statusFilter,
-  });
+  }, patients);
 }
 
 // Calendar View Component
@@ -1243,6 +1327,7 @@ function AppointmentsListView({
   onConfirm,
   onCancel,
   onComplete,
+  onNoShow,
   onViewDetails,
   onApproveCancellation,
   onRejectCancellation,
@@ -1256,6 +1341,7 @@ function AppointmentsListView({
   onConfirm: (id: string) => void;
   onCancel: (id: string) => void;
   onComplete: (id: string) => void;
+  onNoShow: (id: string) => void;
   onViewDetails: (apt: Appointment) => void;
   onApproveCancellation: (id: string) => void;
   onRejectCancellation: (id: string) => void;
@@ -1370,6 +1456,7 @@ function AppointmentsListView({
           >
             {/* Card Header */}
             <div className={`bg-gradient-to-r px-6 py-4 rounded-t-xl ${
+              (apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
               apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
               apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
               apt.status === 'completed' ? 'from-green-500 to-green-400' :
@@ -1391,7 +1478,9 @@ function AppointmentsListView({
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                      apt.status === 'confirmed'
+                      (apt.rescheduleRequested || apt.status === 'reschedule_requested')
+                        ? 'bg-white/20 text-white border-2 border-white/30'
+                        : apt.status === 'confirmed'
                         ? 'bg-white/20 text-white border-2 border-white/30'
                         : apt.status === 'pending'
                         ? 'bg-white/20 text-white border-2 border-white/30'
@@ -1402,15 +1491,12 @@ function AppointmentsListView({
                         : 'bg-white/20 text-white border-2 border-white/30'
                     }`}
                   >
-                    {apt.status === 'cancellation_requested' 
+                    {(apt.rescheduleRequested || apt.status === 'reschedule_requested')
+                      ? 'RESCHEDULE-REQUESTED'
+                      : apt.status === 'cancellation_requested' 
                       ? 'CANCELLATION REQUESTED' 
                       : apt.status?.toUpperCase() || 'PENDING'}
                   </span>
-                  {apt.rescheduleRequested && (
-                    <span className="px-2 py-1 rounded-full text-xs font-bold bg-purple-500 text-white border-2 border-white/30">
-                      RESCHEDULE
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -1471,7 +1557,7 @@ function AppointmentsListView({
                     <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm font-bold text-orange-800 dark:text-orange-300">Reschedule Requested</p>
+                    <p className="text-sm font-bold text-orange-800 dark:text-orange-300">Reschedule-Requested</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -1590,20 +1676,60 @@ function AppointmentsListView({
                           </button>
                         )}
                         {apt.status === 'confirmed' && (
-                          <button
-                            onClick={() => {
-                              onComplete(apt.id ? String(apt.id) : '');
-                              setOpenDropdown(null);
-                              setDropdownPosition(null);
-                            }}
-                            className="w-full text-left px-4 py-3 text-sm font-bold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Mark as Completed
-                          </button>
+                          <>
+                            <button
+                              onClick={() => {
+                                onComplete(apt.id ? String(apt.id) : '');
+                                setOpenDropdown(null);
+                                setDropdownPosition(null);
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm font-bold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Mark as Completed
+                            </button>
+                            <button
+                              onClick={() => {
+                                onNoShow(apt.id ? String(apt.id) : '');
+                                setOpenDropdown(null);
+                                setDropdownPosition(null);
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Mark as No-Show
+                            </button>
+                          </>
                         )}
+                        {apt.status === 'pending' && (() => {
+                          const aptDate = new Date(apt.date || (apt as any).appointmentDate || '');
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          aptDate.setHours(0, 0, 0, 0);
+                          // Only show no-show option for past pending appointments
+                          if (aptDate < today) {
+                            return (
+                              <button
+                                onClick={() => {
+                                  onNoShow(apt.id ? String(apt.id) : '');
+                                  setOpenDropdown(null);
+                                  setDropdownPosition(null);
+                                }}
+                                className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Mark as No-Show
+                              </button>
+                            );
+                          }
+                          return null;
+                        })()}
                         {apt.status === 'cancellation_requested' && (
                           <>
                             <button

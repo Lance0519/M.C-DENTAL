@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export function Footer() {
   return (
     <footer className="bg-black-950 dark:bg-black-900 text-white border-t-4 border-gold-500 dark:border-gold-400">
@@ -22,18 +24,18 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gold-500 dark:text-gold-400">Quick Links</h3>
             <nav className="flex flex-col space-y-2">
-              <a href="/" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+              <Link to="/" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
                 Home
-              </a>
-              <a href="/services" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+              </Link>
+              <Link to="/services" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
                 Services
-              </a>
-              <a href="/about" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+              </Link>
+              <Link to="/about" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
                 About Us
-              </a>
-              <a href="/contact" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+              </Link>
+              <Link to="/contact" className="text-gray-400 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
 
@@ -54,13 +56,13 @@ export function Footer() {
             &copy; {new Date().getFullYear()} M.C DENTAL CLINIC. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+            <Link to="/privacy-policy" className="text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
               Privacy Policy
-            </a>
+            </Link>
             <span className="text-gray-600 dark:text-gray-500">|</span>
-            <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
+            <Link to="/terms-of-service" className="text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors text-sm">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
       </div>

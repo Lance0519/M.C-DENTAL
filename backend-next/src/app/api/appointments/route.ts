@@ -15,7 +15,7 @@ async function createNotification(
   try {
     const supabase = supabaseAdmin();
     const id = `notif${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
-    
+
     const { error: insertErr } = await supabase.from('notifications').insert({
       id,
       user_id: userId,
@@ -94,14 +94,14 @@ const createSchema = z.object({
   time: z.string(),
   notes: z.string().optional(),
   status: z
-    .enum(['pending', 'confirmed', 'completed', 'cancelled', 'cancellation_requested'])
+    .enum(['pending', 'confirmed', 'completed', 'cancelled', 'cancellation_requested', 'no-show'])
     .optional(),
 });
 
 const updateSchema = z.object({
   id: z.string().optional(),
   status: z
-    .enum(['pending', 'confirmed', 'completed', 'cancelled', 'cancellation_requested'])
+    .enum(['pending', 'confirmed', 'completed', 'cancelled', 'cancellation_requested', 'reschedule_requested', 'no-show'])
     .optional(),
   date: z.string().optional(),
   time: z.string().optional(),
@@ -158,15 +158,15 @@ export async function GET(req: NextRequest) {
           .from('services')
           .select('id, name')
           .in('id', serviceIds);
-        
+
         const serviceMap = new Map(services?.map(s => [s.id, s.name]) ?? []);
-        
+
         // Add service_name to each appointment
         const enrichedAppointments = appointments.map(apt => ({
           ...apt,
           service_name: serviceMap.get(apt.service_id) || null
         }));
-        
+
         return success(enrichedAppointments);
       }
     }
@@ -204,16 +204,16 @@ export async function GET(req: NextRequest) {
         .from('services')
         .select('id, name')
         .in('id', serviceIds);
-      
+
       const serviceMap = new Map(services?.map(s => [s.id, s.name]) ?? []);
-      
+
       // Add service_name to each appointment
       const enrichedAppointments = appointments.map(apt => ({
         ...apt,
-        service_name: apt.service_name || serviceMap.get(apt.service_id) || 
+        service_name: apt.service_name || serviceMap.get(apt.service_id) ||
           apt.appointment_services?.[0]?.service_name || null
       }));
-      
+
       return success(enrichedAppointments);
     }
   }
@@ -244,6 +244,33 @@ export async function POST(req: NextRequest) {
   } = parsed.data;
   const supabase = supabaseAdmin();
 
+  // Check for existing active appointments (limit: 2 per patient)
+  // Exclude guest bookings from this limit
+  const isGuestBooking = patientId.startsWith('guest_appointment');
+  if (!isGuestBooking) {
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+    const { data: existingAppointments, error: countErr } = await supabase
+      .from('appointments')
+      .select('id, appointment_date, status')
+      .eq('patient_id', patientId)
+      .gte('appointment_date', today) // Only count future appointments
+      .in('status', ['pending', 'confirmed', 'reschedule_requested', 'cancellation_requested']); // Active statuses
+
+    if (countErr) {
+      console.error('Error checking existing appointments:', countErr);
+      return error('Failed to check existing appointments', 500);
+    }
+
+    const activeAppointmentCount = (existingAppointments ?? []).length;
+    if (activeAppointmentCount >= 2) {
+      return error(
+        'You can only have a maximum of 2 pending appointments at a time. Please cancel or complete an existing appointment before booking a new one.',
+        400
+      );
+    }
+  }
+
   const { data: conflicts, error: conflictErr } = await supabase
     .from('appointments')
     .select('id')
@@ -269,9 +296,6 @@ export async function POST(req: NextRequest) {
       throw new Error('A serviceId or services array is required');
     })();
 
-  // For guest bookings, use patientId as created_by (it will be the guest appointment ID)
-  const createdBy = isAuthenticated ? auth.id : patientId;
-
   const { error: insertErr } = await supabase.from('appointments').insert({
     id,
     patient_id: patientId,
@@ -281,8 +305,6 @@ export async function POST(req: NextRequest) {
     appointment_time: time,
     status,
     notes: notes ?? null,
-    created_by: createdBy,
-    reschedule_requested: false,
   });
 
   if (insertErr) {
@@ -310,11 +332,11 @@ export async function POST(req: NextRequest) {
   ]);
 
   // Log audit - handle guest bookings
-  const isGuestBooking = patientId.startsWith('guest_appointment');
+
   const patientDisplayName = patient?.full_name ?? 'Guest Patient';
   const doctorDisplayName = doctor?.name ?? 'Unknown Doctor';
   const serviceNames = services?.map(s => s.serviceName).join(', ') || 'dental service';
-  
+
   await logAudit({
     action: 'APPOINTMENT_CREATED',
     userId: isAuthenticated ? auth.id : patientId,
@@ -363,18 +385,31 @@ export async function PUT(req: NextRequest) {
   if (parsed.data.time !== undefined) updates.appointment_time = parsed.data.time;
   if (parsed.data.notes !== undefined) updates.notes = parsed.data.notes;
   if (parsed.data.doctorId !== undefined) updates.doctor_id = parsed.data.doctorId;
-  if (parsed.data.treatment !== undefined) updates.treatment = parsed.data.treatment;
-  if (parsed.data.remarks !== undefined) updates.remarks = parsed.data.remarks;
-  if (parsed.data.rescheduleRequested !== undefined)
-    updates.reschedule_requested = parsed.data.rescheduleRequested;
   if (parsed.data.rescheduleRequestedDate !== undefined)
     updates.reschedule_requested_date = parsed.data.rescheduleRequestedDate;
   if (parsed.data.rescheduleRequestedTime !== undefined)
     updates.reschedule_requested_time = parsed.data.rescheduleRequestedTime;
-  if (parsed.data.paymentAmount !== undefined)
-    updates.payment_amount = parsed.data.paymentAmount;
-  if (parsed.data.completedAt !== undefined)
-    updates.completed_at = parsed.data.completedAt;
+  if (parsed.data.paymentAmount !== undefined) {
+    updates.payment_amount = typeof parsed.data.paymentAmount === 'number'
+      ? parsed.data.paymentAmount
+      : parseFloat(String(parsed.data.paymentAmount));
+  }
+  if (parsed.data.completedAt !== undefined && parsed.data.completedAt !== null) {
+    // Ensure completedAt is a valid ISO string timestamp
+    const completedAtValue = parsed.data.completedAt;
+    if (typeof completedAtValue === 'string' && completedAtValue.trim() !== '') {
+      // Validate it's a valid date string
+      const date = new Date(completedAtValue);
+      if (!isNaN(date.getTime())) {
+        updates.completed_at = completedAtValue;
+      }
+    } else if (completedAtValue) {
+      const date = new Date(completedAtValue);
+      if (!isNaN(date.getTime())) {
+        updates.completed_at = date.toISOString();
+      }
+    }
+  }
   if (parsed.data.services && parsed.data.services.length > 0) {
     updates.service_id = parsed.data.services[0].serviceId;
   }
@@ -386,22 +421,27 @@ export async function PUT(req: NextRequest) {
   updates.updated_at = new Date().toISOString();
 
   const supabase = supabaseAdmin();
-  
+
   // Fetch current appointment state BEFORE update (for notification logic)
   const { data: currentAppointment } = await supabase
     .from('appointments')
-    .select('status, patient_id, doctor_id, appointment_date, appointment_time, reschedule_requested')
+    .select('status, patient_id, doctor_id, appointment_date, appointment_time')
     .eq('id', id)
     .single();
 
   const oldStatus = currentAppointment?.status;
-  const wasRescheduleRequested = currentAppointment?.reschedule_requested;
-  
+
   const { error: updateErr } = await supabase.from('appointments').update(updates).eq('id', id);
 
   if (updateErr) {
     console.error('Appointment update error:', updateErr);
-    return error('Failed to update appointment', 500);
+    console.error('Update data:', JSON.stringify(updates, null, 2));
+    console.error('Appointment ID:', id);
+    return error('Failed to update appointment', 500, {
+      details: updateErr.message,
+      code: updateErr.code,
+      hint: updateErr.hint
+    });
   }
 
   if (parsed.data.services) {
@@ -431,13 +471,13 @@ export async function PUT(req: NextRequest) {
   // Fetch appointment details for better audit logging
   const { data: appointmentDetails } = await supabase
     .from('appointments')
-    .select('patient_id, doctor_id, appointment_date, appointment_time')
+    .select('patient_id, doctor_id, appointment_date, appointment_time, service_id')
     .eq('id', id)
     .single();
 
   let patientName = 'Unknown Patient';
   let doctorName = 'Unknown Doctor';
-  
+
   if (appointmentDetails) {
     const [{ data: patient }, { data: doctor }] = await Promise.all([
       supabase.from('patients').select('full_name').eq('id', appointmentDetails.patient_id).single(),
@@ -450,7 +490,7 @@ export async function PUT(req: NextRequest) {
   // Determine the audit action based on status change
   let auditAction: AuditAction = 'APPOINTMENT_UPDATED';
   let actionDescription = 'Updated appointment';
-  
+
   if (parsed.data.status === 'cancelled') {
     auditAction = 'APPOINTMENT_CANCELLED';
     actionDescription = 'Cancelled appointment';
@@ -460,6 +500,9 @@ export async function PUT(req: NextRequest) {
   } else if (parsed.data.status === 'confirmed') {
     auditAction = 'APPOINTMENT_CONFIRMED';
     actionDescription = 'Confirmed appointment';
+  } else if (parsed.data.status === 'no-show') {
+    auditAction = 'APPOINTMENT_NO_SHOW';
+    actionDescription = 'Marked appointment as no-show';
   } else if (parsed.data.status === 'cancellation_requested') {
     auditAction = 'CANCELLATION_REQUESTED';
     actionDescription = 'Requested cancellation';
@@ -529,8 +572,8 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  // 5. Notify STAFF when patient requests RESCHEDULE
-  if (parsed.data.rescheduleRequested && !wasRescheduleRequested) {
+  // 5. Notify STAFF when patient requests RESCHEDULE (via reschedule_requested status)
+  if (newStatus === 'reschedule_requested' && oldStatus !== 'reschedule_requested') {
     const newDate = parsed.data.rescheduleRequestedDate ?? 'new date';
     const newTime = parsed.data.rescheduleRequestedTime ?? 'new time';
     await notifyAllStaff(
@@ -540,30 +583,8 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  // 6. Notify PATIENT when reschedule is APPROVED (date/time changed while reschedule was requested)
-  if (wasRescheduleRequested && (parsed.data.date || parsed.data.time) && patientId) {
-    const newDate = parsed.data.date ?? appointmentDate;
-    const newTime = parsed.data.time ?? appointmentTime;
-    await createNotification(
-      patientId,
-      'reschedule_approved',
-      'Reschedule Approved',
-      `Your reschedule request has been approved. Your appointment has been rescheduled to ${newDate} at ${newTime}.`
-    );
-  }
-
-  // 7. Notify PATIENT when reschedule is REJECTED (rescheduleRequested set to false without date/time change)
-  if (wasRescheduleRequested && parsed.data.rescheduleRequested === false && !parsed.data.date && !parsed.data.time && patientId) {
-    await createNotification(
-      patientId,
-      'reschedule_rejected',
-      'Reschedule Request Rejected',
-      `Your reschedule request has been rejected. Your appointment remains scheduled for ${appointmentDate} at ${appointmentTime}.`
-    );
-  }
-
-  // 8. Notify PATIENT when appointment is RESCHEDULED by staff (date/time changed without reschedule request)
-  if (!wasRescheduleRequested && (parsed.data.date || parsed.data.time) && oldStatus !== 'cancelled' && newStatus !== 'cancelled' && patientId) {
+  // 6. Notify PATIENT when appointment is RESCHEDULED by staff
+  if ((parsed.data.date || parsed.data.time) && oldStatus !== 'cancelled' && newStatus !== 'cancelled' && patientId) {
     const newDate = parsed.data.date ?? appointmentDate;
     const newTime = parsed.data.time ?? appointmentTime;
     // Only notify if date or time actually changed
@@ -574,6 +595,48 @@ export async function PUT(req: NextRequest) {
         'Appointment Rescheduled',
         `Your appointment has been rescheduled from ${appointmentDate} at ${appointmentTime} to ${newDate} at ${newTime}.`
       );
+    }
+  }
+
+  // 7. Create Medical History record when appointment is COMPLETED
+  if (newStatus === 'completed' && oldStatus !== 'completed' && patientId) {
+    type MedicalRecord = {
+      id: string;
+      patient_id: string;
+      doctor_id: string | null;
+      service_id: string | null;
+      date: string;
+      time: string;
+      treatment: string;
+      remarks: string | null;
+      created_at: string;
+      updated_at: string;
+    };
+
+    const medicalRecordId = `med${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
+
+    // Use the treatment/remarks from the update payload if provided, otherwise generic message
+    const treatmentNotes = parsed.data.treatment || parsed.data.notes || 'Appointment completed';
+    const remarksNotes = parsed.data.remarks || null;
+
+    const { error: medHistErr } = await supabase.from('medical_history').insert({
+      id: medicalRecordId,
+      patient_id: patientId,
+      doctor_id: appointmentDetails?.doctor_id || null,
+      service_id: parsed.data.services?.[0]?.serviceId || appointmentDetails?.service_id || null,
+      date: appointmentDate,
+      time: appointmentTime,
+      treatment: treatmentNotes,
+      remarks: remarksNotes,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+
+    if (medHistErr) {
+      console.error('Failed to auto-create medical history record:', medHistErr);
+      // We don't fail the request, just log the error
+    } else {
+      console.log(`Auto-created medical history record ${medicalRecordId} for appointment ${id}`);
     }
   }
 
@@ -610,7 +673,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   const supabase = supabaseAdmin();
-  
+
   // Fetch appointment details before deletion for audit logging
   const { data: appointmentDetails } = await supabase
     .from('appointments')
@@ -620,7 +683,7 @@ export async function DELETE(req: NextRequest) {
 
   let patientName = 'Unknown Patient';
   let doctorName = 'Unknown Doctor';
-  
+
   if (appointmentDetails) {
     const [{ data: patient }, { data: doctor }] = await Promise.all([
       supabase.from('patients').select('full_name').eq('id', appointmentDetails.patient_id).single(),
@@ -629,7 +692,7 @@ export async function DELETE(req: NextRequest) {
     patientName = patient?.full_name ?? 'Unknown Patient';
     doctorName = doctor?.name ?? 'Unknown Doctor';
   }
-  
+
   const { error: deleteErr } = await supabase.from('appointments').delete().eq('id', id);
 
   if (deleteErr) {
@@ -642,8 +705,8 @@ export async function DELETE(req: NextRequest) {
     userId: auth.id,
     userName: auth.fullName ?? 'Unknown',
     userRole: auth.role,
-    details: { 
-      appointmentId: id, 
+    details: {
+      appointmentId: id,
       patientName,
       doctorName,
       date: appointmentDetails?.appointment_date ?? 'N/A',

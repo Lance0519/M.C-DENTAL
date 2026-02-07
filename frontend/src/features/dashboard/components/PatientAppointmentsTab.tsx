@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctors } from '@/hooks/useDoctors';
@@ -36,8 +37,34 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
     setShowBookModal(true);
   };
 
-  // Filter appointments for current patient - matching legacy logic exactly
-  const patientAppointments = appointments.filter((apt) => apt.patientId === user.id);
+  // Filter appointments for current patient - including guest appointments
+  const patientAppointments = appointments.filter((apt) => {
+    // Regular patient appointments
+    if (apt.patientId === user.id) {
+      return true;
+    }
+
+    // Guest appointments - check if notes contain user's email or name
+    const patientIdStr = typeof apt.patientId === 'string' ? apt.patientId : String(apt.patientId || '');
+    const isGuest = patientIdStr.startsWith('guest_appointment');
+
+    if (isGuest && apt.notes) {
+      // Extract guest info from notes
+      const emailMatch = apt.notes.match(/Email:\s*([^\r\n]+)/i);
+      const nameMatch = apt.notes.match(/GUEST PATIENT[\s\S]*?Name:\s*([^\r\n]+)/i);
+
+      const guestEmail = emailMatch ? emailMatch[1].trim().toLowerCase() : '';
+      const guestName = nameMatch ? nameMatch[1].trim().toLowerCase() : '';
+
+      // Match by email or name
+      const userEmail = (user.email || '').toLowerCase();
+      const userName = (user.fullName || user.name || '').toLowerCase();
+
+      return guestEmail === userEmail || guestName === userName;
+    }
+
+    return false;
+  });
 
   // Get upcoming appointments - matching legacy logic
   // Include appointments with 'cancellation_requested' status so patient can see their request
@@ -58,14 +85,10 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
   // Get appointment history - matching legacy logic
   const appointmentHistory = patientAppointments
     .filter((apt) => {
-      const aptDate = apt.date || (apt as any).appointmentDate;
-      if (!aptDate) return false;
 
-      const appointmentDate = new Date(aptDate + ' ' + (apt.time || (apt as any).appointmentTime));
-      const now = new Date();
 
-      // Include if appointment is in the past OR if it's completed, but exclude cancelled
-      return apt.status !== 'cancelled' && (appointmentDate < now || apt.status === 'completed');
+      // Show only completed, cancelled, or no-show appointments in history
+      return ['completed', 'cancelled', 'no-show'].includes(apt.status);
     })
     .sort((a, b) => {
       // Sort by date (newest first) - matching legacy logic
@@ -91,10 +114,10 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
 
   const handleRescheduleSuccess = () => {
     if (!appointmentToReschedule) return;
-    
+
     loadAppointments();
     setShowRescheduleModal(false);
-    
+
     const appointmentDate = formatDate(appointmentToReschedule.date || (appointmentToReschedule as any).appointmentDate);
     const appointmentTime = formatTime(appointmentToReschedule.time || (appointmentToReschedule as any).appointmentTime);
     setSuccessMessage(
@@ -117,7 +140,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
       setShowCancelModal(false);
       setAppointmentToCancel(null);
       loadAppointments();
-      
+
       // Show success modal
       const appointmentDate = formatDate(appointmentToCancel.date || (appointmentToCancel as any).appointmentDate);
       const appointmentTime = formatTime(appointmentToCancel.time || (appointmentToCancel as any).appointmentTime);
@@ -168,9 +191,17 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
       completed: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
       cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
       cancellation_requested: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
+      reschedule_requested: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
     };
 
     return statusColors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300';
+  };
+
+  const getStatusLabel = (appointment: Appointment): string => {
+    if (appointment.rescheduleRequested || appointment.status === 'reschedule_requested') {
+      return 'Reschedule-Requested';
+    }
+    return appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1).replace(/_/g, ' ');
   };
 
   const getServiceName = (appointment: Appointment): string => {
@@ -233,7 +264,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-black">{getServiceName(appointment)}</h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${formatStatus(appointment.status)}`}>
-                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                      {getStatusLabel(appointment)}
                     </span>
                   </div>
                 </div>
@@ -284,26 +315,30 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                   >
                     View Details
                   </button>
-                  {appointment.status !== 'cancelled' && 
-                   appointment.status !== 'completed' && 
-                   appointment.status !== 'cancellation_requested' && (
-                    <div className="flex gap-2">
-                      {!appointment.rescheduleRequested && (
+                  {appointment.status !== 'cancelled' &&
+                    appointment.status !== 'completed' &&
+                    appointment.status !== 'cancellation_requested' && (
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => handleReschedule(appointment)}
-                          className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-blue-700 transition-all transform hover:scale-105"
+                          onClick={() => !appointment.rescheduleRequested && handleReschedule(appointment)}
+                          disabled={appointment.rescheduleRequested || appointment.status === 'reschedule_requested'}
+                          className={`flex-1 px-4 py-2 font-semibold rounded-lg shadow-md transition-all ${appointment.rescheduleRequested || appointment.status === 'reschedule_requested'
+                            ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed opacity-60'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-105'
+                            }`}
                         >
-                          Request Reschedule
+                          {appointment.rescheduleRequested || appointment.status === 'reschedule_requested'
+                            ? 'Reschedule Requested'
+                            : 'Request Reschedule'}
                         </button>
-                      )}
-                      <button
-                        onClick={() => handleCancel(appointment)}
-                        className={`${appointment.rescheduleRequested ? 'w-full' : 'flex-1'} px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-red-700 transition-all transform hover:scale-105`}
-                      >
-                        Request Cancellation
-                      </button>
-                    </div>
-                  )}
+                        <button
+                          onClick={() => handleCancel(appointment)}
+                          className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-red-700 transition-all transform hover:scale-105"
+                        >
+                          Request Cancellation
+                        </button>
+                      </div>
+                    )}
                   {appointment.status === 'completed' && (
                     <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-center text-sm font-semibold">
                       This appointment is completed and cannot be modified
@@ -315,8 +350,8 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                     </div>
                   )}
                   {appointment.rescheduleRequested && appointment.status !== 'cancellation_requested' && (
-                    <div className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-lg text-center font-semibold">
-                      Reschedule Request Pending
+                    <div className="px-4 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-lg text-center font-semibold">
+                      Reschedule-Requested
                     </div>
                   )}
                 </div>
@@ -348,7 +383,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                       <p className="text-sm text-gray-600 dark:text-gray-400">Dr. {getDoctorName(appointment)}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${formatStatus(appointment.status)}`}>
-                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                      {getStatusLabel(appointment)}
                     </span>
                   </div>
 
@@ -432,6 +467,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
           formatDate={formatDate}
           formatTime={formatTime}
           formatStatus={formatStatus}
+          getStatusLabel={getStatusLabel}
         />
       )}
 
@@ -484,6 +520,7 @@ function AppointmentDetailsModal({
   formatDate,
   formatTime,
   formatStatus,
+  getStatusLabel, // <--- ADD THIS LINE HERE
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -493,6 +530,7 @@ function AppointmentDetailsModal({
   formatDate: (date: string) => string;
   formatTime: (time: string) => string;
   formatStatus: (status: string) => string;
+  getStatusLabel: (appointment: Appointment) => string;
 }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Appointment Details" size="lg">
@@ -513,7 +551,7 @@ function AppointmentDetailsModal({
           <div className="p-4 bg-white dark:bg-black-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
             <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Status</h4>
             <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${formatStatus(appointment.status)}`}>
-              {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+              {getStatusLabel(appointment)}
             </span>
           </div>
         </div>

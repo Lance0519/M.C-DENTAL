@@ -26,33 +26,39 @@ const updateSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  // Schedules are publicly accessible for booking purposes (guests need to see available times)
-  // No authentication required for GET
-  const supabase = supabaseAdmin();
-  const doctorId = req.nextUrl.searchParams.get('doctor_id');
-  const day = req.nextUrl.searchParams.get('day');
+  try {
+    // Schedules are publicly accessible for booking purposes (guests need to see available times)
+    // No authentication required for GET
+    const supabase = supabaseAdmin();
+    const doctorId = req.nextUrl.searchParams.get('doctor_id');
+    const day = req.nextUrl.searchParams.get('day');
 
-  let query = supabase.from('schedules').select('*');
-  if (doctorId) query = query.eq('doctor_id', doctorId);
-  if (day) query = query.eq('day_of_week', day);
+    let query = supabase.from('schedules').select('*');
+    if (doctorId) query = query.eq('doctor_id', doctorId);
+    if (day) query = query.eq('day_of_week', day);
 
-  const order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  query = query.order('day_of_week', { ascending: true }).order('start_time', { ascending: true });
+    const order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    query = query.order('day_of_week', { ascending: true }).order('start_time', { ascending: true });
 
-  const { data, error: dbErr } = await query;
+    const { data, error: dbErr } = await query;
 
-  if (dbErr) {
-    return error('Failed to fetch schedules', 500);
+    if (dbErr) {
+      console.error('GET /api/schedules - Error fetching schedules:', dbErr);
+      return error('Failed to fetch schedules', 500, { details: dbErr.message, code: dbErr.code });
+    }
+
+    // Sort days manually to match CASE ordering
+    const sorted = (data ?? []).sort((a, b) => {
+      const dayDiff = order.indexOf(a.day_of_week) - order.indexOf(b.day_of_week);
+      if (dayDiff !== 0) return dayDiff;
+      return a.start_time.localeCompare(b.start_time);
+    });
+
+    return success(sorted);
+  } catch (err) {
+    console.error('GET /api/schedules - Unexpected error:', err);
+    return error('Internal server error', 500, { details: err instanceof Error ? err.message : 'Unknown error' });
   }
-
-  // Sort days manually to match CASE ordering
-  const sorted = (data ?? []).sort((a, b) => {
-    const dayDiff = order.indexOf(a.day_of_week) - order.indexOf(b.day_of_week);
-    if (dayDiff !== 0) return dayDiff;
-    return a.start_time.localeCompare(b.start_time);
-  });
-
-  return success(sorted);
 }
 
 export async function POST(req: NextRequest) {

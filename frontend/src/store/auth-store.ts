@@ -81,9 +81,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   setUser(user) {
     set({ user });
-    // Also update sessionStorage if user exists
     if (user) {
-      sessionStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem('currentUser');
     }
   }
 }));

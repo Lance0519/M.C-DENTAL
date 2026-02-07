@@ -9,7 +9,7 @@ const normalizeDoctor = (raw: any): DoctorProfile => ({
   fullName: raw.full_name ?? raw.fullName ?? raw.name,
   specialty: raw.specialization ?? raw.specialty ?? '',
   available: raw.active ?? raw.available ?? true,
-  profileImage: raw.profile_image_url ?? raw.profileImage ?? undefined,
+  profileImage: raw.profile_image ?? raw.profile_image_url ?? raw.profileImage ?? undefined,
 });
 
 export function useDoctors() {
@@ -46,6 +46,10 @@ export function useDoctors() {
         specialization: doctor.specialty,
         active: doctor.available ?? true,
       };
+      // Include profile image if provided
+      if (doctor.profileImage) {
+        payload.profileImageUrl = doctor.profileImage;
+      }
       await api.createDoctor(payload);
       await loadDoctors();
       return { success: true };
@@ -62,6 +66,8 @@ export function useDoctors() {
       if (doctor.name !== undefined) payload.name = doctor.name;
       if (doctor.specialty !== undefined) payload.specialization = doctor.specialty;
       if (doctor.available !== undefined) payload.active = doctor.available;
+      // Include profile image if provided
+      if (doctor.profileImage !== undefined) payload.profileImageUrl = doctor.profileImage;
       
       await api.updateDoctor(String(id), payload);
       await loadDoctors();

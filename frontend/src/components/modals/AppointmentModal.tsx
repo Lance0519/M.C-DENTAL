@@ -933,7 +933,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, appointment, pati
         {/* Doctor Selection */}
         <div>
           <label htmlFor="appointmentDoctor" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Dentist {!selectedDoctorId && '(Optional - will auto-assign)'}
+            Dentist *
           </label>
           <select
             id="appointmentDoctor"
@@ -947,7 +947,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, appointment, pati
             }}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
           >
-            <option value="">Auto-assign</option>
+            <option value="">Select a dentist...</option>
             {doctors.map((doctor) => (
               <option key={doctor.id} value={doctor.id}>
                 {doctor.name} {doctor.specialty ? `- ${doctor.specialty}` : ''}
@@ -971,6 +971,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, appointment, pati
                   selectedDate={selectedDate}
                   availableDates={availableDates}
                   onDateSelect={handleDateSelect}
+                  clinicSchedule={clinicSchedule}
                   onMonthChange={(direction) => {
                     let newMonth = currentMonth + direction;
                     let newYear = currentYear;
@@ -1022,7 +1023,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, appointment, pati
             </label>
             <div className="bg-gray-100 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-8 flex items-center justify-center min-h-[200px]">
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                Please select a dentist first to see their available dates and times
+                Please select a dentist to see available dates and times
               </p>
             </div>
           </div>

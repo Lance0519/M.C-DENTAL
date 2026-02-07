@@ -17,7 +17,14 @@ export function AboutPage() {
         const response = await api.getDoctors();
         if (!isMounted) return;
         const data = Array.isArray(response) ? response : (response as any)?.data ?? [];
-        setDoctors(Array.isArray(data) ? data : []);
+        // Normalize the data to handle both profile_image_url and profileImage field names
+        const normalizedDoctors = (Array.isArray(data) ? data : []).map((doc: any) => ({
+          ...doc,
+          specialty: doc.specialization ?? doc.specialty ?? '',
+          available: doc.active ?? doc.available ?? true,
+          profileImage: doc.profile_image_url ?? doc.profileImage ?? undefined,
+        }));
+        setDoctors(normalizedDoctors);
       } catch (error) {
         console.error('Error loading team:', error);
       }
@@ -94,26 +101,26 @@ export function AboutPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { 
-                  title: 'Compassion', 
+                {
+                  title: 'Compassion',
                   description: 'We treat every patient with gentle care, respect, and understanding',
                   icon: '❤️',
                   gradient: 'from-red-500 to-pink-500'
                 },
-                { 
-                  title: 'Excellence', 
+                {
+                  title: 'Excellence',
                   description: 'We maintain the highest standards of dental practice and patient care',
                   icon: '⭐',
                   gradient: 'from-yellow-500 to-orange-500'
                 },
-                { 
-                  title: 'Integrity', 
+                {
+                  title: 'Integrity',
                   description: 'We uphold honesty and ethical practices in all our interactions',
                   icon: '🤝',
                   gradient: 'from-blue-500 to-cyan-500'
                 },
-                { 
-                  title: 'Innovation', 
+                {
+                  title: 'Innovation',
                   description: 'We use modern dental technology for better results and comfort',
                   icon: '💡',
                   gradient: 'from-purple-500 to-indigo-500'
@@ -164,9 +171,21 @@ export function AboutPage() {
                       <div className="relative h-64 overflow-hidden">
                         {avatarHTML}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        {/* Status Badge overlay on image for clarity */}
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-md backdrop-blur-md ${doctor.available
+                            ? 'bg-green-500/90 text-white'
+                            : 'bg-red-500/90 text-white'
+                            }`}>
+                            <span className={`w-2 h-2 mr-1.5 rounded-full bg-white`}></span>
+                            {doctor.available ? 'Available' : 'Unavailable'}
+                          </span>
+                        </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{doctor.name}</h3>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{doctor.name}</h3>
+                        </div>
                         <div className="inline-block px-4 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-600 dark:to-gold-500 rounded-full text-sm font-bold text-white mb-4">
                           {doctor.specialty}
                         </div>

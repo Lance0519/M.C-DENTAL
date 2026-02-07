@@ -1,8 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { StorageService } from '@/lib/storage';
+import api from '@/lib/api';
 import { formatTime, validateEmail, validatePhone, showNotification } from '@/lib/utils';
 import type { ClinicSchedule } from '@/types/storage';
 import '@/styles/design-system.css';
@@ -12,27 +11,54 @@ export function ContactPage() {
   const [clinicSchedule, setClinicSchedule] = useState<ClinicSchedule | null>(null);
 
   useEffect(() => {
-    const loadClinicHours = () => {
+    const loadClinicHours = async () => {
       try {
-        const schedule = StorageService.getClinicSchedule();
+        const response = await api.getClinicSchedule();
+        const scheduleData = Array.isArray(response) ? response : [];
+
+        // Transform API response to ClinicSchedule format
+        const schedule: ClinicSchedule = {
+          Monday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Tuesday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Wednesday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Thursday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Friday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Saturday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Sunday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+        };
+
+        scheduleData.forEach((day: any) => {
+          // Handle both snake_case (legacy/direct DB) and camelCase (new API)
+          const rawDay = day.day || day.day_of_week;
+          const dayName = (typeof rawDay === 'string' ? rawDay.trim() : rawDay) as keyof ClinicSchedule;
+
+          if (schedule[dayName]) {
+            schedule[dayName] = {
+              isOpen: day.isOpen ?? day.is_open ?? false,
+              startTime: day.startTime ?? day.start_time ?? '09:00',
+              endTime: day.endTime ?? day.end_time ?? '18:00',
+              breakStartTime: day.breakStartTime ?? day.break_start_time ?? '12:00',
+              breakEndTime: day.breakEndTime ?? day.break_end_time ?? '13:00',
+            };
+          }
+        });
+
         setClinicSchedule(schedule);
       } catch (error) {
         console.error('Error loading clinic hours:', error);
+        // Set default schedule on error
+        setClinicSchedule({
+          Monday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Tuesday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Wednesday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Thursday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Friday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Saturday: { isOpen: true, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+          Sunday: { isOpen: false, startTime: '09:00', endTime: '18:00', breakStartTime: '12:00', breakEndTime: '13:00' },
+        });
       }
     };
     loadClinicHours();
-
-    // Listen for storage changes
-    const handleStorageChange = () => {
-      loadClinicHours();
-    };
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('clinicDataUpdated', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('clinicDataUpdated', handleStorageChange);
-    };
   }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -108,31 +134,28 @@ export function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-6 bg-pink-50 dark:bg-pink-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800 hover:border-pink-300 dark:hover:border-pink-700 transition-all">
-                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  <a
+                    href="https://www.facebook.com/mcdentalph"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all group cursor-pointer"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                       </svg>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Instagram</h3>
-                      <p className="text-gray-700 dark:text-gray-300">@mcdental</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                      </svg>
-                    </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Facebook</h3>
-                      <p className="text-gray-700 dark:text-gray-300">M.C. DENTAL CLINIC</p>
+                      <p className="text-gray-700 dark:text-gray-300 mb-3">M.C. DENTAL CLINIC</p>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                        Visit our Facebook Page
+                      </span>
                     </div>
-                  </div>
+                  </a>
 
                   <div className="flex items-start gap-4 p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border-2 border-yellow-200 dark:border-yellow-800 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all">
                     <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-400 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -186,51 +209,51 @@ export function ContactPage() {
                 <form id="contactForm" className="space-y-5" onSubmit={handleSubmit}>
                   <div>
                     <label htmlFor="contactName" className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Your Name</label>
-                    <input 
-                      type="text" 
-                      id="contactName" 
-                      name="contactName" 
-                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all" 
-                      required 
+                    <input
+                      type="text"
+                      id="contactName"
+                      name="contactName"
+                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label htmlFor="contactEmail" className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Email Address</label>
-                    <input 
-                      type="email" 
-                      id="contactEmail" 
-                      name="contactEmail" 
-                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all" 
-                      required 
+                    <input
+                      type="email"
+                      id="contactEmail"
+                      name="contactEmail"
+                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label htmlFor="contactPhone" className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Phone Number</label>
-                    <input 
-                      type="tel" 
-                      id="contactPhone" 
-                      name="contactPhone" 
-                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all" 
-                      required 
+                    <input
+                      type="tel"
+                      id="contactPhone"
+                      name="contactPhone"
+                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label htmlFor="contactSubject" className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Subject</label>
-                    <input 
-                      type="text" 
-                      id="contactSubject" 
-                      name="contactSubject" 
-                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all" 
-                      required 
+                    <input
+                      type="text"
+                      id="contactSubject"
+                      name="contactSubject"
+                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label htmlFor="contactMessage" className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Message</label>
-                    <textarea 
-                      id="contactMessage" 
-                      name="contactMessage" 
-                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all min-h-[150px]" 
-                      rows={6} 
+                    <textarea
+                      id="contactMessage"
+                      name="contactMessage"
+                      className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-3 text-base focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-all min-h-[150px]"
+                      rows={6}
                       required
                     ></textarea>
                   </div>

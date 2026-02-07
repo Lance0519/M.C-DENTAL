@@ -9,9 +9,10 @@ interface ModalProps {
   className?: string;
   zIndex?: number;
   position?: 'center' | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  closeOnBackdropClick?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', zIndex = 50, position = 'center' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', zIndex = 50, position = 'center', closeOnBackdropClick = true }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +26,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
     };
 
     const handleBackdrop = (e: MouseEvent) => {
-      if (e.target === backdropRef.current) {
+      if (closeOnBackdropClick && e.target === backdropRef.current) {
         onClose();
       }
     };
@@ -41,7 +42,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
       backdropRef.current?.removeEventListener('click', handleBackdrop);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeOnBackdropClick]);
 
   if (!isOpen) return null;
 
@@ -78,11 +79,11 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
     >
       <div
         ref={modalRef}
-        className={`bg-white dark:bg-black-900 rounded-lg shadow-2xl w-full ${sizeClasses[size]} ${modalPositionClasses[position]} ${className} max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)] flex flex-col border border-gray-200 dark:border-gray-700`}
+        className={`bg-white dark:bg-black-900 rounded-xl shadow-2xl w-full ${sizeClasses[size]} ${modalPositionClasses[position]} ${className} max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)] flex flex-col border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gray-50 dark:bg-black-950 rounded-t-lg">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b-2 border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gray-50 dark:bg-black-950 rounded-t-xl">
                 <h2 id="modal-title" className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">
             {title}
           </h2>

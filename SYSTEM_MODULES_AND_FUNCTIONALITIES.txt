@@ -1,0 +1,311 @@
+================================================================================
+M.C DENTAL CLINIC - SYSTEM MODULES & FUNCTIONALITIES
+================================================================================
+Last Updated: November 2024
+
+================================================================================
+1. AUTHENTICATION & USER MANAGEMENT MODULE
+================================================================================
+
+A. Authentication System:
+   - User login/logout functionality
+   - User registration (patient registration)
+   - Password recovery and reset
+   - Email verification
+   - Account claiming functionality
+   - JWT token-based authentication
+   - Session management
+
+B. User Roles:
+   - Admin: Full system access
+   - Staff: Appointment and patient management
+   - Patient: Booking and personal profile access
+
+C. User Management:
+   - User profile management (with profile images)
+   - Staff member management (CRUD operations, job titles)
+   - Patient management (CRUD operations, demographics)
+
+================================================================================
+2. APPOINTMENT MANAGEMENT SYSTEM MODULE
+================================================================================
+
+A. Appointment Booking:
+   - Online appointment booking (for both guests and logged-in patients)
+   - Calendar-based date selection
+   - Time slot availability checking
+   - Health screening questionnaire (required)
+   - Multiple services per appointment
+   - Promotion integration
+
+B. Appointment Workflow:
+   - Appointment statuses: pending, confirmed, completed, cancelled, 
+     cancellation_requested, reschedule_requested, no_show
+   - Cancellation requests (with reason tracking)
+   - Reschedule requests (with new date/time specification)
+   - Admin/Staff approval/rejection of requests
+   - Appointment status tracking and updates
+
+C. Payment Management:
+   - Payment status tracking (unpaid, partial, paid)
+   - Payment amount tracking
+   - Payment method selection (cash, card)
+   - Card type selection
+
+================================================================================
+3. PATIENT MANAGEMENT MODULE
+================================================================================
+
+A. Patient Records:
+   - Patient profile management (name, email, phone, address, date of birth, gender)
+   - Profile image uploads
+   - Patient search and filtering
+
+B. Medical History:
+   - Diagnosis and treatment notes
+   - Visit records with dates
+   - Image uploads per visit
+   - Medical history timeline
+
+C. Patient Images:
+   - Patient image gallery
+   - Categorized images
+   - Link to medical history records
+   - Image upload management
+
+================================================================================
+4. SERVICE & PROMOTION MANAGEMENT MODULE
+================================================================================
+
+A. Services Management:
+   - Service CRUD operations
+   - Service details (name, description, duration, price)
+   - Active/inactive status
+   - Multiple services per appointment
+
+B. Promotions Management:
+   - Promotion creation and management
+   - Discount percentages
+   - Validity periods (valid_from, valid_until)
+   - Active/inactive status
+   - String fields for flexible promotion data
+
+================================================================================
+5. DOCTOR & SCHEDULE MANAGEMENT MODULE
+================================================================================
+
+A. Doctors Management:
+   - Doctor profile management (name, specialization, contact info)
+   - Profile image uploads
+   - Active/inactive status
+   - Doctor assignment to appointments
+
+B. Schedules Management:
+   - Doctor-specific schedules
+   - Day-of-week availability
+   - Time slot management (start/end times)
+   - Availability toggle
+
+C. Clinic Schedule:
+   - Clinic-wide operating hours
+   - Break times management
+   - Holiday management
+   - Schedule configuration
+
+================================================================================
+6. GALLERY & CASE MANAGEMENT MODULE
+================================================================================
+
+A. Smile Gallery:
+   - Before/after case studies
+   - Treatment type categorization
+   - Case descriptions
+   - Public gallery page display
+   - Admin/staff management of gallery cases
+
+================================================================================
+7. NOTIFICATION SYSTEM MODULE
+================================================================================
+
+A. Notification Types:
+   - Info, warning, error, success notifications
+   - Cancellation requests
+   - Reschedule requests
+   - Appointment confirmed
+   - Appointment completed
+   - Medical history uploaded
+   - Appointment rescheduled
+   - Cancellation approved/rejected
+   - Reschedule approved/rejected
+   - New appointment
+   - Appointment reminders
+   - New promotion
+   - Patient document uploaded
+   - Audit log exported
+
+B. Notification Features:
+   - Real-time notifications
+   - Read/unread status tracking
+   - User-specific notifications
+
+================================================================================
+8. AUDIT & REPORTING MODULE
+================================================================================
+
+A. Audit Logs:
+   - Comprehensive action tracking
+   - User activity logging (user_id, user_name, user_role)
+   - IP address tracking
+   - JSONB details storage
+   - Audit log export functionality
+
+B. Reports & Analytics:
+   - Dashboard analytics
+   - Appointment statistics
+   - Revenue reports
+   - Patient reports
+   - Charts and visualizations (Chart.js, Recharts)
+
+================================================================================
+9. DASHBOARD MODULES
+================================================================================
+
+A. Admin Dashboard:
+   - Dashboard overview
+   - Appointments management
+   - Patients management
+   - Services management
+   - Reports & analytics
+   - Doctors management
+   - Staff management
+   - Schedules management
+   - Clinic schedule management
+   - Promotions management
+   - Gallery management
+   - Audit logs
+   - Settings
+
+B. Staff Dashboard:
+   - Appointments management
+   - Patients management
+   - Services management
+   - Doctors management
+   - Schedules management
+   - Clinic schedule management
+   - Promotions management
+   - Gallery management
+   - Settings
+
+C. Patient Dashboard:
+   - My appointments
+   - Medical history
+   - Profile management
+
+================================================================================
+10. PUBLIC-FACING PAGES MODULE
+================================================================================
+
+A. Homepage:
+   - Hero section
+   - Features showcase
+   - How it works section
+
+B. Services Page:
+   - Service listings
+   - Active promotions display
+
+C. About Page:
+   - Mission and values
+   - Team information
+
+D. Contact Page:
+   - Contact form
+   - Location information
+
+E. Gallery Page:
+   - Smile gallery (before/after transformations)
+
+F. Booking Page:
+   - Appointment booking interface
+
+================================================================================
+11. SITE SETTINGS & CONFIGURATION MODULE
+================================================================================
+
+A. Site Settings:
+   - General site configuration
+   - System preferences
+   - Email template management
+   - Display settings
+
+================================================================================
+12. ADDITIONAL FEATURES
+================================================================================
+
+A. UI/UX Features:
+   - Dark mode support with theme toggle
+   - Responsive design (mobile-friendly)
+   - Premium gold, white, black color theme
+   - Modern design system
+
+B. File Management:
+   - Profile image uploads
+   - Medical image uploads
+   - Gallery image uploads
+
+C. Integration Features:
+   - Email integration (Resend API)
+   - Health screening questionnaire (required before booking)
+   - CORS configuration for API
+   - Data validation (Zod schema validation)
+   - Error handling and logging
+
+================================================================================
+13. DATABASE STRUCTURE (Supabase/PostgreSQL)
+================================================================================
+
+Core Tables:
+- users: User accounts and authentication
+- patients: Patient records and demographics
+- doctors: Doctor profiles and information
+- services: Service catalog
+- schedules: Doctor-specific schedules
+- appointments: Appointment records
+- appointment_services: Many-to-many appointment services relationship
+- medical_history: Medical records and visit history
+- patient_images: Patient image gallery
+- promotions: Promotional offers
+- notifications: User notifications
+- audit_logs: System audit trail
+- gallery_cases: Before/after gallery cases
+- site_settings: Site configuration
+
+================================================================================
+14. TECHNICAL STACK SUMMARY
+================================================================================
+
+Frontend:
+- React 19.2.0 with TypeScript
+- Vite 7.2.2 (Build tool)
+- React Router DOM v7.9.6
+- Zustand 5.0.8 (State management)
+- Tailwind CSS 3.4.13 (Styling)
+- shadcn-ui & Radix UI (Component library)
+- Chart.js 4.5.1 & Recharts 3.4.1 (Charts)
+
+Backend:
+- Next.js 16.0.3 (API routes)
+- TypeScript 5
+- Supabase (Database & Auth)
+- JWT (Authentication)
+- Resend API (Email)
+
+Database:
+- Supabase (PostgreSQL)
+- SQL migrations for schema management
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+
+

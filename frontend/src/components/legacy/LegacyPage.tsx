@@ -213,7 +213,7 @@ export function LegacyPage({ htmlPath }: LegacyPageProps) {
 
       // Then load other scripts
       for (const script of otherScripts) {
-        // eslint-disable-next-line no-await-in-loop
+         
         await injectScript(script);
       }
 

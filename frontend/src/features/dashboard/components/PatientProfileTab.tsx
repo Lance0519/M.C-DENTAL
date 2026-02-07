@@ -11,6 +11,8 @@ interface PatientProfileTabProps {
 }
 
 export function PatientProfileTab({ user }: PatientProfileTabProps) {
+  const authUser = useAuthStore((state) => state.user);
+  const setAuthUser = useAuthStore((state) => state.setUser);
   const [currentUser, setCurrentUser] = useState<PatientProfile>(user);
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -31,6 +33,8 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
       const response = await api.request(`/patients?id=${user.id}`);
       const data = (response as any)?.data ?? response;
       if (data) {
+        // Check all possible profile image column names
+        const profileImage = data.profile_image ?? data.profile_image_url ?? data.profileImage ?? null;
         const patientData: PatientProfile = {
           id: data.id,
           username: data.username,
@@ -41,7 +45,10 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
           dateOfBirth: data.date_of_birth ?? data.dateOfBirth,
           gender: data.gender ?? '',
           address: data.address,
-          profileImage: data.profile_image ?? data.profileImage,
+          profileImage: profileImage || undefined,
+          firstName: '',
+          lastName: '',
+          password: ''
         };
         setCurrentUser(patientData);
         setFormData({
@@ -52,11 +59,24 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
           gender: patientData.gender || '',
           address: patientData.address || '',
         });
+
+        if (authUser && authUser.id === patientData.id) {
+          setAuthUser({
+            ...authUser,
+            fullName: patientData.fullName,
+            email: patientData.email,
+            phone: patientData.phone,
+            dateOfBirth: patientData.dateOfBirth,
+            gender: patientData.gender,
+            address: patientData.address,
+            profileImage: patientData.profileImage,
+          });
+        }
       }
     } catch (err) {
       console.error('Error loading patient data:', err);
     }
-  }, [user.id]);
+  }, [authUser, setAuthUser, user.id]);
 
   useEffect(() => {
     loadPatientData();
@@ -114,17 +134,20 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
       if (response && (response as any).success !== false) {
         // Reload patient data
         await loadPatientData();
-        
+
         // Update auth store with new user info
-        const authStore = useAuthStore.getState();
-        if (authStore.user) {
-          authStore.setUser({
-            ...authStore.user,
+        if (authUser && authUser.id === user.id) {
+          setAuthUser({
+            ...authUser,
             fullName: formData.fullName.trim(),
             email: formData.email.trim(),
+            phone: formData.phone.trim() || undefined,
+            dateOfBirth: formData.dateOfBirth || undefined,
+            gender: formData.gender || undefined,
+            address: formData.address.trim() || undefined,
           });
         }
-        
+
         setIsEditing(false);
         setShowSuccessModal(true);
       } else {
@@ -166,20 +189,12 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
         {!isEditing && (
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowProfileModal(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
-            >
-              Edit Profile Picture
-            </button>
-            <button
-              onClick={handleEdit}
-              className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
-            >
-              Edit Profile
-            </button>
-          </div>
+          <button
+            onClick={handleEdit}
+            className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
+          >
+            Edit Profile
+          </button>
         )}
       </div>
 

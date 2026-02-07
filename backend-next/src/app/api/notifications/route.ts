@@ -28,31 +28,36 @@ const createSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const auth = authenticate(req);
-  if (auth instanceof Response) return auth;
+  try {
+    const auth = authenticate(req);
+    if (auth instanceof Response) return auth;
 
-  const supabase = supabaseAdmin();
-  const unreadOnly = req.nextUrl.searchParams.get('unread') === 'true';
+    const supabase = supabaseAdmin();
+    const unreadOnly = req.nextUrl.searchParams.get('unread') === 'true';
 
-  // Users can only see their own notifications
-  let query = supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', auth.id)
-    .order('created_at', { ascending: false });
+    // Users can only see their own notifications
+    let query = supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', auth.id)
+      .order('created_at', { ascending: false });
 
-  if (unreadOnly) {
-    query = query.eq('read', false);
+    if (unreadOnly) {
+      query = query.eq('read', false);
+    }
+
+    const { data, error: dbErr } = await query.limit(50);
+
+    if (dbErr) {
+      console.error('Notifications fetch error:', dbErr);
+      return error('Failed to fetch notifications', 500);
+    }
+
+    return success(data ?? []);
+  } catch (err) {
+    console.error('GET /api/notifications - Unexpected error:', err);
+    return error('Internal server error', 500, { details: err instanceof Error ? err.message : 'Unknown error' });
   }
-
-  const { data, error: dbErr } = await query.limit(50);
-
-  if (dbErr) {
-    console.error('Notifications fetch error:', dbErr);
-    return error('Failed to fetch notifications', 500);
-  }
-
-  return success(data ?? []);
 }
 
 export async function POST(req: NextRequest) {

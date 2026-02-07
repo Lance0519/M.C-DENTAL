@@ -9,8 +9,8 @@ export async function OPTIONS() {
   return corsOptions();
 }
 
-const baseSelect =
-  'id, username, email, full_name, phone, date_of_birth, gender, address, profile_image, profile_image_url, created_at, updated_at';
+// Use * to select all available columns - avoids errors from missing columns
+const baseSelect = '*';
 
 const createSchema = z.object({
   fullName: z.string(),
@@ -36,48 +36,55 @@ const updateSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const auth = authenticate(req);
-  if (auth instanceof Response) return auth;
+  try {
+    const auth = authenticate(req);
+    if (auth instanceof Response) return auth;
 
-  const supabase = supabaseAdmin();
-  const id = req.nextUrl.searchParams.get('id');
+    const supabase = supabaseAdmin();
+    const id = req.nextUrl.searchParams.get('id');
 
-  if (id) {
-    // For patients, they can only access their own record
-    if (auth.role === 'patient' && auth.id !== id) {
-      return error('You can only access your own data', 403);
+    if (id) {
+      // For patients, they can only access their own record
+      if (auth.role === 'patient' && auth.id !== id) {
+        return error('You can only access your own data', 403);
+      }
+
+      const { data, error: dbErr } = await supabase
+        .from('patients')
+        .select(baseSelect)
+        .eq('id', id)
+        .single();
+      
+      if (dbErr) {
+        console.error('GET /api/patients - Error fetching patient:', dbErr);
+        if (dbErr.code === 'PGRST116') {
+          return error('Patient not found', 404);
+        }
+        return error('Failed to fetch patient', 500, { details: dbErr.message, code: dbErr.code });
+      }
+
+      return success(data);
     }
 
-    const { data, error: dbErr } = await supabase
+    if (auth.role !== 'admin' && auth.role !== 'staff') {
+      return error('Access denied', 403);
+    }
+
+    const { data: listData, error: listErr } = await supabase
       .from('patients')
       .select(baseSelect)
-      .eq('id', id)
-      .single();
-    
-    if (dbErr) {
-      if (dbErr.code === 'PGRST116') {
-        return error('Patient not found', 404);
-      }
-      return error('Failed to fetch patient', 500);
+      .order('full_name', { ascending: true });
+
+    if (listErr) {
+      console.error('GET /api/patients - Error fetching patients list:', listErr);
+      return error('Failed to fetch patients', 500, { details: listErr.message, code: listErr.code });
     }
 
-    return success(data);
+    return success(listData ?? []);
+  } catch (err) {
+    console.error('GET /api/patients - Unexpected error:', err);
+    return error('Internal server error', 500, { details: err instanceof Error ? err.message : 'Unknown error' });
   }
-
-  if (auth.role !== 'admin' && auth.role !== 'staff') {
-    return error('Access denied', 403);
-  }
-
-  const { data: listData, error: listErr } = await supabase
-    .from('patients')
-    .select(baseSelect)
-    .order('full_name', { ascending: true });
-
-  if (listErr) {
-    return error('Failed to fetch patients', 500);
-  }
-
-  return success(listData ?? []);
 }
 
 export async function POST(req: NextRequest) {
@@ -186,7 +193,26 @@ export async function PUT(req: NextRequest) {
   if (parsed.data.gender !== undefined) updates.gender = parsed.data.gender || null;
   if (parsed.data.address !== undefined) updates.address = parsed.data.address || null;
   if (parsed.data.password) updates.password = parsed.data.password;
-  if (parsed.data.profileImage !== undefined) updates.profile_image = parsed.data.profileImage;
+  if (parsed.data.profileImage !== undefined) {
+    // Handle null explicitly - set to null if provided, otherwise set the value
+    // Try profile_image first (new column), fallback to profile_image_url if needed
+    if (parsed.data.profileImage === null || parsed.data.profileImage === '') {
+      // Only set to null if explicitly null, not empty string
+      if (parsed.data.profileImage === null) {
+        updates.profile_image = null;
+        updates.profile_image_url = null;
+        updates.profile_image_path = null;
+      }
+    } else {
+      // Ensure we have a valid image data string
+      const imageData = String(parsed.data.profileImage).trim();
+      if (imageData && imageData.startsWith('data:image/')) {
+        updates.profile_image = imageData;
+        // Also update the old columns for backward compatibility
+        updates.profile_image_url = imageData;
+      }
+    }
+  }
 
   if (Object.keys(updates).length === 0) {
     return error('No fields to update', 400);
@@ -196,11 +222,46 @@ export async function PUT(req: NextRequest) {
   // Remove this if it causes issues
 
   const supabase = supabaseAdmin();
+  
+  // Try to update, but handle the case where profile_image column might not exist
   const { error: updateErr } = await supabase.from('patients').update(updates).eq('id', id);
 
   if (updateErr) {
     console.error('Patient update error:', updateErr);
-    return error('Failed to update patient', 500, { details: updateErr.message });
+    console.error('Update data:', JSON.stringify(updates, null, 2));
+    console.error('Patient ID:', id);
+    
+    // If the error is about a missing column, try without profile_image
+    if (updateErr.message?.includes('profile_image') || updateErr.code === '42703') {
+      console.warn('profile_image column may not exist, trying with profile_image_url only');
+      const fallbackUpdates = { ...updates };
+      delete fallbackUpdates.profile_image;
+      
+      if (parsed.data.profileImage !== undefined) {
+        if (parsed.data.profileImage === null) {
+          fallbackUpdates.profile_image_url = null;
+          fallbackUpdates.profile_image_path = null;
+        } else {
+          fallbackUpdates.profile_image_url = parsed.data.profileImage;
+        }
+      }
+      
+      const { error: fallbackErr } = await supabase.from('patients').update(fallbackUpdates).eq('id', id);
+      if (fallbackErr) {
+        return error('Failed to update patient', 500, { 
+          details: fallbackErr.message,
+          code: fallbackErr.code,
+          hint: fallbackErr.hint 
+        });
+      }
+      // Success with fallback
+    } else {
+      return error('Failed to update patient', 500, { 
+        details: updateErr.message,
+        code: updateErr.code,
+        hint: updateErr.hint 
+      });
+    }
   }
 
   // Log audit

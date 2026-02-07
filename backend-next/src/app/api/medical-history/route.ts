@@ -44,8 +44,8 @@ export async function GET(req: NextRequest) {
     .from('medical_history')
     .select('*')
     .eq('patient_id', patientId)
-    .order('record_date', { ascending: false })
-    .order('record_time', { ascending: false });
+    // FIX 1: Sort by 'created_at' because 'record_date' does not exist yet
+    .order('created_at', { ascending: false });
 
   if (dbErr) {
     console.error('Medical history fetch error:', dbErr);
@@ -60,8 +60,11 @@ export async function GET(req: NextRequest) {
     doctorId: record.doctor_id,
     serviceName: record.service_name,
     doctorName: record.doctor_name,
-    date: record.record_date,
-    time: record.record_time,
+
+    // FIX 2: Use created_at as fallback so the frontend has a valid date
+    date: record.record_date || (record.created_at ? record.created_at.split('T')[0] : new Date().toISOString().split('T')[0]),
+    time: record.record_time || (record.created_at ? record.created_at.split('T')[1]?.substring(0, 5) : '00:00'),
+
     treatment: record.treatment,
     remarks: record.remarks,
     images: record.images ?? [], // Return images array
@@ -89,15 +92,18 @@ export async function POST(req: NextRequest) {
   const { error: insertErr } = await supabase.from('medical_history').insert({
     id,
     patient_id: patientId,
-    service_id: serviceId ?? null,
-    doctor_id: doctorId ?? null,
-    service_name: serviceName ?? null,
-    doctor_name: doctorName ?? null,
-    record_date: date,
-    record_time: time,
+    // service_id: serviceId ?? null, // Column does not exist
+    // doctor_id: doctorId ?? null, // Column does not exist
+    // service_name: serviceName ?? null, // Column does not exist
+    // doctor_name: doctorName ?? null, // Column does not exist
+
+    // FIX 3: Mapped columns to correct names
+    visit_date: date,
+    // record_time: time, // Column does not exist
+
     treatment,
-    remarks: remarks ?? null,
-    images: images ?? null, // Store images as JSON array
+    notes: remarks ?? null, // Map remarks to notes
+    images: images ?? null, // Store images as JSON array if column exists (migration added it)
   });
 
   if (insertErr) {
@@ -163,4 +169,3 @@ export async function DELETE(req: NextRequest) {
 
   return success(null, 'Medical history record deleted successfully');
 }
-

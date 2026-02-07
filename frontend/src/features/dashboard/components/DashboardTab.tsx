@@ -3,8 +3,7 @@ import { useAppointments } from '@/hooks/useAppointments';
 import { usePatients } from '@/hooks/usePatients';
 import { useServices } from '@/hooks/useServices';
 import { useDoctors } from '@/hooks/useDoctors';
-import { calculateAppointmentRevenue, getAppointmentCompletionDate, normalizeDate } from '@/lib/revenue-calculator';
-import { getAppointmentsByPeriod as getAppointmentsByPeriodUtil } from '@/lib/appointment-filters';
+import { calculateAppointmentRevenue, normalizeDate } from '@/lib/revenue-calculator';
 import {
   LineChart,
   Line,
@@ -20,7 +19,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import type { PatientProfile, DoctorProfile, ServiceItem } from '@/types/user';
+import type { Appointment } from '@/types/dashboard';
 
 const COLORS = ['#D4AF37', '#F4D03F', '#F7DC6F', '#E8B923', '#C9A961'];
 
@@ -74,18 +73,23 @@ export function DashboardTab() {
     weekStart.setDate(today.getDate() - today.getDay());
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Filter appointments by period
+    // Filter appointments by period (includes future appointments in the period)
     const getAppointmentsByPeriod = (period: 'today' | 'week' | 'month') => {
       return appointments.filter((apt) => {
         const aptDate = new Date(apt.date || (apt as any).appointmentDate);
         aptDate.setHours(0, 0, 0, 0);
-        
+
         if (period === 'today') {
           return aptDate.getTime() === today.getTime();
         } else if (period === 'week') {
-          return aptDate >= weekStart && aptDate <= today;
+          // Include appointments from week start to end of week (7 days from week start)
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          return aptDate >= weekStart && aptDate <= weekEnd;
         } else {
-          return aptDate >= monthStart && aptDate <= today;
+          // Include appointments from month start to end of month
+          const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          return aptDate >= monthStart && aptDate <= monthEnd;
         }
       });
     };
@@ -99,9 +103,9 @@ export function DashboardTab() {
       const scheduled = apts.length;
       const completed = apts.filter((a) => a.status === 'completed').length;
       const cancelled = apts.filter((a) => a.status === 'cancelled').length;
-      const noShow = apts.filter((a) => a.status === 'pending' && new Date(a.date || (a as any).appointmentDate) < today).length;
+      const noShow = apts.filter((a) => a.status === 'no-show').length;
       const noShowRate = scheduled > 0 ? ((noShow / scheduled) * 100).toFixed(1) : '0.0';
-      
+
       return { scheduled, completed, cancelled, noShow, noShowRate };
     };
 
@@ -129,7 +133,7 @@ export function DashboardTab() {
       const completedCount = docAppointments.filter((a) => a.status === 'completed').length;
       const totalSlots = 20; // Assume 20 slots per day average
       const utilization = docAppointments.length > 0 ? ((docAppointments.length / (totalSlots * 30)) * 100).toFixed(1) : '0.0';
-      
+
       return {
         id: doc.id,
         name: doc.name || (doc as any).fullName || 'Unknown',
@@ -151,59 +155,120 @@ export function DashboardTab() {
       .slice(0, 10);
 
 
-    // Appointment trends (last 7 days)
+    // Dynamic Appointment Trends based on selectedPeriod
     const trendData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      const dayApts = appointments.filter((a) => {
-        const aptDateStr = normalizeDate(a.date || (a as any).appointmentDate);
-        return aptDateStr === dateStr;
-      });
-      
-      trendData.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        scheduled: dayApts.length,
-        completed: dayApts.filter((a) => a.status === 'completed').length,
-        cancelled: dayApts.filter((a) => a.status === 'cancelled').length,
-      });
+
+    if (selectedPeriod === 'today') {
+      // Hourly breakdown for Today
+      for (let i = 8; i <= 18; i++) { // Business hours 8 AM to 6 PM 
+        const hourLabel = `${i > 12 ? i - 12 : i} ${i >= 12 ? 'PM' : 'AM'}`;
+        const hourStart = new Date(today);
+        hourStart.setHours(i, 0, 0, 0);
+        const hourEnd = new Date(today);
+        hourEnd.setHours(i, 59, 59, 999);
+
+        const hourApts = todayApts.filter((a) => {
+          const aptDate = new Date(a.date || (a as any).appointmentDate);
+          // Handle time parsing if needed, but assuming date object has correct time or we look at time string
+          // Simplified check: match hour if valid time string exists
+          if (a.time) {
+            const [h] = a.time.split(':');
+            let hour = parseInt(h);
+            if (a.time.toLowerCase().includes('pm') && hour < 12) hour += 12;
+            if (a.time.toLowerCase().includes('am') && hour === 12) hour = 0;
+            return hour === i;
+          }
+          return aptDate.getHours() === i;
+        });
+
+        trendData.push({
+          date: hourLabel,
+          scheduled: hourApts.length,
+          completed: hourApts.filter((a) => a.status === 'completed').length,
+          cancelled: hourApts.filter((a) => a.status === 'cancelled').length,
+        });
+      }
+    } else if (selectedPeriod === 'week') {
+      // Daily breakdown for This Week
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + i);
+        const dateStr = normalizeDate(date.toISOString()); // Use regex/iso slice for robust comparison
+
+        const dayApts = weekApts.filter((a) => {
+          const aptDateStr = normalizeDate(a.date || (a as any).appointmentDate);
+          return aptDateStr === dateStr;
+        });
+
+        trendData.push({
+          date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          scheduled: dayApts.length,
+          completed: dayApts.filter((a) => a.status === 'completed').length,
+          cancelled: dayApts.filter((a) => a.status === 'cancelled').length,
+        });
+      }
+    } else {
+      // Daily breakdown for This Month
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      for (let i = 1; i <= daysInMonth; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth(), i);
+        const dateStr = normalizeDate(date.toISOString());
+
+        const dayApts = monthApts.filter((a) => {
+          const aptDateStr = normalizeDate(a.date || (a as any).appointmentDate);
+          return aptDateStr === dateStr;
+        });
+
+        trendData.push({
+          date: String(i),
+          scheduled: dayApts.length,
+          completed: dayApts.filter((a) => a.status === 'completed').length,
+          cancelled: dayApts.filter((a) => a.status === 'cancelled').length,
+        });
+      }
     }
 
-    // Revenue trends (based on actual completed appointments)
-    // Use completion date for revenue, not appointment date
+    // Revenue trends (based on actual completed appointments in the period buckets)
     const revenueData = trendData.map((d, index) => {
-      // Calculate the actual date for this trend data point
-      const date = new Date(today);
-      date.setDate(date.getDate() - (6 - index));
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      // Filter completed appointments by completion date (not appointment date)
-      const completedApts = appointments.filter((a) => {
-        if (a.status !== 'completed') return false;
-        
-        // Get completion date (prioritizes completedAt > updatedAt > appointment date)
-        const completionDate = getAppointmentCompletionDate(a);
-        if (!completionDate) {
-          // Fallback to appointment date
-          const aptDate = normalizeDate(a.date || (a as any).appointmentDate);
-          return aptDate === dateStr;
-        }
-        
-        return completionDate === dateStr;
-      });
-      
+      // Logic to re-filter revenue based on the bucket time range
+      // For simplicity, we can reuse the calculated 'completed' count concept 
+      // BUT we need the actual appointments to sum revenue.
+      // Re-running the filter per bucket to be safe and accurate with the previous logic
+
+      let bucketApts: Appointment[] = [];
+      if (selectedPeriod === 'today') {
+        // Re-filter for specific hour
+        // Note: d.date is "8 AM", etc. 
+        const i = index + 8; // Mapping back to loop index
+        bucketApts = todayApts.filter((a) => {
+          if (a.time) {
+            const [h] = a.time.split(':');
+            let hour = parseInt(h);
+            if (a.time.toLowerCase().includes('pm') && hour < 12) hour += 12;
+            if (a.time.toLowerCase().includes('am') && hour === 12) hour = 0;
+            return hour === i;
+          }
+          return new Date(a.date || (a as any).appointmentDate).getHours() === i;
+        });
+      } else if (selectedPeriod === 'week') {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + index);
+        const dateStr = normalizeDate(date.toISOString());
+        bucketApts = weekApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
+      } else {
+        const date = new Date(today.getFullYear(), today.getMonth(), index + 1);
+        const dateStr = normalizeDate(date.toISOString());
+        bucketApts = monthApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
+      }
+
+      // Filter for completed only
+      const completedApts = bucketApts.filter(a => a.status === 'completed');
+
+      // Sum revenue
       const revenue = completedApts.reduce((sum, apt) => {
         return sum + calculateAppointmentRevenue(apt, services);
       }, 0);
-      
+
       return {
         ...d,
         revenue: Math.round(revenue),
@@ -213,7 +278,7 @@ export function DashboardTab() {
     // Patient demographics
     const ageGroups = { '0-18': 0, '19-35': 0, '36-50': 0, '51-65': 0, '65+': 0 };
     const genderCounts: Record<string, number> = { Male: 0, Female: 0, Other: 0 };
-    
+
     patients.forEach((patient) => {
       if (patient.dateOfBirth) {
         const birthDate = new Date(patient.dateOfBirth);
@@ -270,55 +335,13 @@ export function DashboardTab() {
       reschedulingRate,
       upcomingApts,
     };
-  }, [appointments, patients, services, doctors, lastRefresh, appointments.length, appointments.filter(a => a.status === 'completed').length, appointments.filter(a => a.status === 'completed' && (a as any).paymentAmount).length]);
+  }, [appointments, patients, services, doctors, lastRefresh, selectedPeriod]);
 
   const currentKPIs = useMemo(() => {
     if (selectedPeriod === 'today') return metrics.todayKPIs;
     if (selectedPeriod === 'week') return metrics.weekKPIs;
     return metrics.monthKPIs;
   }, [selectedPeriod, metrics]);
-
-  // Calculate revenue for current period
-  const currentPeriodRevenue = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay());
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    const getAppointmentsByPeriod = (period: 'today' | 'week' | 'month') => {
-      return appointments.filter((apt) => {
-        const aptDate = new Date(apt.date || (apt as any).appointmentDate);
-        aptDate.setHours(0, 0, 0, 0);
-        
-        if (period === 'today') {
-          return aptDate.getTime() === today.getTime();
-        } else if (period === 'week') {
-          return aptDate >= weekStart && aptDate <= today;
-        } else {
-          return aptDate >= monthStart && aptDate <= today;
-        }
-      });
-    };
-
-    const periodApts = getAppointmentsByPeriod(selectedPeriod);
-    const completedApts = periodApts.filter((a) => a.status === 'completed');
-    const totalRevenue = completedApts.reduce((sum, apt) => {
-      // Priority: Use paymentAmount if available (actual amount paid)
-      if ((apt as any).paymentAmount !== undefined && (apt as any).paymentAmount !== null) {
-        return sum + Number((apt as any).paymentAmount);
-      }
-      
-      return sum + calculateAppointmentRevenue(apt, services);
-    }, 0);
-    
-    const outstandingApts = periodApts.filter((a) => a.status === 'confirmed' || a.status === 'pending');
-    const outstandingRevenue = outstandingApts.reduce((sum, apt) => {
-      return sum + calculateAppointmentRevenue(apt, services);
-    }, 0);
-
-    return { totalRevenue, outstandingRevenue };
-  }, [selectedPeriod, appointments, services]);
 
   // Handle manual refresh
   const handleRefresh = async () => {
@@ -343,31 +366,28 @@ export function DashboardTab() {
           </button>
           <button
             onClick={() => setSelectedPeriod('today')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
-              selectedPeriod === 'today'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-                : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'today'
+              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
+              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
+              }`}
           >
             Today
           </button>
           <button
             onClick={() => setSelectedPeriod('week')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
-              selectedPeriod === 'week'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-                : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'week'
+              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
+              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
+              }`}
           >
             This Week
           </button>
           <button
             onClick={() => setSelectedPeriod('month')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
-              selectedPeriod === 'month'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-                : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'month'
+              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
+              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
+              }`}
           >
             This Month
           </button>
@@ -378,8 +398,8 @@ export function DashboardTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Total Appointments"
-          value={currentKPIs.scheduled}
-          subtitle={`${currentKPIs.completed} completed, ${currentKPIs.cancelled} cancelled`}
+          value={appointments.length}
+          subtitle={`${appointments.filter(a => a.status === 'completed').length} completed, ${appointments.filter(a => a.status === 'cancelled').length} cancelled`}
           icon="📅"
         />
         <KPICard
@@ -396,8 +416,11 @@ export function DashboardTab() {
         />
         <KPICard
           title="Revenue"
-          value={`₱${currentPeriodRevenue.totalRevenue.toLocaleString()}`}
-          subtitle={`Outstanding: ₱${currentPeriodRevenue.outstandingRevenue.toLocaleString()}`}
+          value={`₱${appointments.filter(a => a.status === 'completed').reduce((sum, apt) => sum + (Number((apt as any).paymentAmount) || 0), 0).toLocaleString()}`}
+          subtitle={`Outstanding: ₱${appointments.filter(a => a.status === 'pending' || a.status === 'confirmed').reduce((sum, apt) => {
+            const service = services.find(s => s.id === apt.serviceId);
+            return sum + (service ? parseFloat(service.price?.replace(/[^0-9.]/g, '') || '0') : 0);
+          }, 0).toLocaleString()}`}
           icon="💰"
         />
       </div>
@@ -412,7 +435,7 @@ export function DashboardTab() {
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Appointment Trends (Last 7 Days)">
+        <ChartCard title={`Appointment Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : 'This Month'})`}>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={metrics.trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
@@ -434,7 +457,7 @@ export function DashboardTab() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Revenue Trends (Last 7 Days)">
+        <ChartCard title={`Revenue Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : 'This Month'})`}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={metrics.revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
@@ -485,7 +508,7 @@ export function DashboardTab() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: isDarkMode ? '#1f2937' : '#fff',
                   border: isDarkMode ? '1px solid #4b5563' : '1px solid #e5e7eb',
@@ -504,9 +527,9 @@ export function DashboardTab() {
                   return [`${value} patients (${percent}%)`, name];
                 }}
               />
-              <Legend 
+              <Legend
                 wrapperStyle={{ color: isDarkMode ? '#f3f4f6' : '#111827' }}
-                verticalAlign="bottom" 
+                verticalAlign="bottom"
                 height={36}
               />
             </PieChart>
@@ -614,7 +637,7 @@ export function DashboardTab() {
                   const service = services.find((s) => s.id === apt.serviceId);
                   const aptDate = new Date(apt.date || (apt as any).appointmentDate);
                   const aptTime = apt.time || (apt as any).appointmentTime || '';
-                  
+
                   return (
                     <tr key={apt.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-black-800">
                       <td className="py-3 px-4">
@@ -630,15 +653,20 @@ export function DashboardTab() {
                       <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{doctor?.name || apt.doctorName || 'N/A'}</td>
                       <td className="py-3 px-4 text-center">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            apt.status === 'confirmed'
-                              ? 'bg-blue-500 text-white'
-                              : apt.status === 'pending'
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${apt.status === 'confirmed'
+                            ? 'bg-blue-500 text-white'
+                            : apt.status === 'pending'
                               ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                              : apt.status === 'no-show'
+                                ? 'bg-orange-500 text-white'
+                                : apt.status === 'completed'
+                                  ? 'bg-green-500 text-white'
+                                  : apt.status === 'cancelled'
+                                    ? 'bg-red-500 text-white'
+                                    : 'bg-gray-100 text-gray-800'
+                            }`}
                         >
-                          {apt.status?.toUpperCase() || 'PENDING'}
+                          {apt.status?.toUpperCase().replace('-', ' ') || 'PENDING'}
                         </span>
                       </td>
                     </tr>

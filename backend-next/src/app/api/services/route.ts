@@ -26,32 +26,39 @@ const updateSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get('id');
-  const supabase = supabaseAdmin();
+  try {
+    const id = req.nextUrl.searchParams.get('id');
+    const supabase = supabaseAdmin();
 
-  if (id) {
-    const { data, error: dbErr } = await supabase.from('services').select('*').eq('id', id).single();
+    if (id) {
+      const { data, error: dbErr } = await supabase.from('services').select('*').eq('id', id).single();
 
-    if (dbErr) {
-      if (dbErr.code === 'PGRST116') {
-        return error('Service not found', 404);
+      if (dbErr) {
+        console.error('GET /api/services - Error fetching service:', dbErr);
+        if (dbErr.code === 'PGRST116') {
+          return error('Service not found', 404);
+        }
+        return error('Failed to fetch service', 500, { details: dbErr.message, code: dbErr.code });
       }
-      return error('Failed to fetch service', 500);
+
+      return success(data);
     }
 
-    return success(data);
+    const { data, error: listErr } = await supabase
+      .from('services')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (listErr) {
+      console.error('GET /api/services - Error fetching services list:', listErr);
+      return error('Failed to fetch services', 500, { details: listErr.message, code: listErr.code });
+    }
+
+    return success(data ?? []);
+  } catch (err) {
+    console.error('GET /api/services - Unexpected error:', err);
+    return error('Internal server error', 500, { details: err instanceof Error ? err.message : 'Unknown error' });
   }
-
-  const { data, error: listErr } = await supabase
-    .from('services')
-    .select('*')
-    .order('name', { ascending: true });
-
-  if (listErr) {
-    return error('Failed to fetch services', 500);
-  }
-
-  return success(data ?? []);
 }
 
 export async function POST(req: NextRequest) {

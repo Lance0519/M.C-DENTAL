@@ -13,6 +13,8 @@ import { StaffTab } from '../components/StaffTab';
 import { DashboardTab } from '../components/DashboardTab';
 import { ReportsTab } from '../components/ReportsTab';
 import { AuditTab } from '../components/AuditTab';
+import { GalleryTab } from '../components/GalleryTab';
+import { SettingsTab } from '../components/SettingsTab';
 import type { StaffProfile } from '@/types/user';
 
 export function AdminDashboard() {
@@ -103,8 +105,12 @@ function AdminDashboardContent({ activeTab }: { activeTab: string }) {
       return <ClinicScheduleTab role="admin" />;
     case 'promos':
       return <PromosTab role="admin" />;
+    case 'gallery':
+      return <GalleryTab role="admin" />;
     case 'audit':
       return <AuditTab />;
+    case 'settings':
+      return <SettingsTab role="admin" />;
     default:
       return <DashboardTab />;
   }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSchedules } from '@/hooks/useSchedules';
 import { useDoctors } from '@/hooks/useDoctors';
-import { StorageService } from '@/lib/storage';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import type { Schedule } from '@/hooks/useSchedules';
@@ -30,10 +29,10 @@ export function SchedulesTab({ role = 'staff' }: SchedulesTabProps) {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!scheduleToDelete) return;
 
-    const result = deleteSchedule(scheduleToDelete.id);
+    const result = await deleteSchedule(scheduleToDelete.id);
     if (result.success) {
       setShowDeleteModal(false);
       setScheduleToDelete(null);
@@ -338,11 +337,11 @@ function CreateScheduleModal({
       }
 
       // Check for duplicate schedule (same doctor, same day) - matching legacy logic
-      const existingSchedules = StorageService.getSchedulesByDoctor(formData.doctorId);
+      const existingSchedules = schedules.filter((s) => s.doctorId === formData.doctorId);
       const duplicate = existingSchedules.find((s) => s.day === formData.day);
 
       if (duplicate) {
-        const doctor = StorageService.getDoctorById(formData.doctorId);
+        const doctor = doctors.find((d) => d.id === formData.doctorId);
         setError(`${doctor?.name || 'This doctor'} already has a schedule for ${formData.day}`);
         setLoading(false);
         return;
@@ -471,7 +470,7 @@ function EditScheduleModal({
   schedule: Schedule;
   doctors: DoctorProfile[];
   schedules: Schedule[];
-  updateSchedule: (id: string, schedule: Partial<Schedule>) => { success: boolean; message?: string; data?: Schedule };
+  updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<{ success: boolean; message?: string; data?: Schedule }>;
   onSuccess: () => void;
 }) {
   const [formData, setFormData] = useState({
@@ -493,7 +492,7 @@ function EditScheduleModal({
     }
   }, [isOpen, schedule]);
 
-  const doctor = StorageService.getDoctorById(schedule.doctorId);
+  const doctor = doctors.find((d) => d.id === schedule.doctorId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -516,7 +515,7 @@ function EditScheduleModal({
       }
 
       // Check for duplicate schedule (same doctor, same day) - matching legacy logic
-      const existingSchedules = StorageService.getSchedulesByDoctor(schedule.doctorId);
+      const existingSchedules = schedules.filter((s) => s.doctorId === schedule.doctorId);
       const duplicate = existingSchedules.find((s) => s.id !== schedule.id && s.day === formData.day);
 
       if (duplicate) {
@@ -531,7 +530,7 @@ function EditScheduleModal({
         endTime: formData.endTime,
       };
 
-      const result = updateSchedule(schedule.id, updates);
+      const result = await updateSchedule(schedule.id, updates);
       if (result.success) {
         onSuccess();
       } else {

@@ -5,6 +5,9 @@ import { error, success, corsOptions } from '@/lib/response';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logAudit, getIpFromRequest } from '@/lib/audit';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function OPTIONS() {
   return corsOptions();
 }
@@ -13,6 +16,7 @@ const createSchema = z.object({
   name: z.string(),
   specialization: z.string().optional(),
   active: z.boolean().optional(),
+  profileImageUrl: z.string().optional(),
 });
 
 const updateSchema = z.object({
@@ -20,40 +24,48 @@ const updateSchema = z.object({
   name: z.string().optional(),
   specialization: z.string().optional(),
   active: z.boolean().optional(),
+  profileImageUrl: z.string().optional(),
 });
 
 export async function GET(req: NextRequest) {
-  const supabase = supabaseAdmin();
-  const id = req.nextUrl.searchParams.get('id');
-  const active = req.nextUrl.searchParams.get('active');
+  try {
+    const supabase = supabaseAdmin();
+    const id = req.nextUrl.searchParams.get('id');
+    const active = req.nextUrl.searchParams.get('active');
 
-  if (id) {
-    const { data, error: dbErr } = await supabase.from('doctors').select('*').eq('id', id).single();
+    if (id) {
+      const { data, error: dbErr } = await supabase.from('doctors').select('*').eq('id', id).single();
 
-    if (dbErr) {
-      if (dbErr.code === 'PGRST116') {
-        return error('Doctor not found', 404);
+      if (dbErr) {
+        console.error('GET /api/doctors - Error fetching doctor:', dbErr);
+        if (dbErr.code === 'PGRST116') {
+          return error('Doctor not found', 404);
+        }
+        return error('Failed to fetch doctor', 500, { details: dbErr.message, code: dbErr.code });
       }
-      return error('Failed to fetch doctor', 500);
+
+      return success(data);
     }
 
-    return success(data);
+    let query = supabase.from('doctors').select('*').order('name', { ascending: true });
+
+    if (active !== null) {
+      const isActive = active === 'true';
+      query = query.eq('active', isActive);
+    }
+
+    const { data, error: listErr } = await query;
+
+    if (listErr) {
+      console.error('GET /api/doctors - Error fetching doctors list:', listErr);
+      return error('Failed to fetch doctors', 500, { details: listErr.message, code: listErr.code });
+    }
+
+    return success(data ?? []);
+  } catch (err) {
+    console.error('GET /api/doctors - Unexpected error:', err);
+    return error('Internal server error', 500, { details: err instanceof Error ? err.message : 'Unknown error' });
   }
-
-  let query = supabase.from('doctors').select('*').order('name', { ascending: true });
-
-  if (active !== null) {
-    const isActive = active === 'true';
-    query = query.eq('active', isActive);
-  }
-
-  const { data, error: listErr } = await query;
-
-  if (listErr) {
-    return error('Failed to fetch doctors', 500);
-  }
-
-  return success(data ?? []);
 }
 
 export async function POST(req: NextRequest) {
@@ -66,16 +78,23 @@ export async function POST(req: NextRequest) {
     return error('Missing required fields', 400, { issues: parsed.error.flatten() });
   }
 
-  const { name, specialization, active = true } = parsed.data;
+  const { name, specialization, active = true, profileImageUrl } = parsed.data;
   const supabase = supabaseAdmin();
   const id = `doc${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
 
-  const { error: insertErr } = await supabase.from('doctors').insert({
+  const insertData: Record<string, unknown> = {
     id,
     name,
     specialization,
     active,
-  });
+  };
+
+  // Add profile image URL if provided
+  if (profileImageUrl) {
+    insertData.profile_image_url = profileImageUrl;
+  }
+
+  const { error: insertErr } = await supabase.from('doctors').insert(insertData);
 
   if (insertErr) {
     return error('Failed to create doctor', 500);
@@ -112,6 +131,7 @@ export async function PUT(req: NextRequest) {
   if (parsed.data.name !== undefined) updates.name = parsed.data.name;
   if (parsed.data.specialization !== undefined) updates.specialization = parsed.data.specialization;
   if (parsed.data.active !== undefined) updates.active = parsed.data.active;
+  if (parsed.data.profileImageUrl !== undefined) updates.profile_image_url = parsed.data.profileImageUrl;
 
   if (Object.keys(updates).length === 0) {
     return error('No fields to update', 400);
@@ -138,8 +158,8 @@ export async function PUT(req: NextRequest) {
     userId: auth.id,
     userName: auth.fullName ?? 'Unknown',
     userRole: auth.role,
-    details: { 
-      doctorId: id, 
+    details: {
+      doctorId: id,
       doctorName: updatedDoctor?.name ?? parsed.data.name ?? 'Unknown',
       updatedFields: Object.keys(updates).filter(k => k !== 'updated_at'),
     },
@@ -194,8 +214,8 @@ export async function DELETE(req: NextRequest) {
     userId: auth.id,
     userName: auth.fullName ?? 'Unknown',
     userRole: auth.role,
-    details: { 
-      doctorId: id, 
+    details: {
+      doctorId: id,
       doctorName: doctorToDelete?.name ?? 'Unknown',
       action: 'Deleted doctor',
     },

@@ -32,10 +32,10 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!promoToDelete) return;
 
-    const result = deletePromo(promoToDelete.id as string);
+    const result = await deletePromo(promoToDelete.id as string);
     if (result.success) {
       setShowDeleteModal(false);
       setPromoToDelete(null);
@@ -50,12 +50,12 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
     setShowDeactivateModal(true);
   };
 
-  const handleConfirmDeactivate = () => {
+  const handleConfirmDeactivate = async () => {
     if (!promoToDeactivate) return;
 
     try {
       const isActive = promoToDeactivate.active !== false; // Default to true if undefined
-      const result = updatePromo(promoToDeactivate.id as string, { active: !isActive });
+      const result = await updatePromo(promoToDeactivate.id as string, { active: !isActive });
       if (result.success) {
         setShowDeactivateModal(false);
         setPromoToDeactivate(null);
@@ -265,6 +265,18 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
                 {/* Description */}
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">{promo.description}</p>
 
+                {/* Duration */}
+                {promo.duration && (
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      Duration: {promo.duration} {promo.duration === 1 ? 'minute' : 'minutes'}
+                    </span>
+                  </div>
+                )}
+
                 {/* Valid Until */}
                 {promo.validUntil && (
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -401,7 +413,7 @@ function CreatePromoModal({
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  createPromo: (promo: Omit<Promo, 'id' | 'createdAt'>) => { success: boolean; message?: string; data?: Promo };
+  createPromo: (promo: Omit<Promo, 'id' | 'createdAt'>) => Promise<{ success: boolean; message?: string; data?: Promo }>;
 }) {
   const [formData, setFormData] = useState({
     title: '',
@@ -445,15 +457,15 @@ function CreatePromoModal({
       const promoData: Omit<Promo, 'id' | 'createdAt'> = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        discount: formData.discount.trim() || '',
-        validUntil: formData.validUntil || '',
-        originalPrice: formData.originalPrice.trim() || '',
-        promoPrice: formData.promoPrice.trim() || formData.originalPrice.trim() || '',
-        price: formData.promoPrice.trim() || formData.originalPrice.trim() || '',
-        duration: formData.duration ? parseInt(formData.duration, 10) : undefined,
+        discount: formData.discount.trim() || null,
+        validUntil: formData.validUntil || undefined,
+        originalPrice: formData.originalPrice.trim() || null,
+        promoPrice: formData.promoPrice.trim() || null,
+        price: formData.promoPrice.trim() || null,
+        duration: formData.duration ? parseInt(formData.duration, 10) : null,
       };
 
-      const result = createPromo(promoData);
+      const result = await createPromo(promoData);
       if (result.success) {
         onSuccess();
       } else {
@@ -501,13 +513,15 @@ function CreatePromoModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Discount</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Discount <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.discount}
               onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="e.g., 20% OFF, Save ₱500"
+              placeholder="e.g., 20% OFF, ₱500 OFF"
             />
           </div>
 
@@ -524,24 +538,28 @@ function CreatePromoModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Original Price</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Original Price <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.originalPrice}
               onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="e.g., ₱1,000"
+              placeholder="e.g., ₱10,000"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Promo Price</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Promo Price <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.promoPrice}
               onChange={(e) => setFormData({ ...formData, promoPrice: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="e.g., ₱800"
+              placeholder="e.g., ₱8,000"
             />
           </div>
         </div>
@@ -596,7 +614,7 @@ function EditPromoModal({
   isOpen: boolean;
   onClose: () => void;
   promo: Promo;
-  updatePromo: (id: string, promo: Partial<Promo>) => { success: boolean; message?: string; data?: Promo };
+  updatePromo: (id: string, promo: Partial<Promo>) => Promise<{ success: boolean; message?: string; data?: Promo }>;
   onSuccess: () => void;
 }) {
   const [formData, setFormData] = useState({
@@ -606,13 +624,15 @@ function EditPromoModal({
     validUntil: promo.validUntil || '',
     originalPrice: promo.originalPrice?.toString() || '',
     promoPrice: promo.promoPrice?.toString() || promo.price?.toString() || '',
-    duration: promo.duration?.toString() || '',
+    duration: promo.duration != null ? String(promo.duration) : '', // Use != to check for both null and undefined
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
+      console.log('EditPromoModal - Loading promo data:', promo);
+      console.log('EditPromoModal - Duration value:', promo.duration, 'Type:', typeof promo.duration);
       setFormData({
         title: promo.title || '',
         description: promo.description || '',
@@ -620,7 +640,7 @@ function EditPromoModal({
         validUntil: promo.validUntil || '',
         originalPrice: promo.originalPrice?.toString() || '',
         promoPrice: promo.promoPrice?.toString() || promo.price?.toString() || '',
-        duration: promo.duration?.toString() || '',
+        duration: promo.duration != null ? String(promo.duration) : '', // Use != to check for both null and undefined
       });
       setError(null);
     }
@@ -641,15 +661,15 @@ function EditPromoModal({
       const updates: Partial<Promo> = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        discount: formData.discount.trim() || undefined,
+        discount: formData.discount.trim() || null,
         validUntil: formData.validUntil || undefined,
-        originalPrice: formData.originalPrice.trim() || undefined,
-        promoPrice: formData.promoPrice.trim() || formData.originalPrice.trim() || undefined,
-        price: formData.promoPrice.trim() || formData.originalPrice.trim() || undefined,
-        duration: formData.duration ? parseInt(formData.duration, 10) : undefined,
+        originalPrice: formData.originalPrice.trim() || null,
+        promoPrice: formData.promoPrice.trim() || null,
+        price: formData.promoPrice.trim() || null,
+        duration: formData.duration ? parseInt(formData.duration, 10) : null,
       };
 
-      const result = updatePromo(promo.id as string, updates);
+      const result = await updatePromo(promo.id as string, updates);
       if (result.success) {
         onSuccess();
       } else {
@@ -703,12 +723,15 @@ function EditPromoModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Discount</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Discount <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.discount}
               onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
+              placeholder="e.g., 20% OFF, ₱500 OFF"
             />
           </div>
 
@@ -725,22 +748,28 @@ function EditPromoModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Original Price</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Original Price <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.originalPrice}
               onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
+              placeholder="e.g., ₱10,000"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Promo Price</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Promo Price <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+            </label>
             <input
               type="text"
               value={formData.promoPrice}
               onChange={(e) => setFormData({ ...formData, promoPrice: e.target.value })}
               className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
+              placeholder="e.g., ₱8,000"
             />
           </div>
         </div>

@@ -119,8 +119,25 @@ export function TimeSlotSelector({
 
       // Generate time slots
       const slots: string[] = [];
-      const startTime = daySchedule.startTime;
-      const endTime = daySchedule.endTime;
+      
+      // Use clinic schedule to restrict available times
+      // The actual start time should be the later of doctor schedule and clinic opening
+      // The actual end time should be the earlier of doctor schedule and clinic closing
+      const clinicStartTime = clinicDay.startTime;
+      const clinicEndTime = clinicDay.endTime;
+      const doctorStartTime = daySchedule.startTime;
+      const doctorEndTime = daySchedule.endTime;
+      
+      // Calculate the actual available time window
+      const startTime = clinicStartTime > doctorStartTime ? clinicStartTime : doctorStartTime;
+      const endTime = clinicEndTime < doctorEndTime ? clinicEndTime : doctorEndTime;
+      
+      // Validate that we have a valid time window
+      if (startTime >= endTime) {
+        setAvailableSlots([]);
+        setLoading(false);
+        return;
+      }
 
       // Get break time from clinic schedule
       const breakStart = clinicDay.breakStartTime;

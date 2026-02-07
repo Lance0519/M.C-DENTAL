@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Set Turbopack root to silence workspace warning
+  turbopack: {
+    root: process.cwd(),
+  },
   async headers() {
     return [
       {

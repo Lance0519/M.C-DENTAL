@@ -25,21 +25,22 @@ export function useClinicSchedule() {
       try {
         const response = await api.request('/clinic-schedule');
         const data = response?.data ?? response;
-        
+
         // Transform array response to object format
         if (Array.isArray(data)) {
           const transformed: ClinicSchedule = { ...defaultClinicSchedule };
           data.forEach((item: any) => {
-            const dayName = item.day_of_week as keyof ClinicSchedule;
+            // Handle both mapped property 'day' and raw DB property 'day_of_week'
+            const dayName = (item.day || item.day_of_week) as keyof ClinicSchedule;
             if (dayName && transformed[dayName]) {
               // Normalize time format (remove seconds if present)
               const normalizeTime = (time: string) => time ? time.substring(0, 5) : '';
               transformed[dayName] = {
-                isOpen: item.is_open ?? true,
-                startTime: normalizeTime(item.start_time ?? item.startTime ?? '09:00'),
-                endTime: normalizeTime(item.end_time ?? item.endTime ?? '18:00'),
-                breakStartTime: normalizeTime(item.break_start_time ?? item.breakStartTime ?? '12:00'),
-                breakEndTime: normalizeTime(item.break_end_time ?? item.breakEndTime ?? '13:00'),
+                isOpen: item.isOpen ?? item.is_open ?? true,
+                startTime: normalizeTime(item.startTime ?? item.start_time ?? '09:00'),
+                endTime: normalizeTime(item.endTime ?? item.end_time ?? '18:00'),
+                breakStartTime: normalizeTime(item.breakStartTime ?? item.break_start_time ?? '12:00'),
+                breakEndTime: normalizeTime(item.breakEndTime ?? item.break_end_time ?? '13:00'),
               };
             }
           });

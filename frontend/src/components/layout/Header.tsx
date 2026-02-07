@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { AuthService } from '@/lib/auth-service';
-import { StorageService } from '@/lib/storage';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function Header() {
@@ -12,17 +11,17 @@ export function Header() {
   // Mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Always check sessionStorage directly as source of truth
+  // Always check AuthService directly as source of truth
   // This prevents stale data from showing Dashboard when user is logged out
-  const [actualUser, setActualUser] = useState<typeof user>(() => StorageService.getCurrentUser());
+  const [actualUser, setActualUser] = useState<typeof user>(() => AuthService.getCurrentUser());
   
   // Sync with auth store user whenever it changes
   useEffect(() => {
-    const currentUserFromStorage = StorageService.getCurrentUser();
+    const currentUserFromAuth = AuthService.getCurrentUser();
     
-    // If store user is null but we have one in storage, clear storage
-    if (!user && currentUserFromStorage) {
-      StorageService.logout();
+    // If store user is null but we have one in auth service, clear it
+    if (!user && currentUserFromAuth) {
+      AuthService.logout();
       setActualUser(null);
       return;
     }
@@ -34,31 +33,31 @@ export function Header() {
     }
     
     // If both are null, ensure we're synced
-    if (!user && !currentUserFromStorage) {
+    if (!user && !currentUserFromAuth) {
       setActualUser(null);
     }
   }, [user]); // Re-run whenever store user changes
   
   const dashboardPath = actualUser ? AuthService.getDashboardPath(actualUser.role) : null;
 
-  // Sync auth store with sessionStorage on mount and when storage changes
+  // Sync auth store with AuthService on mount and when storage changes
   useEffect(() => {
     const checkAuthState = () => {
-      const currentUser = StorageService.getCurrentUser();
+      const currentUser = AuthService.getCurrentUser();
       const storeUser = useAuthStore.getState().user;
       
       // Immediately update local state
       setActualUser(currentUser);
       
-      // If sessionStorage has no user but store has one, clear the store
+      // If AuthService has no user but store has one, clear the store
       if (!currentUser && storeUser) {
         useAuthStore.setState({ user: null });
       }
-      // If sessionStorage has a user but store doesn't, update the store
+      // If AuthService has a user but store doesn't, update the store
       else if (currentUser && !storeUser) {
         useAuthStore.setState({ user: currentUser });
       }
-      // If both have users but they're different, sync with sessionStorage
+      // If both have users but they're different, sync with AuthService
       else if (currentUser && storeUser && currentUser.id !== storeUser.id) {
         useAuthStore.setState({ user: currentUser });
       }
@@ -78,7 +77,7 @@ export function Header() {
     const handleLogout = () => {
       // Immediately clear local state
       setActualUser(null);
-      // Also check storage to be sure
+      // Also check auth service to be sure
       checkAuthState();
     };
 
@@ -136,6 +135,12 @@ export function Header() {
               >
                 Contact
               </Link>
+              <Link 
+                to="/gallery" 
+                className="px-4 py-2 text-sm font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                Gallery
+              </Link>
             </nav>
             {actualUser ? (
               <Link 
@@ -149,7 +154,7 @@ export function Header() {
                 to="/login" 
                 className="ml-2 px-6 py-2.5 text-sm font-semibold text-white bg-gold-500 hover:bg-gold-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
               >
-                Login/Signup
+                Login
               </Link>
             )}
             {/* Theme Toggle */}
@@ -209,6 +214,13 @@ export function Header() {
               >
                 Contact
               </Link>
+              <Link 
+                to="/gallery" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 text-base font-medium text-black-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 rounded-lg transition-all duration-200"
+              >
+                Gallery
+              </Link>
               <div className="border-t border-gold-200/20 dark:border-gold-800/30 my-2"></div>
               {actualUser ? (
                 <Link 
@@ -224,7 +236,7 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="mx-2 px-4 py-3 text-center text-base font-semibold text-white bg-gold-500 hover:bg-gold-600 rounded-lg shadow-md transition-all duration-200"
                 >
-                  Login/Signup
+                  Login
                 </Link>
               )}
             </nav>

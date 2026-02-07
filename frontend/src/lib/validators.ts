@@ -1,4 +1,4 @@
-import { StorageService } from '@/lib/storage';
+import api from '@/lib/api';
 
 const disposableDomains = [
   'mailinator.com',
@@ -26,34 +26,13 @@ const suspiciousKeywords = [
   'randomuser'
 ];
 
-function isRandomEmail(localPart: string) {
-  const cleanPart = localPart.replace(/\./g, '');
-  const vowels = 'aeiou';
-  const letters = cleanPart.split('').filter((char) => /[a-z]/.test(char));
-  const vowelsCount = letters.filter((char) => vowels.includes(char)).length;
-  const consonantCount = letters.length - vowelsCount;
 
-  if (letters.length > 5 && vowelsCount === 0 && consonantCount > 8) return true;
-  if (/(.)\1{2,}/.test(cleanPart)) return true;
-  if (/^(?:(.)(.)){3,}/.test(cleanPart)) return true;
-  if (/\d{6,}/.test(localPart)) return true;
-  if (letters.length >= 10) {
-    const uniqueChars = new Set(cleanPart.split('')).size;
-    if (uniqueChars / cleanPart.length > 0.7 && vowelsCount === 0) return true;
-  }
-  if (letters.length > 10 && vowelsCount > 0) {
-    const vowelRatio = vowelsCount / letters.length;
-    if (vowelRatio < 0.15 && consonantCount > 10) return true;
-  }
-  if (cleanPart.length >= 12 && vowelsCount === 0 && /^[a-z0-9]+$/.test(cleanPart)) return true;
-  return false;
-}
 
 type EmailValidationOptions = {
   allowExisting?: boolean;
 };
 
-export function validateEmailFormat(email: string, options: EmailValidationOptions = {}) {
+export async function validateEmailFormat(email: string, options: EmailValidationOptions = {}) {
   if (!email) {
     return { valid: false, message: '' };
   }
@@ -90,16 +69,21 @@ export function validateEmailFormat(email: string, options: EmailValidationOptio
 
   if (!options.allowExisting) {
     const normalizedEmail = email.toLowerCase();
-    const existingEmail = StorageService.getUserByEmail(normalizedEmail);
-    if (existingEmail) {
-      return { valid: false, message: 'This email is already registered.' };
+    try {
+      const checkResult = await api.checkUserExists(undefined, normalizedEmail);
+      if (checkResult.exists && checkResult.field === 'email') {
+        return { valid: false, message: 'This email is already registered.' };
+      }
+    } catch (error) {
+      // If API check fails, allow the email (fail open for better UX)
+      console.warn('Email check failed:', error);
     }
   }
 
   return { valid: true, message: 'Email looks good!' };
 }
 
-export function validateUsername(username: string) {
+export async function validateUsername(username: string) {
   if (!username) return { valid: false, message: '' };
 
   if (username.length < 3) {
@@ -116,9 +100,14 @@ export function validateUsername(username: string) {
 
   // Normalize username for consistent checking
   const normalizedUsername = username.toLowerCase();
-  const existingUsername = StorageService.getUserByUsername(normalizedUsername);
-  if (existingUsername) {
-    return { valid: false, message: 'This username is already taken.' };
+  try {
+    const checkResult = await api.checkUserExists(normalizedUsername);
+    if (checkResult.exists && checkResult.field === 'username') {
+      return { valid: false, message: 'This username is already taken.' };
+    }
+  } catch (error) {
+    // If API check fails, allow the username (fail open for better UX)
+    console.warn('Username check failed:', error);
   }
 
   return { valid: true, message: 'Username is available.' };

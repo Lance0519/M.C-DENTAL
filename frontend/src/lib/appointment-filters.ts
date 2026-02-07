@@ -1,6 +1,6 @@
-import { StorageService } from './storage';
 import { normalizeDate } from './revenue-calculator';
 import type { Appointment } from '@/types/dashboard';
+import type { PatientProfile } from '@/types/user';
 
 export interface AppointmentFilters {
   dateFilter?: 'all' | 'today' | 'week' | 'month';
@@ -16,7 +16,8 @@ export interface AppointmentFilters {
  */
 export function filterAppointments(
   appointments: Appointment[],
-  filters: AppointmentFilters
+  filters: AppointmentFilters,
+  patients?: PatientProfile[]
 ): Appointment[] {
   let filtered = [...appointments];
 
@@ -96,7 +97,7 @@ export function filterAppointments(
           ? String(apt.patientId) 
           : '';
       
-      const patient = StorageService.getPatientById(patientIdStr);
+      const patient = patients?.find((p) => p.id === patientIdStr);
       const patientName = patient?.fullName || apt.patientName || apt.patientFullName || '';
       const isGuest = patientIdStr.startsWith('guest_appointment');
       const isWalkin = patientIdStr.startsWith('walkin_');
@@ -114,7 +115,14 @@ export function filterAppointments(
 
   // Status filter
   if (filters.statusFilter && filters.statusFilter !== 'all') {
-    filtered = filtered.filter((apt) => apt.status === filters.statusFilter);
+    if (filters.statusFilter === 'reschedule_requested') {
+      // For reschedule requests, check both status and rescheduleRequested flag
+      filtered = filtered.filter((apt) => 
+        apt.status === 'reschedule_requested' || apt.rescheduleRequested === true
+      );
+    } else {
+      filtered = filtered.filter((apt) => apt.status === filters.statusFilter);
+    }
   }
 
   // Doctor filter

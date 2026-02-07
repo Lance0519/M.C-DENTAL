@@ -23,12 +23,12 @@ interface BookingModalProps {
 }
 
 export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) {
-  const { services, getServiceById } = useServices();
-  const { doctors } = useDoctors();
+  const { services, getServiceById, loadServices } = useServices();
+  const { doctors, loadDoctors } = useDoctors();
   const { appointments, loadAppointments, createAppointment } = useAppointments();
   const { promos, getActivePromos, getPromoById } = usePromos();
-  const { schedules } = useSchedules();
-  const { clinicSchedule } = useClinicSchedule();
+  const { schedules, loadSchedules } = useSchedules();
+  const { clinicSchedule, loadClinicSchedule } = useClinicSchedule();
   const { user: currentUser } = useAuthStore();
 
   // Health screening state
@@ -58,6 +58,8 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<(() => Promise<void>) | null>(null);
   const [successDetails, setSuccessDetails] = useState<{
     patientName: string;
     serviceName: string;
@@ -70,11 +72,17 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
   // Always show health screening when modal opens - required for both guests and logged-in patients
   useEffect(() => {
     if (isOpen) {
+      // Refresh all data to ensure we have the latest availability
+      loadDoctors();
+      loadSchedules();
+      loadServices();
+      loadClinicSchedule();
+
       // Always require health screening for each booking
       setShowScreening(true);
       setScreeningPassed(false);
     }
-  }, [isOpen]);
+  }, [isOpen, loadDoctors, loadSchedules, loadServices, loadClinicSchedule]);
 
   // Get active promotions
   const activePromos = useMemo(() => getActivePromos(), [getActivePromos]);
@@ -98,6 +106,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
           name: (currentUser as any).fullName || '',
           age: userAge,
           contact: (currentUser as any).phone || '',
+          email: (currentUser as any).email || '',
           procedure: '',
           doctorId: '',
           paymentMethod: '',
@@ -109,6 +118,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
           name: '',
           age: '',
           contact: '',
+          email: '',
           procedure: '',
           doctorId: '',
           paymentMethod: '',
@@ -128,24 +138,31 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
     return doctors.filter((doctor) => doctor.available);
   }, [doctors]);
 
-  // Get available dates for selected doctor
+  // Get available dates for selected doctor (considering both doctor schedule and clinic hours)
   const availableDates = useMemo(() => {
     if (!formData.doctorId) return [];
     const doctorSchedules = schedules.filter((s) => s.doctorId === formData.doctorId);
     const dates: number[] = [];
     const today = new Date();
-    const maxDate = new Date();
+    today.setHours(0, 0, 0, 0);
+    const maxDate = new Date(today);
     maxDate.setDate(maxDate.getDate() + 14);
 
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     for (let d = new Date(today); d <= maxDate; d.setDate(d.getDate() + 1)) {
-      const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
-      const hasSchedule = doctorSchedules.some((s) => s.day === dayName);
-      if (hasSchedule) {
+      const dayName = dayNames[d.getDay()];
+      const hasDoctorSchedule = doctorSchedules.some((s) => s.day === dayName);
+      const clinicDay = clinicSchedule[dayName as keyof typeof clinicSchedule];
+      const isClinicOpen = clinicDay && clinicDay.isOpen;
+
+      // Date is available only if both doctor has schedule AND clinic is open
+      if (hasDoctorSchedule && isClinicOpen) {
         dates.push(d.getDate());
       }
     }
     return dates;
-  }, [formData.doctorId, schedules]);
+  }, [formData.doctorId, schedules, clinicSchedule]);
 
   const formatDuration = (service: ServiceItem | string): string => {
     if (typeof service === 'string') {
@@ -182,14 +199,13 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setLoading(false); // Don't set loading yet - we'll show confirmation first
 
     try {
       // Validate health screening first
       if (!screeningPassed) {
         setError('Please complete the health screening before booking an appointment.');
         setShowScreening(true);
-        setLoading(false);
         return;
       }
 
@@ -198,14 +214,14 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
 
       // Validate required fields
       const missingFields: string[] = [];
-      
+
       // These fields are only required for guests (not logged-in users)
       if (!isUserLoggedIn) {
         if (!formData.name.trim()) missingFields.push('Name');
         if (!formData.age.trim()) missingFields.push('Age');
         if (!formData.contact.trim()) missingFields.push('Contact Number');
       }
-      
+
       // These fields are always required
       if (!formData.procedure) missingFields.push('Dental Procedure');
       if (!formData.doctorId) missingFields.push('Dentist');
@@ -330,7 +346,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
         serviceDuration,
         appointmentsForValidation,
         null,
-        (id: string) => getServiceById(id)
+        (id: string) => getServiceById(id) || { id, name: 'Unknown', duration: 30, price: 0, description: '' }
       );
 
       if (!isAvailable) {
@@ -348,7 +364,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
       const breakStart = clinicDay?.breakStartTime;
       const breakEnd = clinicDay?.breakEndTime;
       const slotEnd = ServiceDurations.addMinutesToTime(selectedTime!, serviceDuration);
-      
+
       if (breakStart && breakEnd && overlapsBreakTime(selectedTime!, slotEnd, breakStart, breakEnd)) {
         setError(
           `The selected time slot overlaps with the clinic's break time (${breakStart} - ${breakEnd}).\n\nPlease select a different time.`
@@ -373,11 +389,11 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
           const firstName = nameParts[0] || formData.name;
           const lastName = nameParts.slice(1).join(' ') || '';
           const usernameBase = `guest_${Date.now()}`;
-          
+
           // Use provided email or fallback to guest email
           const hasRealEmail = formData.email && formData.email.includes('@') && !formData.email.includes('@guest.local');
           const patientEmail = hasRealEmail ? formData.email : `${usernameBase}@guest.local`;
-          
+
           // Calculate date of birth from age
           let dateOfBirth = '';
           if (formData.age) {
@@ -409,7 +425,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
           setLoading(false);
           return;
         }
-        
+
         notes = `GUEST PATIENT\nName: ${formData.name}\nAge: ${formData.age}\nContact: ${formData.contact}${formData.email ? `\nEmail: ${formData.email}` : ''}`;
       }
 
@@ -429,63 +445,90 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
         servicePrice = selectedService?.price;
       }
 
-      // Create appointment via API
-      const result = await createAppointment({
-        patientId,
-        patientName,
-        doctorId: formData.doctorId,
-        serviceId,
-        serviceName,
-        services: [{
-          serviceId,
-          serviceName,
-          price: servicePrice,
-        }],
-        date: dateStr,
-        time: selectedTime!,
-        notes,
-        status: 'pending',
-      });
+      // Store submission function and show confirmation modal
+      const submitAppointment = async () => {
+        setLoading(true);
+        setShowConfirmationModal(false);
 
-      if (!result.success) {
-        setError(result.message || 'Failed to book appointment. Please try again.');
-        setLoading(false);
-        return;
-      }
+        try {
+          // Create appointment via API
+          const result = await createAppointment({
+            patientId,
+            patientName,
+            doctorId: formData.doctorId,
+            serviceId,
+            serviceName,
+            services: [{
+              serviceId,
+              serviceName,
+              price: servicePrice,
+            }],
+            date: dateStr,
+            time: selectedTime!,
+            notes,
+            status: 'pending',
+          });
 
-      // Format date and time for display
-      const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          if (!result.success) {
+            setError(result.message || 'Failed to book appointment. Please try again.');
+            setLoading(false);
+            return;
+          }
+
+          // Format date and time for display
+          const formatDate = (dateStr: string) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          };
+
+          const formatTime = (time: string) => {
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+          };
+
+          const doctor = doctors.find((d) => d.id === formData.doctorId);
+
+          // Set success details and show modal
+          setSuccessDetails({
+            patientName,
+            serviceName,
+            dentistName: doctor?.name || 'N/A',
+            date: formatDate(dateStr),
+            time: formatTime(selectedTime!),
+            isGuest: !currentUser || currentUser.role !== 'patient',
+          });
+          setShowSuccessModal(true);
+          onSuccess?.();
+        } catch (err) {
+          console.error('Error booking appointment:', err);
+          setError(err instanceof Error ? err.message : 'Failed to book appointment. Please try again.');
+        } finally {
+          setLoading(false);
+        }
       };
 
-      const formatTime = (time: string) => {
-        const [hours, minutes] = time.split(':');
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour % 12 || 12;
-        return `${displayHour}:${minutes} ${ampm}`;
-      };
-
-      const doctor = doctors.find((d) => d.id === formData.doctorId);
-
-      // Set success details and show modal
-      setSuccessDetails({
-        patientName,
-        serviceName,
-        dentistName: doctor?.name || 'N/A',
-        date: formatDate(dateStr),
-        time: formatTime(selectedTime!),
-        isGuest: !currentUser || currentUser.role !== 'patient',
-      });
-      setShowSuccessModal(true);
-      onSuccess?.();
+      // Store submission function and show confirmation
+      setPendingSubmission(() => submitAppointment);
+      setShowConfirmationModal(true);
     } catch (err) {
-      console.error('Error booking appointment:', err);
-      setError(err instanceof Error ? err.message : 'Failed to book appointment. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error('Error validating appointment:', err);
+      setError(err instanceof Error ? err.message : 'Failed to validate appointment. Please try again.');
     }
+  };
+
+  const handleConfirmBooking = async () => {
+    if (pendingSubmission) {
+      await pendingSubmission();
+      setPendingSubmission(null);
+    }
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmationModal(false);
+    setPendingSubmission(null);
   };
 
   const isLoggedIn = currentUser && currentUser.role === 'patient';
@@ -530,6 +573,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
         onClose={onClose}
         title="Book Appointment"
         size="xl"
+        closeOnBackdropClick={false}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -604,7 +648,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-900 text-gray-900 dark:text-gray-100 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30"
-                  placeholder="your@email.com (optional - to access your account later)"
+                  placeholder="your@email.com"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   💡 Provide your email to claim your account and view appointments later
@@ -650,14 +694,14 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
           {/* Dentist */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-              Dentist (Optional - will auto-assign)
+              Dentist *
             </label>
             <select
               value={formData.doctorId}
               onChange={(e) => handleDoctorChange(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-900 text-gray-900 dark:text-gray-100 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30"
             >
-              <option value="">Auto-assign</option>
+              <option value="">Select a dentist...</option>
               {availableDoctors.map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
                   {doctor.name} - {doctor.specialty || 'General Dentistry'}
@@ -665,7 +709,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
               ))}
             </select>
             <small className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
-              Please select a dentist to see their available dates and times
+              Select a dentist to see available dates and times
             </small>
           </div>
 
@@ -684,6 +728,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
                     selectedDate={selectedDate}
                     availableDates={availableDates}
                     onDateSelect={handleDateSelect}
+                    clinicSchedule={clinicSchedule}
                     onMonthChange={(direction) => {
                       let newMonth = currentMonth + direction;
                       let newYear = currentYear;
@@ -719,7 +764,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
               </label>
               <div className="bg-gray-100 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-8 flex items-center justify-center min-h-[200px]">
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                  Please select a dentist first to see their available dates and times
+                  Please select a dentist to see available dates and times
                 </p>
               </div>
             </div>
@@ -790,6 +835,63 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={showConfirmationModal}
+        onClose={handleCancelConfirmation}
+        title="Confirm Appointment Booking"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <svg
+                className="w-6 h-6 text-gold-500 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                Are you sure you want to proceed with booking this appointment?
+              </p>
+              <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
+                  <strong>Important:</strong> Once confirmed, only clinic staff members can modify or cancel this appointment.
+                  Please ensure all details are correct before proceeding.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 flex space-x-3">
+            <button
+              type="button"
+              onClick={handleCancelConfirmation}
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmBooking}
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Processing...' : 'Confirm Booking'}
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Success Modal */}

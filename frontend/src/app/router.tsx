@@ -12,6 +12,9 @@ const BookPage = lazy(() => import('@/features/booking/pages/BookPage').then(mod
 const AdminDashboard = lazy(() => import('@/features/dashboard/pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const StaffDashboard = lazy(() => import('@/features/dashboard/pages/StaffDashboard').then(module => ({ default: module.StaffDashboard })));
 const PatientDashboard = lazy(() => import('@/features/dashboard/pages/PatientDashboard').then(module => ({ default: module.PatientDashboard })));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const GalleryPage = lazy(() => import('@/features/gallery/pages/GalleryPage').then(module => ({ default: module.GalleryPage })));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -36,6 +39,7 @@ export const router = createBrowserRouter([
       { path: 'about', element: <LazyPage Component={AboutPage} /> },
       { path: 'services', element: <LazyPage Component={ServicesPage} /> },
       { path: 'contact', element: <LazyPage Component={ContactPage} /> },
+      { path: 'gallery', element: <LazyPage Component={GalleryPage} /> },
       { path: 'book', element: <LazyPage Component={BookPage} /> },
       { path: 'login', element: <LazyPage Component={AuthPage} /> },
       { path: 'login/login.html', element: <LazyPage Component={AuthPage} /> },
@@ -48,6 +52,9 @@ export const router = createBrowserRouter([
       { path: 'dashboard/patient.html', element: <LazyPage Component={PatientDashboard} /> },
       { path: '*', element: <Navigate to="/" replace /> }
     ]
-  }
+  },
+  // Standalone pages (without main nav/footer)
+  { path: '/privacy-policy', element: <LazyPage Component={PrivacyPolicy} /> },
+  { path: '/terms-of-service', element: <LazyPage Component={TermsOfService} /> },
 ]);
 

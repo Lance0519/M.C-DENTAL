@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StorageService } from '@/lib/storage';
+import api from '@/lib/api';
 import type { ClinicSchedule } from '@/types/user';
 import { SuccessModal } from '@/components/modals/SuccessModal';
 
@@ -17,29 +17,58 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
 
   useEffect(() => {
     loadClinicSchedule();
-    
-    // Listen for storage updates
-    const handleStorageUpdate = () => {
-      loadClinicSchedule();
-    };
-    window.addEventListener('clinicDataUpdated', handleStorageUpdate);
-    window.addEventListener('storage', handleStorageUpdate);
-    
-    return () => {
-      window.removeEventListener('clinicDataUpdated', handleStorageUpdate);
-      window.removeEventListener('storage', handleStorageUpdate);
-    };
   }, []);
 
-  const loadClinicSchedule = () => {
-    const schedule = StorageService.getClinicSchedule();
-    setClinicSchedule(schedule);
-    setHasChanges(false);
+  const loadClinicSchedule = async () => {
+    try {
+      const response = await api.getClinicSchedule();
+      const scheduleData = Array.isArray(response) ? response : [];
+
+      // Transform API response to ClinicSchedule format (default to Open for Mon-Sat to match backend seeding)
+      const schedule: ClinicSchedule = {
+        Monday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Tuesday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Wednesday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Thursday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Friday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Saturday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Sunday: { isOpen: false, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+      };
+
+      scheduleData.forEach((day: any) => {
+        // Handle both snake_case (legacy/direct DB) and camelCase (new API)
+        const dayName = (day.day || day.day_of_week) as keyof ClinicSchedule;
+        if (schedule[dayName]) {
+          schedule[dayName] = {
+            isOpen: day.isOpen ?? day.is_open ?? false,
+            startTime: day.startTime ?? day.start_time ?? '09:00',
+            endTime: day.endTime ?? day.end_time ?? '17:00',
+            breakStartTime: day.breakStartTime ?? day.break_start_time ?? '12:01',
+            breakEndTime: day.breakEndTime ?? day.break_end_time ?? '12:59',
+          };
+        }
+      });
+
+      setClinicSchedule(schedule);
+      setHasChanges(false);
+    } catch (error) {
+      console.error('Error loading clinic schedule:', error);
+      // Set default schedule on error
+      setClinicSchedule({
+        Monday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Tuesday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Wednesday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Thursday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Friday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Saturday: { isOpen: true, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+        Sunday: { isOpen: false, startTime: '09:00', endTime: '17:00', breakStartTime: '12:01', breakEndTime: '12:59' },
+      });
+    }
   };
 
   const handleToggleDay = (day: keyof ClinicSchedule) => {
     if (!clinicSchedule) return;
-    
+
     const updatedSchedule = {
       ...clinicSchedule,
       [day]: {
@@ -47,7 +76,7 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
         isOpen: !clinicSchedule[day].isOpen,
       },
     };
-    
+
     setClinicSchedule(updatedSchedule);
     setHasChanges(true);
   };
@@ -58,7 +87,7 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
     value: string
   ) => {
     if (!clinicSchedule) return;
-    
+
     const updatedSchedule = {
       ...clinicSchedule,
       [day]: {
@@ -66,23 +95,32 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
         [timeType]: value,
       },
     };
-    
+
     setClinicSchedule(updatedSchedule);
     setHasChanges(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!clinicSchedule || !hasChanges) return;
-    
+
     setIsSaving(true);
     try {
-      StorageService.updateClinicSchedule(clinicSchedule);
+      // Update each day's schedule via API
+      const updatePromises = DAYS_OF_WEEK.map(async (day) => {
+        const daySchedule = clinicSchedule[day];
+        return api.updateClinicSchedule(day, {
+          isOpen: daySchedule.isOpen,
+          startTime: daySchedule.startTime,
+          endTime: daySchedule.endTime,
+          breakStartTime: daySchedule.breakStartTime,
+          breakEndTime: daySchedule.breakEndTime,
+        });
+      });
+
+      await Promise.all(updatePromises);
       setHasChanges(false);
       setShowSuccessModal(true);
-      
-      // Trigger data sync event
-      window.dispatchEvent(new Event('clinicDataUpdated'));
-      
+
       setTimeout(() => {
         setShowSuccessModal(false);
       }, 2000);
@@ -100,8 +138,8 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
     }
   };
 
-  const openDaysCount = clinicSchedule 
-    ? Object.values(clinicSchedule).filter((day) => day.isOpen).length 
+  const openDaysCount = clinicSchedule
+    ? Object.values(clinicSchedule).filter((day) => day.isOpen).length
     : 0;
 
   if (!clinicSchedule) {
@@ -183,11 +221,10 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
             return (
               <div
                 key={day}
-                className={`bg-white dark:bg-black-800 rounded-xl shadow-md hover:shadow-lg transition-all border-2 ${
-                  isOpen
-                    ? 'border-green-200 dark:border-green-800'
-                    : 'border-gray-200 dark:border-gray-700'
-                }`}
+                className={`bg-white dark:bg-black-800 rounded-xl shadow-md hover:shadow-lg transition-all border-2 ${isOpen
+                  ? 'border-green-200 dark:border-green-800'
+                  : 'border-gray-200 dark:border-gray-700'
+                  }`}
               >
                 {/* Day Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -195,11 +232,10 @@ export function ClinicScheduleTab({ role: _role = 'staff' }: ClinicScheduleTabPr
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{day}</h3>
                     <div className="flex items-center gap-3">
                       <span
-                        className={`text-xs font-semibold px-2 py-1 rounded ${
-                          isOpen
-                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                        }`}
+                        className={`text-xs font-semibold px-2 py-1 rounded ${isOpen
+                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                          }`}
                       >
                         {isOpen ? 'Open' : 'Closed'}
                       </span>

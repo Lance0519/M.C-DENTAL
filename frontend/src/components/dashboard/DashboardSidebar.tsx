@@ -73,7 +73,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showCreatePatientModal, setShowCreatePatientModal] = useState(false);
   const navigate = useNavigate();
-  
+
   // Use the notifications hook
   const { notifications, unreadCount: unreadNotifications, markAsRead, markAllAsRead, deleteAllRead } = useNotifications();
 
@@ -93,7 +93,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      
+
       if (mobile) {
         setIsCollapsed(false); // On mobile, don't collapse, just hide/show
         if (!mobile && isMobileOpen) {
@@ -107,7 +107,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
         }
       }
     };
-    
+
     // Set initial state
     const mobile = window.innerWidth < 768;
     setIsMobile(mobile);
@@ -117,7 +117,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
     } else if (window.innerWidth < 1024) {
       setIsCollapsed(true);
     }
-    
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -155,7 +155,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
       // Call auth store logout to clear state and sessionStorage
       const { logout } = useAuthStore.getState();
       logout();
-      
+
       // Also call API logout if available
       try {
         await api.logout();
@@ -163,7 +163,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
         // API logout failed, but we still clear local state
         console.warn('API logout failed, but local logout succeeded:', apiError);
       }
-      
+
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -183,7 +183,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
   // Define sidebar items based on role
   const getSidebarItems = (): SidebarItem[] => {
     const items: SidebarItem[] = [];
-    
+
     if (role === 'staff') {
       items.push(
         {
@@ -191,10 +191,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Create Patient Account',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           ),
           isPrimary: true,
@@ -207,10 +207,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Appointments',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           ),
           isActive: activeTab === 'appointments',
@@ -221,10 +221,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Patients',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           ),
           isActive: activeTab === 'patients',
@@ -235,9 +235,9 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Services',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              <line x1="12" y1="22.08" x2="12" y2="12"/>
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
           ),
           isActive: activeTab === 'services',
@@ -248,8 +248,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Dentists',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           ),
           isActive: activeTab === 'doctors',
@@ -260,8 +260,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Schedules',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
           ),
           isActive: activeTab === 'schedules',
@@ -272,11 +272,11 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Clinic Hours',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
             </svg>
           ),
           isActive: activeTab === 'clinic-schedule',
@@ -287,11 +287,36 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Promotions',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
           ),
           isActive: activeTab === 'promos',
           onClick: () => onTabChange?.('promos')
+        },
+        {
+          id: 'gallery',
+          label: 'Smile Gallery',
+          icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          ),
+          isActive: activeTab === 'gallery',
+          onClick: () => onTabChange?.('gallery')
+        },
+        {
+          id: 'settings',
+          label: 'Settings',
+          icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" />
+            </svg>
+          ),
+          isActive: activeTab === 'settings',
+          onClick: () => onTabChange?.('settings')
         }
       );
     } else if (role === 'admin') {
@@ -301,10 +326,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Dashboard',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
             </svg>
           ),
           isActive: activeTab === 'dashboard',
@@ -315,10 +340,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Appointments',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           ),
           isActive: activeTab === 'appointments',
@@ -329,10 +354,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Patients',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           ),
           isActive: activeTab === 'patients',
@@ -343,9 +368,9 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Services',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              <line x1="12" y1="22.08" x2="12" y2="12"/>
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
           ),
           isActive: activeTab === 'services',
@@ -356,9 +381,9 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Reports',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="20" x2="18" y2="10"/>
-              <line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="6" y1="20" x2="6" y2="14"/>
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
             </svg>
           ),
           isActive: activeTab === 'reports',
@@ -369,8 +394,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Dentists',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           ),
           isActive: activeTab === 'doctors',
@@ -381,10 +406,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Staff',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           ),
           isActive: activeTab === 'staff',
@@ -395,8 +420,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Schedules',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
           ),
           isActive: activeTab === 'schedules',
@@ -407,11 +432,11 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Clinic Hours',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
             </svg>
           ),
           isActive: activeTab === 'clinic-schedule',
@@ -422,26 +447,51 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Promotions',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
           ),
           isActive: activeTab === 'promos',
           onClick: () => onTabChange?.('promos')
         },
         {
+          id: 'gallery',
+          label: 'Smile Gallery',
+          icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          ),
+          isActive: activeTab === 'gallery',
+          onClick: () => onTabChange?.('gallery')
+        },
+        {
           id: 'audit',
           label: 'Audit Log',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
             </svg>
           ),
           isActive: activeTab === 'audit',
           onClick: () => onTabChange?.('audit')
+        },
+        {
+          id: 'settings',
+          label: 'Settings',
+          icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" />
+            </svg>
+          ),
+          isActive: activeTab === 'settings',
+          onClick: () => onTabChange?.('settings')
         }
       );
     } else if (role === 'patient') {
@@ -451,10 +501,10 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Appointments',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           ),
           isActive: activeTab === 'appointments',
@@ -465,11 +515,11 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'Medical History',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
             </svg>
           ),
           isActive: activeTab === 'history',
@@ -480,16 +530,31 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           label: 'My Profile',
           icon: (
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           ),
           isActive: activeTab === 'profile',
           onClick: () => onTabChange?.('profile')
+        },
+        {
+          id: 'clinic-schedule',
+          label: 'Clinic Hours',
+          icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+            </svg>
+          ),
+          isActive: activeTab === 'clinic-schedule',
+          onClick: () => onTabChange?.('clinic-schedule')
         }
       );
     }
-    
+
     return items;
   };
 
@@ -629,11 +694,11 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
               className={`
                 w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all
                 text-sm md:text-base
-                ${item.isPrimary 
-                  ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold hover:from-gold-400 hover:to-gold-300 shadow-md' 
+                ${item.isPrimary
+                  ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold hover:from-gold-400 hover:to-gold-300 shadow-md'
                   : item.isActive
-                  ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30 font-medium'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30 font-medium'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }
                 ${isCollapsed && !isMobile ? 'justify-center' : ''}
               `}
@@ -691,7 +756,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                     </span>
                   )}
                 </button>
-                
+
                 {/* Notifications Modal - Rendered via Portal to appear in center of screen */}
                 {isMounted && createPortal(
                   <Modal
@@ -723,7 +788,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                           </button>
                         )}
                       </div>
-                      
+
                       {/* Notifications List */}
                       <div className="max-h-[60vh] md:max-h-96 overflow-y-auto">
                         {notifications.length === 0 ? (
@@ -743,16 +808,14 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                                     markAsRead(notif.id);
                                   }
                                 }}
-                                className={`p-2.5 md:p-3 rounded-lg border cursor-pointer transition-colors ${
-                                  !notif.read 
-                                    ? 'bg-gold-50 dark:bg-gold-900/20 border-gold-200 dark:border-gold-700 hover:bg-gold-100 dark:hover:bg-gold-900/30' 
+                                className={`p-2.5 md:p-3 rounded-lg border cursor-pointer transition-colors ${!notif.read
+                                    ? 'bg-gold-50 dark:bg-gold-900/20 border-gold-200 dark:border-gold-700 hover:bg-gold-100 dark:hover:bg-gold-900/30'
                                     : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-start gap-2">
-                                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                                    !notif.read ? 'bg-gold-500' : 'bg-transparent'
-                                  }`} />
+                                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!notif.read ? 'bg-gold-500' : 'bg-transparent'
+                                    }`} />
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-start md:items-center justify-between mb-1 gap-2">
                                       <p className="text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100 break-words flex-1">{notif.title}</p>
@@ -773,7 +836,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Footer - Only show for admin */}
                       {notifications.length > 0 && role === 'admin' && (
                         <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -812,7 +875,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           </button>
         </div>
       </aside>
-      
+
       {/* Logout Confirmation Modal */}
       <ConfirmModal
         isOpen={showLogoutConfirm}
@@ -886,8 +949,8 @@ function CreatePatientModal({
 
     try {
       // Check if username already exists
-      const existingUser = StorageService.getUserByUsername(formData.username);
-      if (existingUser) {
+      const checkResult = await api.checkUserExists(formData.username);
+      if (checkResult.exists && checkResult.field === 'username') {
         setError('Username already exists. Please choose a different username.');
         setLoading(false);
         return;
@@ -898,7 +961,7 @@ function CreatePatientModal({
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
-      // Create patient
+      // Create patient via API
       const patientData = {
         username: formData.username,
         password: formData.password || 'patient123', // Default password
@@ -910,10 +973,9 @@ function CreatePatientModal({
         dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
         address: formData.address,
-        role: 'patient' as const,
       };
 
-      StorageService.createPatient(patientData);
+      await api.createPatient(patientData);
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);

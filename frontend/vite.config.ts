@@ -11,6 +11,8 @@ export default defineConfig({
     }
   },
   server: {
+    host: '0.0.0.0',
+    port: 5173,
     proxy: {
       '/backend/api': {
         target: 'http://localhost/Projects_1',
@@ -18,9 +20,11 @@ export default defineConfig({
         secure: false
       }
     }
+    
   },
   build: {
     chunkSizeWarningLimit: 1500,
     sourcemap: false
   }
 });
+

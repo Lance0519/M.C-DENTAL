@@ -12,6 +12,22 @@ export function StaffTab() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<StaffProfile | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdStaffName, setCreatedStaffName] = useState('');
+  useEffect(() => {
+    loadStaff();
+  }, [loadStaff]);
+
+  useEffect(() => {
+    const handleUserUpdated = (event: Event) => {
+      // Refresh staff list when any user is updated
+      // This ensures StaffTab stays in sync when profiles are updated via ProfileModal
+      loadStaff();
+    };
+    window.addEventListener('userUpdated', handleUserUpdated);
+    return () => window.removeEventListener('userUpdated', handleUserUpdated);
+  }, [loadStaff]);
+
 
   const handleEdit = (staffMember: StaffProfile) => {
     setSelectedStaff(staffMember);
@@ -23,10 +39,10 @@ export function StaffTab() {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!staffToDelete) return;
 
-    const result = deleteStaff(staffToDelete.id);
+    const result = await deleteStaff(staffToDelete.id);
     if (result.success) {
       setShowDeleteModal(false);
       setStaffToDelete(null);
@@ -97,9 +113,13 @@ export function StaffTab() {
               {/* Staff Card Body */}
               <div className="p-6 space-y-4">
                 {/* Job Title */}
-                {staffMember.jobTitle && (
-                  <div className="inline-block px-4 py-2 bg-gradient-to-r from-gold-100 to-gold-50 dark:from-gold-300 dark:to-gold-400 rounded-full border border-gold-300 dark:border-gold-500">
-                    <span className="text-black dark:text-black font-bold text-sm">{staffMember.jobTitle}</span>
+                {staffMember.jobTitle ? (
+                  <div className="inline-block px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-500 dark:to-gold-400 rounded-full border-2 border-gold-600 dark:border-gold-600 shadow-md">
+                    <span className="text-black font-bold text-sm">{staffMember.jobTitle}</span>
+                  </div>
+                ) : (
+                  <div className="inline-block px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-full border border-gray-300 dark:border-gray-600">
+                    <span className="text-gray-500 dark:text-gray-400 font-bold text-sm italic">No job title</span>
                   </div>
                 )}
 
@@ -168,9 +188,11 @@ export function StaffTab() {
       <CreateStaffModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onSuccess={() => {
+        onSuccess={(staffName: string) => {
           loadStaff();
           setShowCreateModal(false);
+          setCreatedStaffName(staffName);
+          setShowSuccessModal(true);
         }}
         createStaff={createStaff}
       />
@@ -207,6 +229,27 @@ export function StaffTab() {
         cancelText="Cancel"
         variant="danger"
       />
+
+      {/* Success Modal */}
+      <Modal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} title="Staff Account Created">
+        <div className="text-center py-6">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Success!</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Staff account for <span className="font-semibold text-gold-500">{createdStaffName}</span> has been created successfully.
+          </p>
+          <button
+            onClick={() => setShowSuccessModal(false)}
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition"
+          >
+            Done
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -220,8 +263,8 @@ function CreateStaffModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
-  createStaff: (staff: Omit<StaffProfile, 'id' | 'dateCreated' | 'role'> & { password: string }) => { success: boolean; message?: string; data?: StaffProfile };
+  onSuccess: (staffName: string) => void;
+  createStaff: (staff: Omit<StaffProfile, 'id' | 'dateCreated' | 'role'> & { password: string }) => Promise<{ success: boolean; message?: string; data?: StaffProfile }>;
 }) {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -231,6 +274,8 @@ function CreateStaffModal({
     jobTitle: '',
     phone: '',
   });
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -247,8 +292,44 @@ function CreateStaffModal({
       });
       setError(null);
       setShowPassword(false);
+      setProfileImageFile(null);
+      setProfileImagePreview('');
     }
   }, [isOpen]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Profile image must be less than 5MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+
+    setProfileImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    setProfileImagePreview('');
+  };
+
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read image file'));
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,9 +352,14 @@ function CreateStaffModal({
         phone: formData.phone.trim() || '',
       };
 
-      const result = createStaff(staffData);
+      if (profileImageFile) {
+        const imageData = await fileToDataUrl(profileImageFile);
+        staffData.profileImage = imageData;
+      }
+
+      const result = await createStaff(staffData);
       if (result.success) {
-        onSuccess();
+        onSuccess(staffData.fullName);
       } else {
         setError(result.message || 'Failed to create staff member');
       }
@@ -292,6 +378,37 @@ function CreateStaffModal({
             {error}
           </div>
         )}
+
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            {profileImagePreview ? (
+              <img
+                src={profileImagePreview}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border-4 border-gold-500 shadow-lg"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gold-500 flex items-center justify-center text-black font-bold text-3xl border-4 border-gold-600 shadow-lg">
+                {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : 'S'}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
+              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              Change Photo
+            </label>
+            {profileImagePreview && (
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Full Name *</label>
@@ -419,7 +536,7 @@ function EditStaffModal({
   isOpen: boolean;
   onClose: () => void;
   staff: StaffProfile;
-  updateStaff: (id: string, updates: Partial<StaffProfile>) => { success: boolean; message?: string; data?: StaffProfile };
+  updateStaff: (id: string, updates: Partial<StaffProfile>) => Promise<{ success: boolean; message?: string; data?: StaffProfile }>;
   onSuccess: () => void;
 }) {
   const [formData, setFormData] = useState({
@@ -430,6 +547,8 @@ function EditStaffModal({
     jobTitle: staff.jobTitle || '',
     phone: staff.phone || '',
   });
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(staff.profileImage || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -446,8 +565,42 @@ function EditStaffModal({
       });
       setError(null);
       setShowPassword(false);
+      setProfileImageFile(null);
+      setProfileImagePreview(staff.profileImage || '');
     }
   }, [isOpen, staff]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Profile image must be less than 5MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+    setProfileImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    setProfileImagePreview('');
+  };
+
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read image file'));
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -469,12 +622,19 @@ function EditStaffModal({
         phone: formData.phone.trim() || undefined,
       };
 
+      if (profileImageFile) {
+        const imageData = await fileToDataUrl(profileImageFile);
+        updates.profileImage = imageData;
+      } else if (!profileImagePreview && staff.profileImage) {
+        updates.profileImage = null;
+      }
+
       // Only update password if provided
       if (formData.password) {
         (updates as any).password = formData.password;
       }
 
-      const result = updateStaff(staff.id, updates);
+      const result = await updateStaff(staff.id, updates);
       if (result.success) {
         onSuccess();
       } else {
@@ -495,6 +655,37 @@ function EditStaffModal({
             {error}
           </div>
         )}
+
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            {profileImagePreview ? (
+              <img
+                src={profileImagePreview}
+                alt={staff.fullName}
+                className="w-24 h-24 rounded-full object-cover border-4 border-gold-500 shadow-lg"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gold-500 flex items-center justify-center text-black font-bold text-3xl border-4 border-gold-600 shadow-lg">
+                {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : 'S'}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
+              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              Change Photo
+            </label>
+            {(profileImagePreview || staff.profileImage) && (
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Full Name *</label>

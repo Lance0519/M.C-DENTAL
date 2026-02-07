@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { PatientAppointmentsTab } from '../components/PatientAppointmentsTab';
 import { PatientHistoryTab } from '../components/PatientHistoryTab';
 import { PatientProfileTab } from '../components/PatientProfileTab';
+import { PatientClinicHoursTab } from '../components/PatientClinicHoursTab';
 import { useAuthStore } from '@/store/auth-store';
 import type { PatientProfile } from '@/types/user';
 
@@ -20,7 +21,7 @@ export function PatientDashboard() {
       navigate('/login', { replace: true });
       return;
     }
-    
+
     // Load user from auth store
     if (authUser && authUser.role === 'patient') {
       setUser(authUser as PatientProfile);
@@ -69,6 +70,8 @@ function PatientDashboardContent({ activeTab, user }: { activeTab: string; user:
       return <PatientHistoryTab user={user} />;
     case 'profile':
       return <PatientProfileTab user={user} />;
+    case 'clinic-schedule':
+      return <PatientClinicHoursTab />;
     default:
       return <PatientAppointmentsTab user={user} />;
   }

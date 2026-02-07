@@ -15,7 +15,7 @@ const normalizePatient = (raw: any): PatientProfile => ({
   gender: raw.gender ?? '',
   address: raw.address ?? '',
   role: 'patient',
-  profileImage: raw.profile_image ?? raw.profileImage ?? undefined,
+  profileImage: raw.profile_image ?? raw.profile_image_url ?? raw.profileImage ?? undefined,
   createdAt: raw.created_at ?? raw.createdAt ?? '',
   updatedAt: raw.updated_at ?? raw.updatedAt ?? '',
 });

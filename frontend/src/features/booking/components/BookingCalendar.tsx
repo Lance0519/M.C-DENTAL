@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import type { ClinicSchedule } from '@/types/user';
 
 interface BookingCalendarProps {
   currentMonth: number;
@@ -7,6 +8,7 @@ interface BookingCalendarProps {
   availableDates: number[];
   onDateSelect: (date: Date) => void;
   onMonthChange: (direction: number) => void;
+  clinicSchedule?: ClinicSchedule;
 }
 
 export function BookingCalendar({
@@ -16,10 +18,12 @@ export function BookingCalendar({
   availableDates,
   onDateSelect,
   onMonthChange,
+  clinicSchedule,
 }: BookingCalendarProps) {
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
     'July', 'August', 'September', 'October', 'November', 'December'];
-  const dayNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const dayNamesShort = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   const calendarDays = useMemo(() => {
     const firstDay = new Date(currentYear, currentMonth, 1);
@@ -69,7 +73,17 @@ export function BookingCalendar({
       // Date is too soon if it's before the minimum booking date (1.5 days advance)
       const isTooSoon = checkDate < minBookingDate;
       const isFuture = checkDate > maxAllowedDate;
-      const isAvailable = availableDates.includes(day);
+      
+      // Check if clinic is open on this day
+      let isClinicOpen = true;
+      if (clinicSchedule) {
+        const dayOfWeek = dayNamesFull[checkDate.getDay()];
+        const clinicDay = clinicSchedule[dayOfWeek as keyof ClinicSchedule];
+        isClinicOpen = clinicDay?.isOpen ?? true;
+      }
+      
+      // Date is available only if: not too soon, not future, in availableDates, AND clinic is open
+      const isAvailable = !isTooSoon && !isFuture && availableDates.includes(day) && isClinicOpen;
       const isSelected = selectedDate && 
         selectedDate.getDate() === day &&
         selectedDate.getMonth() === currentMonth &&
@@ -86,7 +100,7 @@ export function BookingCalendar({
     }
     
     return days;
-  }, [currentMonth, currentYear, availableDates, selectedDate]);
+  }, [currentMonth, currentYear, availableDates, selectedDate, clinicSchedule]);
 
   const handleDateClick = (day: number, date: Date) => {
     if (day === 0) return; // Empty cell
@@ -102,6 +116,15 @@ export function BookingCalendar({
     maxAllowedDate.setDate(maxAllowedDate.getDate() + 14);
     
     if (date < minBookingDate || date > maxAllowedDate) return;
+    
+    // Check if clinic is open on this day
+    if (clinicSchedule) {
+      const dayOfWeek = dayNamesFull[date.getDay()];
+      const clinicDay = clinicSchedule[dayOfWeek as keyof ClinicSchedule];
+      if (!clinicDay?.isOpen) {
+        return; // Don't allow selection if clinic is closed
+      }
+    }
     
     onDateSelect(date);
   };
@@ -129,7 +152,7 @@ export function BookingCalendar({
       </div>
       
       <div className="grid grid-cols-7 gap-2 mb-2">
-        {dayNames.map((day, idx) => (
+        {dayNamesShort.map((day, idx) => (
           <div key={idx} className="text-center text-xs font-semibold text-gray-700 dark:text-gray-300 py-2">
             {day}
           </div>
@@ -142,7 +165,12 @@ export function BookingCalendar({
             return <div key={idx} className="aspect-square" />;
           }
           
-          const isDisabled = dayData.isTooSoon || dayData.isFuture || !dayData.isAvailable;
+          // Check if clinic is closed on this day
+          const dayOfWeek = dayNamesFull[dayData.date.getDay()];
+          const clinicDay = clinicSchedule?.[dayOfWeek as keyof ClinicSchedule];
+          const isClinicClosed = clinicSchedule && clinicDay && !clinicDay.isOpen;
+          
+          const isDisabled = dayData.isTooSoon || dayData.isFuture || !dayData.isAvailable || isClinicClosed;
           const isSelected = dayData.isSelected;
           
           return (
@@ -151,12 +179,15 @@ export function BookingCalendar({
               type="button"
               onClick={() => handleDateClick(dayData.day, dayData.date)}
               disabled={isDisabled}
+              title={isClinicClosed ? 'Clinic is closed on this day' : undefined}
               className={`
                 aspect-square flex items-center justify-center rounded-full text-sm font-medium transition-all
                 ${isSelected
                   ? 'bg-gradient-to-br from-gold-500 to-gold-400 text-black shadow-lg scale-110 z-10 relative'
                   : isDisabled
-                  ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
+                  ? isClinicClosed
+                    ? 'text-red-400 dark:text-red-500 cursor-not-allowed opacity-60 line-through'
+                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
                   : 'text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}

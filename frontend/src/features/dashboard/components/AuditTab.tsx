@@ -104,7 +104,7 @@ export function AuditTab() {
 
     try {
       // Verify password by attempting to authenticate via API
-      const response = await api.request('/auth/verify-password', {
+      const response = await api.request<{ verified: boolean }>('/auth/verify-password', {
         method: 'POST',
         body: JSON.stringify({
           userId: currentUser.id,
@@ -112,7 +112,7 @@ export function AuditTab() {
         }),
       });
 
-      if (response && (response as any).success !== false) {
+      if (response && (response as any).verified === true) {
         setIsPasswordVerified(true);
         setShowPasswordModal(false);
         setPassword('');

@@ -4,7 +4,6 @@ import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-do
 import { AuthService } from '@/lib/auth-service';
 import { validateEmailFormat, validatePasswordStrength, validatePhone, validateUsername } from '@/lib/validators';
 import { useAuthStore } from '@/store/auth-store';
-import { StorageService } from '@/lib/storage';
 import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { ClaimAccountModal } from '@/components/modals/ClaimAccountModal';
 import clinicLogo from '@/assets/images/logo.png';
@@ -69,8 +68,8 @@ export function AuthPage() {
       return;
     }
 
-    // Check if user exists in localStorage (StorageService)
-    const currentUser = StorageService.getCurrentUser();
+    // Check if user exists in AuthService
+    const currentUser = AuthService.getCurrentUser();
     if (currentUser && token) {
       const dashboardPath = AuthService.getDashboardPath(currentUser.role);
       if (location.pathname !== dashboardPath) {
@@ -137,12 +136,12 @@ export function AuthPage() {
       setMessage({ type: 'error', text: 'Passwords do not match.' });
       return;
     }
-    const emailValidation = validateEmailFormat(payload.email);
+    const emailValidation = await validateEmailFormat(payload.email);
     if (!emailValidation.valid) {
       setMessage({ type: 'error', text: emailValidation.message });
       return;
     }
-    const usernameValidation = validateUsername(payload.username);
+    const usernameValidation = await validateUsername(payload.username);
     if (!usernameValidation.valid) {
       setMessage({ type: 'error', text: usernameValidation.message });
       return;
@@ -198,7 +197,7 @@ export function AuthPage() {
       setMessage({ type: 'error', text: 'Please enter your email address.' });
       return;
     }
-    const emailValidation = validateEmailFormat(email, { allowExisting: true });
+    const emailValidation = await validateEmailFormat(email, { allowExisting: true });
     if (!emailValidation.valid) {
       setMessage({ type: 'error', text: emailValidation.message });
       return;

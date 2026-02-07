@@ -11,7 +11,7 @@ const normalizePromo = (raw: any): Promo => ({
   originalPrice: raw.original_price ?? raw.originalPrice ?? '',
   promoPrice: raw.promo_price ?? raw.promoPrice ?? '',
   validUntil: raw.valid_until ?? raw.validUntil ?? '',
-  duration: raw.duration ?? undefined,
+  duration: raw.duration != null ? Number(raw.duration) : undefined, // Use != to check for both null and undefined, convert to number
   active: raw.active !== false,
   createdAt: raw.created_at ?? raw.createdAt ?? '',
 });
@@ -91,7 +91,10 @@ export function usePromos() {
       if (promo.originalPrice !== undefined) payload.originalPrice = promo.originalPrice;
       if (promo.promoPrice !== undefined) payload.promoPrice = promo.promoPrice;
       if (promo.validUntil !== undefined) payload.validUntil = promo.validUntil;
-      if (promo.duration !== undefined) payload.duration = promo.duration;
+      // Handle duration - include it even if null to clear the value
+      if (promo.duration !== undefined) {
+        payload.duration = promo.duration;
+      }
       if (promo.active !== undefined) payload.active = promo.active;
 
       await api.updatePromotion(id, payload);

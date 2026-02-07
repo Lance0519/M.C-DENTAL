@@ -64,7 +64,7 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleGoBack} title="" size="lg">
+    <Modal isOpen={isOpen} onClose={handleGoBack} title="" size="lg" closeOnBackdropClick={false}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-gray-200 dark:border-gray-700 pb-4">
@@ -298,7 +298,7 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
       />
 
       {/* Symptoms Warning Modal */}
-      <Modal isOpen={showSymptomsModal} onClose={handleSymptomsModalClose} title="" size="md">
+      <Modal isOpen={showSymptomsModal} onClose={handleSymptomsModalClose} title="" size="md" closeOnBackdropClick={false}>
         <div className="space-y-6">
           {/* Warning Icon */}
           <div className="flex justify-center">

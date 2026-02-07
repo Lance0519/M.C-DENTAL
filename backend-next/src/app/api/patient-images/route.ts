@@ -56,15 +56,16 @@ const createSchema = z.object({
   patientId: z.string(),
   imageUrl: z.string(), // Base64 encoded image
   description: z.string().optional(),
-  imageType: z.string().optional(),
-  takenDate: z.string().optional(),
+  imageType: z.string().optional(), // Maps to 'category' column in DB
+  category: z.string().optional(),  // Direct category field
+  takenDate: z.string().optional(), // Not stored in DB, but accepted for compatibility
   uploadedBy: z.string().optional(),
 });
 
 const updateSchema = z.object({
   description: z.string().optional(),
-  imageType: z.string().optional(),
-  takenDate: z.string().optional(),
+  imageType: z.string().optional(), // Maps to 'category' column
+  category: z.string().optional(),
 });
 
 // GET - Fetch all images for a patient
@@ -132,7 +133,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { patientId, imageUrl, description, imageType, takenDate, uploadedBy } = parsed.data;
+    const { patientId, imageUrl, description, imageType, category, uploadedBy } = parsed.data;
+    
+    // Use category or imageType (imageType maps to category)
+    const imageCategory = category || imageType || 'general';
 
     // Check if patient exists and get patient name
     const { data: patient, error: patientError } = await supabase
@@ -162,15 +166,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Generate unique ID and image path (required by DB schema)
+    const imageId = `img${Date.now()}${Math.random().toString(36).substring(2, 8)}`;
+    const imagePath = `patients/${patientId}/${imageId}`;
+
     // Insert the image
     const { data, error } = await supabase
       .from('patient_images')
       .insert({
+        id: imageId,
         patient_id: patientId,
         image_url: imageUrl,
+        image_path: imagePath,
         description: description || null,
-        image_type: imageType || null,
-        taken_date: takenDate || null,
+        category: imageCategory,
         uploaded_by: uploadedBy || null,
       })
       .select()
@@ -191,7 +200,7 @@ export async function POST(req: NextRequest) {
         imageId: data.id,
         patientId,
         patientName: patient.full_name ?? 'Unknown',
-        imageType: imageType || 'Unspecified',
+        imageType: imageCategory,
         description: description || 'No description',
         uploadedBy: uploadedBy || auth.fullName || 'Unknown',
       },
@@ -203,7 +212,7 @@ export async function POST(req: NextRequest) {
       await notifyStaffOfPatientUpload(
         patientId,
         patient.full_name ?? 'Patient',
-        imageType || 'document/image'
+        imageCategory
       );
     }
 
@@ -248,9 +257,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const updates: Record<string, unknown> = {
-      updated_at: new Date().toISOString(),
-    };
+    const updates: Record<string, unknown> = {};
 
     const changedFields: string[] = [];
 
@@ -258,13 +265,11 @@ export async function PUT(req: NextRequest) {
       updates.description = parsed.data.description || null;
       changedFields.push('description');
     }
-    if (parsed.data.imageType !== undefined) {
-      updates.image_type = parsed.data.imageType || null;
-      changedFields.push('imageType');
-    }
-    if (parsed.data.takenDate !== undefined) {
-      updates.taken_date = parsed.data.takenDate || null;
-      changedFields.push('takenDate');
+    // Use category or imageType (imageType maps to category column)
+    const newCategory = parsed.data.category || parsed.data.imageType;
+    if (newCategory !== undefined) {
+      updates.category = newCategory || 'general';
+      changedFields.push('category');
     }
 
     const { data, error } = await supabase
@@ -290,7 +295,7 @@ export async function PUT(req: NextRequest) {
         patientName: (existingImage?.patients as any)?.full_name ?? 'Unknown',
         updatedFields: changedFields,
         newDescription: parsed.data.description,
-        newImageType: parsed.data.imageType,
+        newCategory: newCategory,
       },
       ipAddress: getIpFromRequest(req.headers),
     });
@@ -345,7 +350,7 @@ export async function DELETE(req: NextRequest) {
         imageId,
         patientId: imageToDelete?.patient_id,
         patientName: (imageToDelete?.patients as any)?.full_name ?? 'Unknown',
-        imageType: imageToDelete?.image_type || 'Unspecified',
+        category: imageToDelete?.category || 'general',
         description: imageToDelete?.description || 'No description',
       },
       ipAddress: getIpFromRequest(req.headers),

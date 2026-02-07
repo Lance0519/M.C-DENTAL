@@ -295,15 +295,15 @@ export function PatientImageGallery({
       {/* Lightbox Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 transition-all duration-200"
           onClick={() => setSelectedImage(null)}
         >
           <div
-            className="relative max-w-4xl w-full bg-white dark:bg-black-900 rounded-2xl overflow-hidden shadow-2xl"
+            className="relative max-w-4xl w-full bg-white dark:bg-black-900 rounded-xl overflow-hidden shadow-2xl border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
-            <div className="relative bg-black flex items-center justify-center" style={{ maxHeight: '60vh' }}>
+            <div className="relative bg-gray-900 dark:bg-black flex items-center justify-center border-b-2 border-gray-200 dark:border-gray-700" style={{ maxHeight: '60vh' }}>
               <img
                 src={selectedImage.imageUrl}
                 alt={selectedImage.description || 'Patient image'}
@@ -352,20 +352,15 @@ export function PatientImageGallery({
             </div>
 
             {/* Image Info */}
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 bg-gray-50 dark:bg-black-950">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    {selectedImage.imageType && (
-                      <span className="px-3 py-1 bg-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-medium rounded-full">
-                        {getImageTypeLabel(selectedImage.imageType)}
-                      </span>
-                    )}
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       {formatDate(selectedImage.takenDate || selectedImage.createdAt)}
                     </span>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     {selectedImage.description || 'No description provided'}
                   </h3>
                   {selectedImage.uploadedBy && (
@@ -378,7 +373,7 @@ export function PatientImageGallery({
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(selectedImage)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
+                      className="p-2.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition border border-blue-200 dark:border-blue-800"
                       title="Edit"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,7 +382,7 @@ export function PatientImageGallery({
                     </button>
                     <button
                       onClick={() => handleDeleteClick(selectedImage)}
-                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                      className="p-2.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition border border-red-200 dark:border-red-800"
                       title="Delete"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,7 +394,7 @@ export function PatientImageGallery({
               </div>
 
               {/* Image counter */}
-              <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
                 Image {images.findIndex((img) => img.id === selectedImage.id) + 1} of {images.length}
               </div>
             </div>
@@ -410,14 +405,14 @@ export function PatientImageGallery({
       {/* Upload Modal */}
       {showUploadModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
           onClick={() => setShowUploadModal(false)}
         >
           <div
-            className="relative max-w-lg w-full bg-white dark:bg-black-900 rounded-2xl shadow-2xl overflow-hidden"
+            className="relative max-w-lg w-full bg-white dark:bg-black-900 rounded-xl shadow-2xl overflow-hidden border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black-950">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Upload Patient Image
               </h3>
@@ -563,14 +558,14 @@ export function PatientImageGallery({
       {/* Edit Modal */}
       {showEditModal && editingImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
           onClick={() => setShowEditModal(false)}
         >
           <div
-            className="relative max-w-lg w-full bg-white dark:bg-black-900 rounded-2xl shadow-2xl overflow-hidden"
+            className="relative max-w-lg w-full bg-white dark:bg-black-900 rounded-xl shadow-2xl overflow-hidden border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black-950">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">Edit Image Details</h3>
             </div>
 
@@ -657,15 +652,15 @@ export function PatientImageGallery({
       {/* Delete Confirmation Modal */}
       {showDeleteModal && imageToDelete && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
           onClick={handleCancelDelete}
         >
           <div
-            className="relative max-w-md w-full bg-white dark:bg-black-900 rounded-2xl shadow-2xl overflow-hidden"
+            className="relative max-w-md w-full bg-white dark:bg-black-900 rounded-xl shadow-2xl overflow-hidden border-2 border-gray-300 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-black-950">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                   <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

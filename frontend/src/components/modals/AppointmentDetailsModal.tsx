@@ -53,7 +53,7 @@ export function AppointmentDetailsModal({
   // Get current user from auth store
   const currentUser = useAuthStore((state) => state.user);
   const isStaffOrAdmin = currentUser?.role === 'admin' || currentUser?.role === 'staff';
-  
+
   // Get schedules for time slot calculation
   const { schedules } = useSchedules();
 
@@ -124,7 +124,7 @@ export function AppointmentDetailsModal({
       const endTime = doctorSchedule.endTime || '18:00';
 
       const allSlots = ServiceDurations.generateTimeSlots(startTime, endTime, 30);
-      
+
       // Fetch appointments for conflict checking
       let appointmentsData: any[] = [];
       try {
@@ -211,7 +211,7 @@ export function AppointmentDetailsModal({
   // Support multiple services
   let serviceName = 'N/A';
   let totalDuration = 0;
-  
+
   if (appointment.services && appointment.services.length > 0) {
     // Multiple services
     serviceName = appointment.services.map(s => s.serviceName).join(', ');
@@ -227,15 +227,15 @@ export function AppointmentDetailsModal({
     serviceName = (appointment as any).serviceName || service?.name || 'N/A';
     totalDuration = service ? ServiceDurations.getDuration(service) : 0;
   }
-  
+
   const durationText = totalDuration > 0 ? ` (${ServiceDurations.minutesToTime(totalDuration)})` : '';
 
   const doctorName = doctor
     ? doctor.name?.startsWith('Dr. ')
       ? doctor.name.substring(4)
       : doctor.name?.startsWith('Dr.')
-      ? doctor.name.substring(3)
-      : doctor.name
+        ? doctor.name.substring(3)
+        : doctor.name
     : 'Unknown';
 
   const appointmentDate = appointment.date || (appointment as any).appointmentDate || '';
@@ -243,20 +243,20 @@ export function AppointmentDetailsModal({
 
   const formattedDate = appointmentDate
     ? new Date(appointmentDate).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
     : '';
 
   const formattedTime = appointmentTime
     ? (() => {
-        const [hours, minutes] = appointmentTime.split(':');
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour % 12 || 12;
-        return `${displayHour}:${minutes} ${ampm}`;
-      })()
+      const [hours, minutes] = appointmentTime.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    })()
     : '';
 
   const getStatusBadge = (status: Appointment['status']) => {
@@ -271,6 +271,8 @@ export function AppointmentDetailsModal({
       case 'cancelled':
         return `${baseClasses} bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300`;
       case 'cancellation_requested':
+        return `${baseClasses} bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300`;
+      case 'reschedule_requested':
         return `${baseClasses} bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300`;
       default:
         return `${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300`;
@@ -305,7 +307,7 @@ export function AppointmentDetailsModal({
         const service = services.find(s => s.id === String(appointment.serviceId || ''));
         totalDuration = ServiceDurations.getDuration(service || (appointment as any).serviceName || '');
       }
-      
+
       // Fetch current appointments for conflict checking
       let appointmentsData: any[] = [];
       try {
@@ -314,7 +316,7 @@ export function AppointmentDetailsModal({
       } catch {
         appointmentsData = [];
       }
-      
+
       const isAvailable = ServiceDurations.isTimeSlotAvailable(
         String(appointment.doctorId || ''),
         editDate,
@@ -339,12 +341,12 @@ export function AppointmentDetailsModal({
         date: editDate,
         time: editTime,
       };
-      
+
       const result = await updateAppointment(String(appointment.id), updates);
       if (!result.success) {
         throw new Error(result.message || 'Failed to update appointment');
       }
-      
+
       setIsEditingDateTime(false);
       onUpdate?.();
     } catch (error) {
@@ -389,7 +391,7 @@ export function AppointmentDetailsModal({
       }
 
       const serviceDuration = ServiceDurations.getDuration(service || (appointment as any).serviceName || '');
-      
+
       // Fetch current appointments for conflict checking
       let appointmentsData: any[] = [];
       try {
@@ -427,7 +429,7 @@ export function AppointmentDetailsModal({
       if (!result.success) {
         throw new Error(result.message || 'Failed to update appointment');
       }
-      
+
       setIsEditingDoctor(false);
       onUpdate?.();
     } catch (error) {
@@ -447,12 +449,12 @@ export function AppointmentDetailsModal({
       const updates: Partial<Appointment> = {
         notes: editNotes,
       };
-      
+
       const result = await updateAppointment(String(appointment.id), updates);
       if (!result.success) {
         throw new Error(result.message || 'Failed to update appointment notes');
       }
-      
+
       setIsEditingNotes(false);
       onUpdate?.();
     } catch (error) {
@@ -471,8 +473,8 @@ export function AppointmentDetailsModal({
   // Helper function to check if patient already exists (matching AppointmentsTab logic)
   const findExistingPatient = (patientName: string, patientContact: string): PatientProfile | undefined => {
     return patients.find(
-      (p) => p.fullName?.toLowerCase() === patientName.toLowerCase() && 
-             (patientContact ? p.phone === patientContact : true)
+      (p) => p.fullName?.toLowerCase() === patientName.toLowerCase() &&
+        (patientContact ? p.phone === patientContact : true)
     );
   };
 
@@ -485,12 +487,12 @@ export function AppointmentDetailsModal({
       'cancelled': [], // Cannot change from cancelled
       'cancellation_requested': ['cancelled', 'confirmed', 'pending'], // Can approve (cancelled) or reject (confirmed/pending)
     };
-    
-    let transitions = validTransitions[currentStatus] || [];
-    
+
+    const transitions = validTransitions[currentStatus] || [];
+
     // Allow completing appointments regardless of date
     // Removed date validation - appointments can be completed even if date hasn't passed
-    
+
     return transitions;
   };
 
@@ -521,7 +523,7 @@ export function AppointmentDetailsModal({
         }
 
         updates.status = editStatus;
-        
+
         // If changing to completed, require payment amount
         if (editStatus === 'completed' && oldStatus !== 'completed') {
           const paymentValue = parseFloat(paymentAmount);
@@ -534,21 +536,25 @@ export function AppointmentDetailsModal({
           (updates as any).completedAt = new Date().toISOString();
           savedChanges.push('payment');
         }
-        
-        // Also allow updating payment amount for already completed appointments
-        if (oldStatus === 'completed' && isEditingStatus && paymentAmount.trim() !== '') {
-          const paymentValue = parseFloat(paymentAmount);
-          const currentPayment = (appointment as any).paymentAmount || 0;
-          if (!isNaN(paymentValue) && paymentValue >= 0 && paymentValue !== currentPayment) {
-            (updates as any).paymentAmount = paymentValue;
-            if (!(appointment as any).completedAt) {
-              (updates as any).completedAt = new Date().toISOString();
-            }
-            savedChanges.push('payment');
-          }
-        }
-        
+
         savedChanges.push('status');
+      }
+
+      // 1b. Allow updating payment amount for already completed appointments (even if status isn't changing)
+      if (oldStatus === 'completed' && isEditingStatus && paymentAmount.trim() !== '') {
+        const paymentValue = parseFloat(paymentAmount);
+        if (isNaN(paymentValue) || paymentValue < 0) {
+          alert('Please enter a valid payment amount (0 or greater).');
+          setUpdating(false);
+          return;
+        }
+        const currentPayment = Number((appointment as any).paymentAmount) || 0;
+        // Only save if the value has changed
+        if (Math.abs(paymentValue - currentPayment) > 0.01) { // Use small epsilon for float comparison
+          (updates as any).paymentAmount = paymentValue;
+          // Don't send completedAt if it already exists - only send paymentAmount
+          savedChanges.push('payment');
+        }
       }
 
       // 2. Save notes if changed
@@ -563,28 +569,8 @@ export function AppointmentDetailsModal({
         if (!result.success) {
           throw new Error(result.message || 'Failed to update appointment');
         }
-        
-        // Auto-create medical record when appointment is confirmed or completed
-        if ((editStatus === 'confirmed' || editStatus === 'completed') && updates.status && oldStatus !== editStatus && appointment.patientId) {
-          const aptDate = appointment.date || (appointment as any).appointmentDate || '';
-          const aptTime = appointment.time || (appointment as any).appointmentTime || '';
-          const aptService = services.find(s => s.id === String(appointment.serviceId || ''));
-          const serviceName = aptService?.name || (appointment as any).serviceName || 'dental service';
-          
-          try {
-            await api.createMedicalHistory({
-              patientId: String(appointment.patientId),
-              serviceId: appointment.serviceId ? String(appointment.serviceId) : undefined,
-              doctorId: appointment.doctorId ? String(appointment.doctorId) : undefined,
-              date: aptDate,
-              time: aptTime,
-              treatment: appointment.notes || `Appointment ${editStatus === 'completed' ? 'completed' : 'confirmed'} for ${serviceName}`,
-              remarks: `Appointment ${editStatus === 'completed' ? 'completed' : 'confirmed'} on ${new Date().toLocaleDateString()}`,
-            });
-          } catch (err) {
-            console.error('Failed to create medical history record:', err);
-          }
-        }
+
+
       }
 
       // 4. Save images if any were added
@@ -660,7 +646,7 @@ export function AppointmentDetailsModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setUploadError(null);
-    
+
     // Validate file types and sizes
     const validFiles = files.filter((file) => {
       if (!file.type.startsWith('image/')) {
@@ -679,7 +665,7 @@ export function AppointmentDetailsModal({
     // Limit to 5 images
     const remainingSlots = 5 - treatmentImages.length;
     const filesToAdd = validFiles.slice(0, remainingSlots);
-    
+
     setTreatmentImages((prev) => [...prev, ...filesToAdd]);
 
     // Create previews
@@ -790,13 +776,13 @@ export function AppointmentDetailsModal({
       // Clear images after successful save
       setTreatmentImages([]);
       setImagePreviews([]);
-      
+
       // Show success modal
       setSuccessMessage(
         `Treatment session images have been saved to medical history successfully!\n\n${imageUrls.length} image${imageUrls.length > 1 ? 's' : ''} uploaded.`
       );
       setShowSuccessModal(true);
-      
+
       // Trigger update callback
       onUpdate?.();
     } catch (error: any) {
@@ -825,550 +811,651 @@ export function AppointmentDetailsModal({
 
   return (
     <>
-    <Modal isOpen={isOpen} onClose={onClose} title="Appointment Details" size="lg">
-      <div className="space-y-4">
-        {/* Patient Information */}
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Patient</div>
-                <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{patientDisplayName}</div>
-              </div>
-            </div>
-            {patientContact && (
-              <div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Contact Number</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">{patientContact}</div>
-              </div>
-            )}
-            {patientEmail && (
-              <div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">{patientEmail}</div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Service Information */}
-        <div className="bg-gradient-to-r from-gold-50 to-gold-100 dark:from-gold-600/30 dark:to-gold-500/30 rounded-lg p-4 border-2 border-gold-200 dark:border-gold-600">
-          <div className="text-xs font-semibold text-gray-900 dark:text-white uppercase mb-1">Service</div>
-          <div className="text-base font-semibold text-gray-900 dark:text-white">
-            {serviceName}
-            {durationText && <span className="text-sm text-gray-700 dark:text-gray-300 font-normal ml-2">{durationText}</span>}
-          </div>
-        </div>
-
-        {/* Doctor Information */}
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-          {!isEditingDoctor ? (
-            <div className="space-y-3">
-              <div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Doctor</div>
-                <div className="text-base font-semibold text-gray-900 dark:text-gray-100">Dr. {doctorName}</div>
-              </div>
-              {isStaffOrAdmin && appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
-                <button
-                  onClick={handleEditDoctorClick}
-                  className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
-                >
-                  Change Dentist
-                </button>
-              )}
-              {(appointment.status === 'completed' || appointment.status === 'cancelled') && (
-                <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-semibold text-center">
-                  {appointment.status === 'completed' 
-                    ? 'This appointment is completed and cannot be modified' 
-                    : 'This appointment is cancelled and cannot be modified'}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Select Doctor</label>
-                <select
-                  value={editDoctorId}
-                  onChange={(e) => {
-                    setEditDoctorId(e.target.value);
-                    setEditDoctorTime('');
-                  }}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
-                >
-                  <option value="">Select a doctor</option>
-                  {doctors
-                    .filter((d) => d.available !== false)
-                    .map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              {editDoctorId && (
-                <>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Date</label>
-                    <input
-                      type="date"
-                      value={editDate}
-                      onChange={(e) => {
-                        setEditDate(e.target.value);
-                        setEditDoctorTime('');
-                      }}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Time</label>
-                    {availableTimes.length === 0 ? (
-                      <div className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-black-800 text-gray-500 dark:text-gray-400">
-                        {editDoctorId && editDate ? 'No available time slots for this doctor on this date' : 'Please select a doctor and date first'}
-                      </div>
-                    ) : (
-                      <select
-                        value={editDoctorTime}
-                        onChange={(e) => setEditDoctorTime(e.target.value)}
-                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
-                      >
-                        <option value="">Select a time</option>
-                        {availableTimes.map((time) => {
-                          const [hours, minutes] = time.split(':');
-                          const hour = parseInt(hours);
-                          const ampm = hour >= 12 ? 'PM' : 'AM';
-                          const displayHour = hour % 12 || 12;
-                          return (
-                            <option key={time} value={time}>
-                              {displayHour}:{minutes} {ampm}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    )}
-                  </div>
-                </>
-              )}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleUpdateDoctor}
-                  disabled={updating || !editDoctorId || !editDoctorTime}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
-                >
-                  {updating ? 'Updating...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditingDoctor(false);
-                    setEditDoctorId('');
-                    setEditDoctorTime('');
-                    setAvailableTimes([]);
-                  }}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Date and Time */}
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-          {!isEditingDateTime ? (
-            <div className="space-y-3">
-              <div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 flex items-center gap-2">
-                  <span>📅</span> Date
-                </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{formattedDate || 'N/A'}</div>
-              </div>
-              <div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 flex items-center gap-2">
-                  <span>🕐</span> Time
-                </div>
-                <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{formattedTime || 'N/A'}</div>
-              </div>
-              {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
-                <button
-                  onClick={handleEditClick}
-                  className="mt-2 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
-                >
-                  Update Date/Time
-                </button>
-              )}
-              {(appointment.status === 'completed' || appointment.status === 'cancelled') && (
-                <div className="mt-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-semibold text-center">
-                  {appointment.status === 'completed' 
-                    ? 'This appointment is completed and cannot be rescheduled' 
-                    : 'This appointment is cancelled and cannot be rescheduled'}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Date</label>
-                <input
-                  type="date"
-                  value={editDate}
-                  onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Time</label>
-                <input
-                  type="time"
-                  value={editTime}
-                  onChange={(e) => setEditTime(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleUpdateDateTime}
-                  disabled={updating}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
-                >
-                  {updating ? 'Updating...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => setIsEditingDateTime(false)}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Payment Method */}
-        {(appointment as any).paymentMethod && (
+      <Modal isOpen={isOpen} onClose={onClose} title="Appointment Details" size="lg">
+        <div className="space-y-4">
+          {/* Patient Information */}
           <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Payment Method</div>
-            <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{(appointment as any).paymentMethod}</div>
-          </div>
-        )}
-
-        {/* Payment Amount - Always visible for completed appointments */}
-        {appointment.status === 'completed' && isStaffOrAdmin && (
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Payment Amount</div>
-              {!isEditingStatus && (
-                <button
-                  onClick={() => {
-                    setIsEditingStatus(true);
-                    setEditStatus('completed');
-                  }}
-                  className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
-                >
-                  {((appointment as any).paymentAmount) ? 'Edit Amount' : 'Add Amount'}
-                </button>
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Patient</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{patientDisplayName}</div>
+                </div>
+              </div>
+              {patientContact && (
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Contact Number</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300">{patientContact}</div>
+                </div>
+              )}
+              {patientEmail && (
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300">{patientEmail}</div>
+                </div>
               )}
             </div>
-            {((appointment as any).paymentAmount !== undefined && (appointment as any).paymentAmount !== null) ? (
-              <>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  ₱{Number((appointment as any).paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+
+          {/* Service Information */}
+          <div className="bg-gradient-to-r from-gold-50 to-gold-100 dark:from-gold-600/30 dark:to-gold-500/30 rounded-lg p-4 border-2 border-gold-200 dark:border-gold-600">
+            <div className="text-xs font-semibold text-gray-900 dark:text-white uppercase mb-1">Service</div>
+            <div className="text-base font-semibold text-gray-900 dark:text-white">
+              {serviceName}
+              {durationText && <span className="text-sm text-gray-700 dark:text-gray-300 font-normal ml-2">{durationText}</span>}
+            </div>
+          </div>
+
+          {/* Doctor Information */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+            {!isEditingDoctor ? (
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Doctor</div>
+                  <div className="text-base font-semibold text-gray-900 dark:text-gray-100">Dr. {doctorName}</div>
                 </div>
-                {(appointment as any).completedAt && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Completed on: {new Date((appointment as any).completedAt).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                {isStaffOrAdmin && appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
+                  <button
+                    onClick={handleEditDoctorClick}
+                    className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
+                  >
+                    Change Dentist
+                  </button>
+                )}
+                {(appointment.status === 'completed' || appointment.status === 'cancelled') && (
+                  <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-semibold text-center">
+                    {appointment.status === 'completed'
+                      ? 'This appointment is completed and cannot be modified'
+                      : 'This appointment is cancelled and cannot be modified'}
                   </div>
                 )}
-              </>
+              </div>
             ) : (
-              <div className="text-sm text-yellow-600 dark:text-yellow-400 italic">
-                No payment amount recorded. Click "Add Amount" to record the payment.
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Select Doctor</label>
+                  <select
+                    value={editDoctorId}
+                    onChange={(e) => {
+                      setEditDoctorId(e.target.value);
+                      setEditDoctorTime('');
+                    }}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
+                  >
+                    <option value="">Select a doctor</option>
+                    {doctors
+                      .filter((d) => d.available !== false)
+                      .map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {editDoctorId && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Date</label>
+                      <input
+                        type="date"
+                        value={editDate}
+                        onChange={(e) => {
+                          setEditDate(e.target.value);
+                          setEditDoctorTime('');
+                        }}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Time</label>
+                      {availableTimes.length === 0 ? (
+                        <div className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-black-800 text-gray-500 dark:text-gray-400">
+                          {editDoctorId && editDate ? 'No available time slots for this doctor on this date' : 'Please select a doctor and date first'}
+                        </div>
+                      ) : (
+                        <select
+                          value={editDoctorTime}
+                          onChange={(e) => setEditDoctorTime(e.target.value)}
+                          className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
+                        >
+                          <option value="">Select a time</option>
+                          {availableTimes.map((time) => {
+                            const [hours, minutes] = time.split(':');
+                            const hour = parseInt(hours);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour % 12 || 12;
+                            return (
+                              <option key={time} value={time}>
+                                {displayHour}:{minutes} {ampm}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      )}
+                    </div>
+                  </>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUpdateDoctor}
+                    disabled={updating || !editDoctorId || !editDoctorTime}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                  >
+                    {updating ? 'Updating...' : 'Save Changes'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingDoctor(false);
+                      setEditDoctorId('');
+                      setEditDoctorTime('');
+                      setAvailableTimes([]);
+                    }}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             )}
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              This amount is used for revenue tracking and reporting.
-            </p>
           </div>
-        )}
 
-        {/* Status */}
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-          {!isEditingStatus ? (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</div>
-                {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 && (
+          {/* Date and Time */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+            {!isEditingDateTime ? (
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 flex items-center gap-2">
+                    <span>📅</span> Date
+                  </div>
+                  <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{formattedDate || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 flex items-center gap-2">
+                    <span>🕐</span> Time
+                  </div>
+                  <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{formattedTime || 'N/A'}</div>
+                </div>
+                {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
                   <button
-                    onClick={handleEditStatusClick}
+                    onClick={handleEditClick}
+                    className="mt-2 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
+                  >
+                    Update Date/Time
+                  </button>
+                )}
+                {(appointment.status === 'completed' || appointment.status === 'cancelled') && (
+                  <div className="mt-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-semibold text-center">
+                    {appointment.status === 'completed'
+                      ? 'This appointment is completed and cannot be rescheduled'
+                      : 'This appointment is cancelled and cannot be rescheduled'}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Date</label>
+                  <input
+                    type="date"
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Time</label>
+                  <input
+                    type="time"
+                    value={editTime}
+                    onChange={(e) => setEditTime(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUpdateDateTime}
+                    disabled={updating}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                  >
+                    {updating ? 'Updating...' : 'Save Changes'}
+                  </button>
+                  <button
+                    onClick={() => setIsEditingDateTime(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Payment Method */}
+          {(appointment as any).paymentMethod && (
+            <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Payment Method</div>
+              <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{(appointment as any).paymentMethod}</div>
+            </div>
+          )}
+
+          {/* Payment Amount - Always visible for completed appointments */}
+          {appointment.status === 'completed' && isStaffOrAdmin && (
+            <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Payment Amount</div>
+                {!isEditingStatus && (
+                  <button
+                    onClick={() => {
+                      setIsEditingStatus(true);
+                      setEditStatus('completed');
+                    }}
                     className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
                   >
-                    Change Status
+                    {((appointment as any).paymentAmount) ? 'Edit Amount' : 'Add Amount'}
                   </button>
                 )}
               </div>
-              <div className={getStatusBadge(appointment.status)}>
-                {appointment.status === 'pending' && 'Pending'}
-                {appointment.status === 'confirmed' && 'Confirmed'}
-                {appointment.status === 'completed' && 'Completed'}
-                {appointment.status === 'cancelled' && 'Cancelled'}
-                {appointment.status === 'cancellation_requested' && 'Cancellation Requested'}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</div>
-              {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 ? (
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as Appointment['status'])}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none text-sm font-semibold"
-                >
-                  {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).map((status) => (
-                    <option key={status} value={status}>
-                      {status === 'pending' && 'Pending'}
-                      {status === 'confirmed' && 'Confirmed'}
-                      {status === 'completed' && 'Completed'}
-                      {status === 'cancelled' && 'Cancelled'}
-                      {status === 'cancellation_requested' && 'Cancellation Requested'}
-                    </option>
-                  ))}
-                </select>
+              {((appointment as any).paymentAmount !== undefined && (appointment as any).paymentAmount !== null) ? (
+                <>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    ₱{Number((appointment as any).paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  {(appointment as any).completedAt && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Completed on: {new Date((appointment as any).completedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  )}
+                </>
               ) : (
-                <div className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-black-800 text-sm font-semibold text-gray-500 dark:text-gray-400">
-                  {appointment.status === 'pending' && 'Pending'}
-                  {appointment.status === 'confirmed' && 'Confirmed'}
-                  {appointment.status === 'completed' && 'Completed'}
-                  {appointment.status === 'cancelled' && 'Cancelled'}
-                  {appointment.status === 'cancellation_requested' && 'Cancellation Requested'}
-                  {' (Cannot be changed)'}
+                <div className="text-sm text-yellow-600 dark:text-yellow-400 italic">
+                  No payment amount recorded. Click "Add Amount" to record the payment.
                 </div>
               )}
-              {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length === 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                  ⚠️ This appointment is finalized and cannot be changed.
-                </p>
-              )}
-              
-              {/* Payment Amount Input - Required when marking as completed or editing */}
-              {isEditingStatus && editStatus === 'completed' && (
-                <div className="mt-4 p-4 bg-gold-50 dark:bg-gold-900/20 border-2 border-gold-200 dark:border-gold-700 rounded-lg">
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Payment Amount (₱) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(e.target.value)}
-                    placeholder="Enter amount paid by patient"
-                    className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none text-sm"
-                    required
-                  />
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                    This amount will be recorded for revenue tracking. Enter the actual amount the patient paid.
-                  </p>
-                  {paymentAmount && !isNaN(parseFloat(paymentAmount)) && parseFloat(paymentAmount) > 0 && (
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                      ✓ Amount: ₱{parseFloat(paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                This amount is used for revenue tracking and reporting.
+              </p>
+            </div>
+          )}
+
+          {/* Status */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+            {!isEditingStatus ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</div>
+                  {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 && (
+                    <button
+                      onClick={handleEditStatusClick}
+                      className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
+                    >
+                      Change Status
+                    </button>
                   )}
                 </div>
-              )}
-              {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 ? (
+                <div className={getStatusBadge(appointment.status)}>
+                  {(appointment.rescheduleRequested || appointment.status === 'reschedule_requested') && 'Reschedule-Requested'}
+                  {!appointment.rescheduleRequested && appointment.status !== 'reschedule_requested' && appointment.status === 'pending' && 'Pending'}
+                  {!appointment.rescheduleRequested && appointment.status !== 'reschedule_requested' && appointment.status === 'confirmed' && 'Confirmed'}
+                  {!appointment.rescheduleRequested && appointment.status !== 'reschedule_requested' && appointment.status === 'completed' && 'Completed'}
+                  {!appointment.rescheduleRequested && appointment.status !== 'reschedule_requested' && appointment.status === 'cancelled' && 'Cancelled'}
+                  {!appointment.rescheduleRequested && appointment.status !== 'reschedule_requested' && appointment.status === 'cancellation_requested' && 'Cancellation Requested'}
+                </div>
+
+                {/* Reschedule Request Actions */}
+                {(appointment.rescheduleRequested || appointment.status === 'reschedule_requested') && isStaffOrAdmin && (
+                  <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border-2 border-orange-200 dark:border-orange-700">
+                    <div className="mb-3">
+                      <p className="text-sm font-semibold text-orange-800 dark:text-orange-300 mb-2">Reschedule Request Details</p>
+                      <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                        <p><span className="font-semibold">Current:</span> {appointment.date || (appointment as any).appointmentDate} at {appointment.time || (appointment as any).appointmentTime}</p>
+                        <p><span className="font-semibold">Requested:</span> {(appointment as any).rescheduleRequestedDate || 'N/A'} at {(appointment as any).rescheduleRequestedTime || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          if (!appointment.id || !updateAppointment) return;
+                          const requestedDate = (appointment as any).rescheduleRequestedDate;
+                          const requestedTime = (appointment as any).rescheduleRequestedTime;
+                          if (!requestedDate || !requestedTime) {
+                            alert('Missing reschedule request details');
+                            return;
+                          }
+                          setUpdating(true);
+                          try {
+                            const newStatus = appointment.patientId ? 'confirmed' : 'pending';
+                            const result = await updateAppointment(String(appointment.id), {
+                              date: requestedDate,
+                              time: requestedTime,
+                              status: newStatus as Appointment['status'],
+                              rescheduleRequested: false,
+                              rescheduleRequestedDate: null as any,
+                              rescheduleRequestedTime: null as any,
+                            });
+                            if (!result.success) throw new Error(result.message || 'Failed to approve reschedule');
+                            onUpdate?.();
+                            setShowSuccessModal(true);
+                            setSuccessMessage('Reschedule request approved successfully!');
+                          } catch (error) {
+                            alert(error instanceof Error ? error.message : 'Failed to approve reschedule');
+                          } finally {
+                            setUpdating(false);
+                          }
+                        }}
+                        disabled={updating}
+                        className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Approve
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!appointment.id || !updateAppointment) return;
+                          if (!confirm('Are you sure you want to reject this reschedule request? The appointment will remain at its current date and time.')) return;
+                          setUpdating(true);
+                          try {
+                            const currentStatus = appointment.status || 'pending';
+                            const previousStatus = currentStatus === 'reschedule_requested'
+                              ? (appointment.patientId ? 'confirmed' : 'pending')
+                              : currentStatus;
+                            const result = await updateAppointment(String(appointment.id), {
+                              status: previousStatus as Appointment['status'],
+                              rescheduleRequested: false,
+                              rescheduleRequestedDate: null as any,
+                              rescheduleRequestedTime: null as any,
+                            });
+                            if (!result.success) throw new Error(result.message || 'Failed to reject reschedule');
+                            onUpdate?.();
+                            setShowSuccessModal(true);
+                            setSuccessMessage('Reschedule request rejected.');
+                          } catch (error) {
+                            alert(error instanceof Error ? error.message : 'Failed to reject reschedule');
+                          } finally {
+                            setUpdating(false);
+                          }
+                        }}
+                        disabled={updating}
+                        className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Reject
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditingDateTime(true);
+                          setEditDate((appointment as any).rescheduleRequestedDate || appointment.date || (appointment as any).appointmentDate || '');
+                          setEditTime((appointment as any).rescheduleRequestedTime || appointment.time || (appointment as any).appointmentTime || '');
+                        }}
+                        disabled={updating}
+                        className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Reschedule
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</div>
+                {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 ? (
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as Appointment['status'])}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none text-sm font-semibold"
+                  >
+                    {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).map((status) => (
+                      <option key={status} value={status}>
+                        {status === 'pending' && 'Pending'}
+                        {status === 'confirmed' && 'Confirmed'}
+                        {status === 'completed' && 'Completed'}
+                        {status === 'cancelled' && 'Cancelled'}
+                        {status === 'cancellation_requested' && 'Cancellation Requested'}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-black-800 text-sm font-semibold text-gray-500 dark:text-gray-400">
+                    {appointment.status === 'pending' && 'Pending'}
+                    {appointment.status === 'confirmed' && 'Confirmed'}
+                    {appointment.status === 'completed' && 'Completed'}
+                    {appointment.status === 'cancelled' && 'Cancelled'}
+                    {appointment.status === 'cancellation_requested' && 'Cancellation Requested'}
+                    {' (Cannot be changed)'}
+                  </div>
+                )}
+                {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length === 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    ⚠️ This appointment is finalized and cannot be changed.
+                  </p>
+                )}
+
+                {/* Payment Amount Input - Required when marking as completed or editing */}
+                {isEditingStatus && editStatus === 'completed' && (
+                  <div className="mt-4 p-4 bg-gold-50 dark:bg-gold-900/20 border-2 border-gold-200 dark:border-gold-700 rounded-lg">
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Payment Amount (₱) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      placeholder="Enter amount paid by patient"
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      This amount will be recorded for revenue tracking. Enter the actual amount the patient paid.
+                    </p>
+                    {paymentAmount && !isNaN(parseFloat(paymentAmount)) && parseFloat(paymentAmount) > 0 && (
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        ✓ Amount: ₱{parseFloat(paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 ? (
+                  <button
+                    onClick={() => {
+                      setIsEditingStatus(false);
+                      setEditStatus(appointment.status || 'pending');
+                    }}
+                    className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+                  >
+                    Cancel
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsEditingStatus(false)}
+                    className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+            {!isEditingNotes ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Notes</div>
+                  <button
+                    onClick={handleEditNotesClick}
+                    className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
+                  >
+                    {appointment.notes ? 'Edit Notes' : 'Add Notes'}
+                  </button>
+                </div>
+                {appointment.notes ? (
+                  <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-black-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                    {appointment.notes}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 dark:text-gray-500 italic bg-white dark:bg-black-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 border-dashed">
+                    No notes added yet
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Notes</div>
+                <textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  placeholder="Enter appointment notes..."
+                  rows={6}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none resize-y text-sm placeholder-gray-400 dark:placeholder-gray-500"
+                />
                 <button
                   onClick={() => {
-                    setIsEditingStatus(false);
-                    setEditStatus(appointment.status || 'pending');
+                    setIsEditingNotes(false);
+                    setEditNotes(appointment.notes || '');
                   }}
                   className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
                 >
                   Cancel
                 </button>
-              ) : (
-                <button
-                  onClick={() => setIsEditingStatus(false)}
-                  className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
-                >
-                  Close
-                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Treatment Session Images - Staff/Admin Only */}
+          {isStaffOrAdmin && appointment.patientId && !isGuest && !isWalkin && (
+            <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Treatment Session Images</div>
+
+              {uploadError && (
+                <div className="mb-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg text-sm">
+                  {uploadError}
+                </div>
               )}
+
+              {/* Image Upload */}
+              <div className="mb-4">
+                <p className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Upload Images (Max 5, 5MB each)
+                </p>
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="appointment-image-upload"
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all select-none ${uploadingImages || treatmentImages.length >= 5
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-gold-500 to-gold-400 text-black hover:shadow-md cursor-pointer active:scale-95'
+                      }`}
+                  >
+                    📁 Choose Files
+                    <input
+                      id="appointment-image-upload"
+                      type="file"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      multiple
+                      onChange={handleImageChange}
+                      disabled={uploadingImages || treatmentImages.length >= 5}
+                      className="sr-only"
+                    />
+                  </label>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {treatmentImages.length > 0 ? `${treatmentImages.length} file(s) selected` : 'No file chosen'}
+                  </span>
+                </div>
+                {treatmentImages.length >= 5 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Maximum 5 images allowed</p>
+                )}
+              </div>
+
+              {/* Image Previews */}
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border-2 border-gray-300 dark:border-gray-700"
+                      />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
             </div>
           )}
-        </div>
 
-        {/* Notes */}
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-          {!isEditingNotes ? (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Notes</div>
-                <button
-                  onClick={handleEditNotesClick}
-                  className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
-                >
-                  {appointment.notes ? 'Edit Notes' : 'Add Notes'}
-                </button>
+          {/* Unified Save All Changes Button */}
+          {(isEditingStatus || isEditingNotes || treatmentImages.length > 0) && (
+            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Pending Changes:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {isEditingStatus && (
+                    <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-semibold">
+                      Status
+                    </span>
+                  )}
+                  {isEditingNotes && (
+                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs font-semibold">
+                      Notes
+                    </span>
+                  )}
+                  {treatmentImages.length > 0 && (
+                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-semibold">
+                      {treatmentImages.length} Image{treatmentImages.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
               </div>
-              {appointment.notes ? (
-                <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-black-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                  {appointment.notes}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-400 dark:text-gray-500 italic bg-white dark:bg-black-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 border-dashed">
-                  No notes added yet
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Notes</div>
-              <textarea
-                value={editNotes}
-                onChange={(e) => setEditNotes(e.target.value)}
-                placeholder="Enter appointment notes..."
-                rows={6}
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:outline-none resize-y text-sm placeholder-gray-400 dark:placeholder-gray-500"
-              />
               <button
-                onClick={() => {
-                  setIsEditingNotes(false);
-                  setEditNotes(appointment.notes || '');
-                }}
-                className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+                onClick={handleSaveAllChanges}
+                disabled={updating || uploadingImages}
+                className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
               >
-                Cancel
+                {updating || uploadingImages ? 'Saving All Changes...' : 'Save All Changes'}
               </button>
             </div>
           )}
         </div>
-
-        {/* Treatment Session Images - Staff/Admin Only */}
-        {isStaffOrAdmin && appointment.patientId && !isGuest && !isWalkin && (
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700">
-            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Treatment Session Images</div>
-            
-            {uploadError && (
-              <div className="mb-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg text-sm">
-                {uploadError}
-              </div>
-            )}
-
-            {/* Image Upload */}
-            <div className="mb-4">
-              <p className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Upload Images (Max 5, 5MB each)
-              </p>
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="appointment-image-upload"
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all select-none ${
-                    uploadingImages || treatmentImages.length >= 5
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-50'
-                      : 'bg-gradient-to-r from-gold-500 to-gold-400 text-black hover:shadow-md cursor-pointer active:scale-95'
-                  }`}
-                >
-                  📁 Choose Files
-                  <input
-                    id="appointment-image-upload"
-                    type="file"
-                    accept="image/png,image/jpeg,image/gif,image/webp"
-                    multiple
-                    onChange={handleImageChange}
-                    disabled={uploadingImages || treatmentImages.length >= 5}
-                    className="sr-only"
-                  />
-                </label>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {treatmentImages.length > 0 ? `${treatmentImages.length} file(s) selected` : 'No file chosen'}
-                </span>
-              </div>
-              {treatmentImages.length >= 5 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Maximum 5 images allowed</p>
-              )}
-            </div>
-
-            {/* Image Previews */}
-            {imagePreviews.length > 0 && (
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg border-2 border-gray-300 dark:border-gray-700"
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* Unified Save All Changes Button */}
-        {(isEditingStatus || isEditingNotes || treatmentImages.length > 0) && (
-          <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Pending Changes:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {isEditingStatus && (
-                  <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-semibold">
-                    Status
-                  </span>
-                )}
-                {isEditingNotes && (
-                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs font-semibold">
-                    Notes
-                  </span>
-                )}
-                {treatmentImages.length > 0 && (
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-semibold">
-                    {treatmentImages.length} Image{treatmentImages.length > 1 ? 's' : ''}
-                  </span>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={handleSaveAllChanges}
-              disabled={updating || uploadingImages}
-              className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
-            >
-              {updating || uploadingImages ? 'Saving All Changes...' : 'Save All Changes'}
-            </button>
-          </div>
-        )}
-      </div>
-    </Modal>
-    <SuccessModal
-      isOpen={showSuccessModal}
-      onClose={() => {
-        setShowSuccessModal(false);
-        setSuccessMessage('');
-        // Call onUpdate after success modal closes to refresh data
-        onUpdate?.();
-      }}
-      title="Changes Saved Successfully!"
-      message={successMessage}
-      autoClose={true}
-      autoCloseDelay={3500}
-    />
-  </>
+      </Modal>
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          setSuccessMessage('');
+          // Call onUpdate after success modal closes to refresh data
+          onUpdate?.();
+        }}
+        title="Changes Saved Successfully!"
+        message={successMessage}
+        autoClose={true}
+        autoCloseDelay={3500}
+      />
+    </>
   );
 }
 

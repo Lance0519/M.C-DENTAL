@@ -39,6 +39,9 @@ export function ServicesPage() {
   const [expandedPromos, setExpandedPromos] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bannerTitle, setBannerTitle] = useState('Special Promotions');
+  const [bannerSubtitle, setBannerSubtitle] = useState('Limited time offers on selected dental services');
+  const [bannerBgImage, setBannerBgImage] = useState<string>('');
 
   useEffect(() => {
     let isMounted = true;
@@ -47,9 +50,10 @@ export function ServicesPage() {
       try {
         setLoading(true);
         setError(null);
-        const [servicesResponse, promosResponse] = await Promise.all([
+        const [servicesResponse, promosResponse, settingsResponse] = await Promise.all([
           api.getServices(),
           api.getPromotions({ active: true }),
+          api.getSettings('promotions').catch(() => null), // Don't fail if settings don't exist
         ]);
 
         if (!isMounted) return;
@@ -76,6 +80,20 @@ export function ServicesPage() {
           return validUntil >= today;
         });
         setPromos(activePromos);
+
+        // Load banner settings
+        if (settingsResponse && typeof settingsResponse === 'object') {
+          const settings = settingsResponse as Record<string, string>;
+          if (settings.promo_banner_title) {
+            setBannerTitle(settings.promo_banner_title);
+          }
+          if (settings.promo_banner_subtitle) {
+            setBannerSubtitle(settings.promo_banner_subtitle);
+          }
+          if (settings.promo_banner_bg_image) {
+            setBannerBgImage(settings.promo_banner_bg_image);
+          }
+        }
       } catch (err) {
         if (!isMounted) return;
         console.error('Error loading services:', err);
@@ -114,12 +132,26 @@ export function ServicesPage() {
       <main>
         {/* Promos Section */}
         {promos.length > 0 && (
-          <section className="py-20 bg-gradient-to-br from-purple-50 via-pink-50 to-gold-50 dark:from-black-950 dark:via-black-900 dark:to-black-950">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <section 
+            className={`py-20 relative ${bannerBgImage ? '' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-gold-50 dark:from-black-950 dark:via-black-900 dark:to-black-950'}`}
+            style={bannerBgImage ? {
+              backgroundImage: `url(${bannerBgImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            } : {}}
+          >
+            {/* Overlay for better text readability when background image is present */}
+            {bannerBgImage && (
+              <div className="absolute inset-0 bg-black/40 dark:bg-black/60"></div>
+            )}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-12">
-                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-4">Special Promotions</h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Limited time offers on selected dental services
+                <h2 className={`text-4xl font-extrabold mb-4 ${bannerBgImage ? 'text-white drop-shadow-lg' : 'text-gray-900 dark:text-gray-100'}`}>
+                  {bannerTitle}
+                </h2>
+                <p className={`text-lg max-w-2xl mx-auto ${bannerBgImage ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-300'}`}>
+                  {bannerSubtitle}
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
