@@ -186,12 +186,12 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
 
   const formatStatus = (status: string): string => {
     const statusColors: Record<string, string> = {
-      pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
+      pending: 'bg-alert/20 dark:bg-yellow-900/30 text-alert dark:text-yellow-300',
       confirmed: 'bg-blue-500 dark:bg-blue-600 text-white',
-      completed: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+      completed: 'bg-success/20 dark:bg-green-900/30 text-success dark:text-green-300',
       cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-      cancellation_requested: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
-      reschedule_requested: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
+      cancellation_requested: 'bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300',
+      reschedule_requested: 'bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300',
     };
 
     return statusColors[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300';
@@ -345,12 +345,12 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                     </div>
                   )}
                   {appointment.status === 'cancellation_requested' && (
-                    <div className="px-4 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-lg text-center font-semibold">
+                    <div className="px-4 py-2 bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300 rounded-lg text-center font-semibold">
                       Cancellation Pending
                     </div>
                   )}
                   {appointment.rescheduleRequested && appointment.status !== 'cancellation_requested' && (
-                    <div className="px-4 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-lg text-center font-semibold">
+                    <div className="px-4 py-2 bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300 rounded-lg text-center font-semibold">
                       Reschedule-Requested
                     </div>
                   )}

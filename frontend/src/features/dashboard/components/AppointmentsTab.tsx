@@ -19,7 +19,7 @@ export function AppointmentsTab() {
   const { patients, loadPatients } = usePatients();
   const { services } = useServices();
   const { doctors } = useDoctors();
-  
+
   const [isCalendarView, setIsCalendarView] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -35,7 +35,7 @@ export function AppointmentsTab() {
   const [showRescheduleApprovalModal, setShowRescheduleApprovalModal] = useState(false);
   const [rescheduleAppointment, setRescheduleAppointment] = useState<Appointment | null>(null);
   const [rescheduleLoading, setRescheduleLoading] = useState(false);
-  
+
   // Filters - matching legacy exactly
   const [dateFilter, setDateFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
@@ -95,19 +95,19 @@ export function AppointmentsTab() {
 
   const executeRescheduleApproval = async () => {
     if (!rescheduleAppointment) return;
-    
+
     setRescheduleLoading(true);
     try {
       const requestedDate = rescheduleAppointment.rescheduleRequestedDate;
       const requestedTime = rescheduleAppointment.rescheduleRequestedTime;
-      
+
       if (!requestedDate || !requestedTime) {
         throw new Error('Missing reschedule request details');
       }
 
       // Determine the new status after reschedule approval
       const newStatus = rescheduleAppointment.patientId ? 'confirmed' : 'pending';
-      
+
       const result = await updateAppointment(rescheduleAppointment.id, {
         date: requestedDate,
         time: requestedTime,
@@ -116,11 +116,11 @@ export function AppointmentsTab() {
         rescheduleRequestedDate: null as any,
         rescheduleRequestedTime: null as any,
       });
-      
+
       if (!result.success) {
         throw new Error(result.message || 'Failed to approve reschedule');
       }
-      
+
       await loadAppointments();
       setShowRescheduleApprovalModal(false);
       setRescheduleAppointment(null);
@@ -148,7 +148,7 @@ export function AppointmentsTab() {
         paymentAmount: paymentAmount,
         completedAt: new Date().toISOString(),
       };
-      
+
       const result = await updateAppointment(paymentAppointment.id, updates);
       if (!result.success) throw new Error(result.message || 'Failed to complete appointment');
 
@@ -167,15 +167,15 @@ export function AppointmentsTab() {
 
         const hasExistingRecord = Array.isArray(history)
           ? history.some(
-              (record: any) =>
-                record.date === appointmentDate &&
-                record.time === appointmentTime &&
-                (record.serviceId === String(serviceId ?? '') ||
-                  record.serviceName === serviceName) &&
-                (record.doctorId === String(paymentAppointment.doctorId || '') ||
-                  record.doctorName ===
-                    doctors.find((d) => String(d.id) === String(paymentAppointment.doctorId))?.name),
-            )
+            (record: any) =>
+              record.date === appointmentDate &&
+              record.time === appointmentTime &&
+              (record.serviceId === String(serviceId ?? '') ||
+                record.serviceName === serviceName) &&
+              (record.doctorId === String(paymentAppointment.doctorId || '') ||
+                record.doctorName ===
+                doctors.find((d) => String(d.id) === String(paymentAppointment.doctorId))?.name),
+          )
           : false;
 
         if (!hasExistingRecord) {
@@ -255,7 +255,7 @@ export function AppointmentsTab() {
         if (!result.success) throw new Error(result.message);
       } else if (confirmAction.type === 'reject_cancellation') {
         const currentStatus = appointment.status || 'pending';
-        const previousStatus = (currentStatus as string) === 'cancellation_requested' 
+        const previousStatus = (currentStatus as string) === 'cancellation_requested'
           ? (appointment.patientId ? 'confirmed' : 'pending')  // Default to confirmed if patient exists, else pending
           : currentStatus;
         const result = await updateAppointment(appointment.id, {
@@ -265,7 +265,7 @@ export function AppointmentsTab() {
       } else if (confirmAction.type === 'reject_reschedule') {
         // Reset status to previous status (pending or confirmed)
         const currentStatus = appointment.status || 'pending';
-        const previousStatus = currentStatus === 'reschedule_requested' 
+        const previousStatus = currentStatus === 'reschedule_requested'
           ? (appointment.patientId ? 'confirmed' : 'pending')  // Default to confirmed if patient exists, else pending
           : currentStatus;
         const result = await updateAppointment(appointment.id, {
@@ -361,14 +361,14 @@ export function AppointmentsTab() {
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl p-5 border-2 border-yellow-200 dark:border-yellow-700 shadow-md">
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl p-5 border-2 border-alert/30 dark:border-alert/50 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Pending</p>
+                <p className="text-sm font-semibold text-alert dark:text-yellow-300 mb-1">Pending</p>
                 <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{stats.pending}</p>
               </div>
               <div className="w-12 h-12 bg-yellow-200 dark:bg-yellow-800 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-700 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-alert dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -387,7 +387,7 @@ export function AppointmentsTab() {
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-5 border-2 border-green-200 dark:border-green-700 shadow-md">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-5 border-2 border-success/30 dark:border-success/50 shadow-md">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">Completed</p>
@@ -579,45 +579,45 @@ export function AppointmentsTab() {
           confirmAction?.type === 'confirm'
             ? 'Confirm Appointment'
             : confirmAction?.type === 'no-show'
-            ? 'Mark as No-Show'
-            : confirmAction?.type === 'approve_cancellation'
-            ? 'Approve Cancellation'
-            : confirmAction?.type === 'reject_cancellation'
-            ? 'Reject Cancellation Request'
-            : confirmAction?.type === 'reject_reschedule'
-            ? 'Reject Reschedule Request'
-            : 'Cancel Appointment'
+              ? 'Mark as No-Show'
+              : confirmAction?.type === 'approve_cancellation'
+                ? 'Approve Cancellation'
+                : confirmAction?.type === 'reject_cancellation'
+                  ? 'Reject Cancellation Request'
+                  : confirmAction?.type === 'reject_reschedule'
+                    ? 'Reject Reschedule Request'
+                    : 'Cancel Appointment'
         }
         message={
           confirmAction?.type === 'confirm'
             ? 'Are you sure you want to confirm this appointment?'
             : confirmAction?.type === 'no-show'
-            ? 'Are you sure you want to mark this appointment as no-show? This indicates the patient did not attend the appointment.'
-            : confirmAction?.type === 'approve_cancellation'
-            ? 'Are you sure you want to approve this cancellation request? This action cannot be undone.'
-            : confirmAction?.type === 'reject_cancellation'
-            ? 'Are you sure you want to reject this cancellation request? The appointment will be restored to its previous status.'
-            : confirmAction?.type === 'reject_reschedule'
-            ? 'Are you sure you want to reject this reschedule request? The appointment will remain at its current date and time.'
-            : 'Are you sure you want to cancel this appointment? This action cannot be undone.'
+              ? 'Are you sure you want to mark this appointment as no-show? This indicates the patient did not attend the appointment.'
+              : confirmAction?.type === 'approve_cancellation'
+                ? 'Are you sure you want to approve this cancellation request? This action cannot be undone.'
+                : confirmAction?.type === 'reject_cancellation'
+                  ? 'Are you sure you want to reject this cancellation request? The appointment will be restored to its previous status.'
+                  : confirmAction?.type === 'reject_reschedule'
+                    ? 'Are you sure you want to reject this reschedule request? The appointment will remain at its current date and time.'
+                    : 'Are you sure you want to cancel this appointment? This action cannot be undone.'
         }
         confirmText={
           confirmAction?.type === 'confirm'
             ? 'Confirm'
             : confirmAction?.type === 'no-show'
-            ? 'Mark as No-Show'
-            : confirmAction?.type === 'approve_cancellation'
-            ? 'Yes, Approve'
-            : confirmAction?.type === 'reject_cancellation'
-            ? 'Yes, Reject'
-            : 'Yes, Cancel'
+              ? 'Mark as No-Show'
+              : confirmAction?.type === 'approve_cancellation'
+                ? 'Yes, Approve'
+                : confirmAction?.type === 'reject_cancellation'
+                  ? 'Yes, Reject'
+                  : 'Yes, Cancel'
         }
         variant={
           confirmAction?.type === 'cancel' || confirmAction?.type === 'approve_cancellation'
             ? 'danger'
             : confirmAction?.type === 'no-show' || confirmAction?.type === 'reject_cancellation'
-            ? 'warning'
-            : 'info'
+              ? 'warning'
+              : 'info'
         }
       />
 
@@ -683,8 +683,8 @@ export function AppointmentsTab() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Patient</p>
               <p className="font-semibold text-gray-900 dark:text-white">
-                {patients.find(p => p.id === rescheduleAppointment.patientId)?.fullName || 
-                 rescheduleAppointment.patientName || 'Unknown Patient'}
+                {patients.find(p => p.id === rescheduleAppointment.patientId)?.fullName ||
+                  rescheduleAppointment.patientName || 'Unknown Patient'}
               </p>
             </div>
 
@@ -702,8 +702,8 @@ export function AppointmentsTab() {
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Date:</span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {new Date(rescheduleAppointment.date || '').toLocaleDateString('en-US', { 
-                        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
+                      {new Date(rescheduleAppointment.date || '').toLocaleDateString('en-US', {
+                        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
                       })}
                     </span>
                   </div>
@@ -717,9 +717,9 @@ export function AppointmentsTab() {
               </div>
 
               {/* Requested Schedule */}
-              <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 rounded-lg p-4">
+              <div className="bg-success/10 dark:bg-green-900/20 border-2 border-success/30 dark:border-success/50 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-success dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <p className="font-semibold text-green-700 dark:text-green-300">Requested Schedule</p>
@@ -728,9 +728,9 @@ export function AppointmentsTab() {
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Date:</span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {rescheduleAppointment.rescheduleRequestedDate ? 
-                        new Date(rescheduleAppointment.rescheduleRequestedDate).toLocaleDateString('en-US', { 
-                          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
+                      {rescheduleAppointment.rescheduleRequestedDate ?
+                        new Date(rescheduleAppointment.rescheduleRequestedDate).toLocaleDateString('en-US', {
+                          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
                         }) : 'N/A'}
                     </span>
                   </div>
@@ -754,14 +754,14 @@ export function AppointmentsTab() {
             </div>
 
             {/* Warning */}
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+            <div className="bg-alert/10 dark:bg-yellow-900/20 border border-alert/30 dark:border-alert/50 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-alert dark:text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <div>
-                  <p className="font-semibold text-yellow-800 dark:text-yellow-200">Confirm Reschedule</p>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                  <p className="font-semibold text-alert dark:text-yellow-200">Confirm Reschedule</p>
+                  <p className="text-sm text-alert dark:text-yellow-300 mt-1">
                     Approving this request will update the appointment to the new date and time. The patient will be notified of the change.
                   </p>
                 </div>
@@ -783,7 +783,7 @@ export function AppointmentsTab() {
               <button
                 onClick={executeRescheduleApproval}
                 disabled={rescheduleLoading}
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-success hover:opacity-90  rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center gap-2"
               >
                 {rescheduleLoading ? (
                   <>
@@ -898,12 +898,12 @@ function DateAppointmentsModal({
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
+      pending: { bg: 'bg-alert/20', text: 'text-alert', label: 'Pending' },
       confirmed: { bg: 'bg-blue-500', text: 'text-white', label: 'Confirmed' },
-      completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
+      completed: { bg: 'bg-success/20', text: 'text-success', label: 'Completed' },
       cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
-      'no-show': { bg: 'bg-orange-500', text: 'text-white', label: 'No-Show' },
-      cancellation_requested: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Cancellation Pending' },
+      'no-show': { bg: 'bg-alert', text: 'text-white', label: 'No-Show' },
+      cancellation_requested: { bg: 'bg-alert/20', text: 'text-alert', label: 'Cancellation Pending' },
     };
 
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
@@ -950,7 +950,7 @@ function DateAppointmentsModal({
                       <div className="flex items-center gap-3 mb-3">
                         <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatTime(appointmentTime)}</div>
                         {(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300">
                             Reschedule-Requested
                           </span>
                         ) : (
@@ -964,7 +964,7 @@ function DateAppointmentsModal({
                           </svg>
                           <span className="font-semibold text-gray-900 dark:text-gray-100">{patientName}</span>
                           {(isGuest || isWalkin) && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 font-semibold">
+                            <span className="text-xs px-2 py-0.5 rounded bg-alert/20 dark:bg-yellow-900/30 text-alert dark:text-yellow-300 font-semibold">
                               {isGuest ? 'Guest' : 'Walk-in'}
                             </span>
                           )}
@@ -1044,8 +1044,8 @@ async function createOrFindPatientRecord(
 
   // Check if patient already exists by name and contact
   const existingPatient = patients.find(
-    (p) => p.fullName.toLowerCase() === patientName.toLowerCase() && 
-           (patientContact ? p.phone === patientContact : true)
+    (p) => p.fullName.toLowerCase() === patientName.toLowerCase() &&
+      (patientContact ? p.phone === patientContact : true)
   );
 
   if (existingPatient) {
@@ -1223,7 +1223,7 @@ function CalendarView({
       {/* Color Legend */}
       <div className="mb-4 flex flex-wrap gap-3 justify-center text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-4 h-4 rounded bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600"></div>
+          <div className="w-4 h-4 rounded bg-alert/10 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600"></div>
           <span className="text-gray-700 dark:text-gray-300 font-medium">Pending</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -1231,7 +1231,7 @@ function CalendarView({
           <span className="text-gray-700 dark:text-gray-300 font-medium">Confirmed</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-4 h-4 rounded bg-green-50 dark:bg-green-900/30 border-2 border-green-300 dark:border-green-600"></div>
+          <div className="w-4 h-4 rounded bg-success/10 dark:bg-green-900/30 border-2 border-green-300 dark:border-green-600"></div>
           <span className="text-gray-700 dark:text-gray-300 font-medium">Completed</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -1239,7 +1239,7 @@ function CalendarView({
           <span className="text-gray-700 dark:text-gray-300 font-medium">Cancelled</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-4 h-4 rounded bg-orange-50 dark:bg-orange-900/30 border-2 border-orange-300 dark:border-orange-600"></div>
+          <div className="w-4 h-4 rounded bg-alert/10 dark:bg-orange-900/30 border-2 border-orange-300 dark:border-orange-600"></div>
           <span className="text-gray-700 dark:text-gray-300 font-medium">Cancellation Requested</span>
         </div>
       </div>
@@ -1267,16 +1267,16 @@ function CalendarView({
           const isPast = currentDayDate < today && !isToday;
 
           const dayAppointments = appointmentsByDate.get(dateStr) || [];
-          
+
           // Determine the dominant status for the day (priority: cancelled > completed > confirmed > pending > cancellation_requested)
           const getDayStatusColor = () => {
             if (dayAppointments.length === 0) return '';
             const statuses = dayAppointments.map(apt => apt.status || 'pending');
             if (statuses.includes('cancelled')) return 'bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-600';
-            if (statuses.includes('completed')) return 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-600';
+            if (statuses.includes('completed')) return 'bg-success/10 dark:bg-green-900/30 border-green-300 dark:border-green-600';
             if (statuses.includes('confirmed')) return 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600';
-            if (statuses.includes('cancellation_requested')) return 'bg-orange-50 dark:bg-orange-900/30 border-orange-300 dark:border-orange-600';
-            if (statuses.includes('pending')) return 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-600';
+            if (statuses.includes('cancellation_requested')) return 'bg-alert/10 dark:bg-orange-900/30 border-orange-300 dark:border-orange-600';
+            if (statuses.includes('pending')) return 'bg-alert/10 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-600';
             return '';
           };
 
@@ -1430,9 +1430,9 @@ function AppointmentsListView({
 
         const appointmentDate = apt.date || (apt as any).appointmentDate;
         const appointmentTime = apt.time || (apt as any).appointmentTime;
-        const formattedDate = appointmentDate ? new Date(appointmentDate).toLocaleDateString('en-US', { 
-          weekday: 'short', 
-          month: 'short', 
+        const formattedDate = appointmentDate ? new Date(appointmentDate).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
           day: 'numeric',
           year: 'numeric'
         }) : 'N/A';
@@ -1455,14 +1455,13 @@ function AppointmentsListView({
             className="bg-gradient-to-br from-white to-gray-50 dark:from-black-800 dark:to-black-900 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-1 cursor-pointer"
           >
             {/* Card Header */}
-            <div className={`bg-gradient-to-r px-6 py-4 rounded-t-xl ${
-              (apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
-              apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
-              apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
-              apt.status === 'completed' ? 'from-green-500 to-green-400' :
-              apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
-              'from-red-500 to-red-400'
-            }`}>
+            <div className={`bg-gradient-to-r px-6 py-4 rounded-t-xl ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
+                apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
+                  apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
+                    apt.status === 'completed' ? 'from-green-500 to-green-400' :
+                      apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
+                        'from-red-500 to-red-400'
+              }`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -1477,25 +1476,24 @@ function AppointmentsListView({
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                      (apt.rescheduleRequested || apt.status === 'reschedule_requested')
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold ${(apt.rescheduleRequested || apt.status === 'reschedule_requested')
                         ? 'bg-white/20 text-white border-2 border-white/30'
                         : apt.status === 'confirmed'
-                        ? 'bg-white/20 text-white border-2 border-white/30'
-                        : apt.status === 'pending'
-                        ? 'bg-white/20 text-white border-2 border-white/30'
-                        : apt.status === 'completed'
-                        ? 'bg-white/20 text-white border-2 border-white/30'
-                        : apt.status === 'cancellation_requested'
-                        ? 'bg-white/20 text-white border-2 border-white/30'
-                        : 'bg-white/20 text-white border-2 border-white/30'
-                    }`}
+                          ? 'bg-white/20 text-white border-2 border-white/30'
+                          : apt.status === 'pending'
+                            ? 'bg-white/20 text-white border-2 border-white/30'
+                            : apt.status === 'completed'
+                              ? 'bg-white/20 text-white border-2 border-white/30'
+                              : apt.status === 'cancellation_requested'
+                                ? 'bg-white/20 text-white border-2 border-white/30'
+                                : 'bg-white/20 text-white border-2 border-white/30'
+                      }`}
                   >
                     {(apt.rescheduleRequested || apt.status === 'reschedule_requested')
                       ? 'RESCHEDULE-REQUESTED'
-                      : apt.status === 'cancellation_requested' 
-                      ? 'CANCELLATION REQUESTED' 
-                      : apt.status?.toUpperCase() || 'PENDING'}
+                      : apt.status === 'cancellation_requested'
+                        ? 'CANCELLATION REQUESTED'
+                        : apt.status?.toUpperCase() || 'PENDING'}
                   </span>
                 </div>
               </div>
@@ -1515,7 +1513,7 @@ function AppointmentsListView({
                     <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase mb-1">Patient</p>
                     <p className="text-sm font-bold text-blue-900 dark:text-blue-100 truncate">{patientName}</p>
                     {(isGuest || isWalkin) && (
-                      <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 font-semibold">
+                      <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-alert/20 dark:bg-yellow-900/30 text-alert dark:text-yellow-300 font-semibold">
                         {isGuest ? 'Guest' : 'Walk-in'}
                       </span>
                     )}
@@ -1523,7 +1521,7 @@ function AppointmentsListView({
                 </div>
 
                 {/* Service Info */}
-                <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-start gap-3 p-4 bg-success/10 dark:bg-green-900/20 rounded-lg border border-success/30 dark:border-green-800">
                   <div className="w-10 h-10 bg-green-200 dark:bg-green-800 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -1552,12 +1550,12 @@ function AppointmentsListView({
 
               {/* Reschedule Request Info */}
               {apt.rescheduleRequested && (
-                <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border-2 border-orange-200 dark:border-orange-800">
+                <div className="mb-6 p-4 bg-alert/10 dark:bg-orange-900/20 rounded-lg border-2 border-orange-200 dark:border-orange-800">
                   <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-alert dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm font-bold text-orange-800 dark:text-orange-300">Reschedule-Requested</p>
+                    <p className="text-sm font-bold text-alert dark:text-orange-300">Reschedule-Requested</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -1567,13 +1565,13 @@ function AppointmentsListView({
                     <div>
                       <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 mb-1">Requested Date & Time</p>
                       <p className="text-sm font-bold text-orange-900 dark:text-orange-200">
-                        {(apt as any).rescheduleRequestedDate 
-                          ? new Date((apt as any).rescheduleRequestedDate).toLocaleDateString('en-US', { 
-                              weekday: 'short', 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })
+                        {(apt as any).rescheduleRequestedDate
+                          ? new Date((apt as any).rescheduleRequestedDate).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })
                           : 'N/A'} at {(apt as any).rescheduleRequestedTime || 'N/A'}
                       </p>
                     </div>
@@ -1582,7 +1580,7 @@ function AppointmentsListView({
               )}
 
               {/* Actions */}
-              <div 
+              <div
                 className="flex items-center justify-end gap-2 pt-4 border-t-2 border-gray-200 dark:border-gray-700"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1600,217 +1598,221 @@ function AppointmentsListView({
                   </svg>
                   View Details
                 </button>
-                
-                <div 
-                  className="relative" 
-                  ref={(el) => { if (apt.id) buttonRefs.current[apt.id] = el; }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (openDropdown === (apt.id ? String(apt.id) : null)) {
-                        setOpenDropdown(null);
-                        setDropdownPosition(null);
-                        return;
-                      }
-                      const button = e.currentTarget;
-                      const rect = button.getBoundingClientRect();
-                      
-                      // Simple positioning - always below the button, no auto-adjustment
-                      const dropdownWidth = 240;
-                      const gap = 4; // Gap between button and dropdown
-                      
-                      // Position dropdown directly below the button
-                      const top = rect.bottom + gap;
-                      
-                      // Calculate horizontal position (align to right edge of button)
-                      const left = rect.right - dropdownWidth;
-                      
-                      setDropdownPosition({ top, left });
-                      setOpenDropdown(apt.id ? String(apt.id) : null);
-                    }}
-                    className="px-4 py-2.5 text-sm font-bold rounded-lg bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-black border-2 border-gold-600 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-                  >
-                    Actions
-                    <svg className={`w-4 h-4 transition-transform ${openDropdown === (apt.id ? String(apt.id) : null) ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
 
-              {openDropdown === (apt.id ? String(apt.id) : null) && dropdownPosition && (
-                <>
-                  {createPortal(
-                    <>
-                      <div
-                        className="fixed inset-0 z-[9998]"
-                        onClick={() => {
-                          setOpenDropdown(null);
-                          setDropdownPosition(null);
-                        }}
-                      />
-                      <div 
-                        className="fixed bg-white dark:bg-black-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-2xl z-[10000] min-w-[240px] max-w-[240px] overflow-hidden"
-                        style={{
-                          top: `${dropdownPosition.top}px`,
-                          left: `${dropdownPosition.left}px`,
-                          maxHeight: `${Math.min(400, window.innerHeight - dropdownPosition.top - 10)}px`,
-                          overflowY: 'auto',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {apt.status === 'pending' && (
-                          <button
-                            onClick={() => {
-                              onConfirm(apt.id ? String(apt.id) : '');
-                              setOpenDropdown(null);
-                              setDropdownPosition(null);
-                            }}
-                            className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Confirm Appointment
-                          </button>
-                        )}
-                        {apt.status === 'confirmed' && (
-                          <>
-                            <button
-                              onClick={() => {
-                                onComplete(apt.id ? String(apt.id) : '');
-                                setOpenDropdown(null);
-                                setDropdownPosition(null);
-                              }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Mark as Completed
-                            </button>
-                            <button
-                              onClick={() => {
-                                onNoShow(apt.id ? String(apt.id) : '');
-                                setOpenDropdown(null);
-                                setDropdownPosition(null);
-                              }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Mark as No-Show
-                            </button>
-                          </>
-                        )}
-                        {apt.status === 'pending' && (() => {
-                          const aptDate = new Date(apt.date || (apt as any).appointmentDate || '');
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          aptDate.setHours(0, 0, 0, 0);
-                          // Only show no-show option for past pending appointments
-                          if (aptDate < today) {
-                            return (
-                              <button
-                                onClick={() => {
-                                  onNoShow(apt.id ? String(apt.id) : '');
-                                  setOpenDropdown(null);
-                                  setDropdownPosition(null);
-                                }}
-                                className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Mark as No-Show
-                              </button>
-                            );
+                {apt.status !== 'completed' && apt.status !== 'cancelled' && apt.status !== 'no-show' && (
+                  <>
+                    <div
+                      className="relative"
+                      ref={(el) => { if (apt.id) buttonRefs.current[apt.id] = el; }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (openDropdown === (apt.id ? String(apt.id) : null)) {
+                            setOpenDropdown(null);
+                            setDropdownPosition(null);
+                            return;
                           }
-                          return null;
-                        })()}
-                        {apt.status === 'cancellation_requested' && (
+                          const button = e.currentTarget;
+                          const rect = button.getBoundingClientRect();
+
+                          // Simple positioning - always below the button, no auto-adjustment
+                          const dropdownWidth = 240;
+                          const gap = 4; // Gap between button and dropdown
+
+                          // Position dropdown directly below the button
+                          const top = rect.bottom + gap;
+
+                          // Calculate horizontal position (align to right edge of button)
+                          const left = rect.right - dropdownWidth;
+
+                          setDropdownPosition({ top, left });
+                          setOpenDropdown(apt.id ? String(apt.id) : null);
+                        }}
+                        className="px-4 py-2.5 text-sm font-bold rounded-lg bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-black border-2 border-gold-600 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                      >
+                        Actions
+                        <svg className={`w-4 h-4 transition-transform ${openDropdown === (apt.id ? String(apt.id) : null) ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {openDropdown === (apt.id ? String(apt.id) : null) && dropdownPosition && (
+                      <>
+                        {createPortal(
                           <>
-                            <button
+                            <div
+                              className="fixed inset-0 z-[9998]"
                               onClick={() => {
-                                onApproveCancellation(apt.id ? String(apt.id) : '');
                                 setOpenDropdown(null);
                                 setDropdownPosition(null);
                               }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Approve Cancellation
-                            </button>
-                            <button
-                              onClick={() => {
-                                onRejectCancellation(apt.id ? String(apt.id) : '');
-                                setOpenDropdown(null);
-                                setDropdownPosition(null);
+                            />
+                            <div
+                              className="fixed bg-white dark:bg-black-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-2xl z-[10000] min-w-[240px] max-w-[240px] overflow-hidden"
+                              style={{
+                                top: `${dropdownPosition.top}px`,
+                                left: `${dropdownPosition.left}px`,
+                                maxHeight: `${Math.min(400, window.innerHeight - dropdownPosition.top - 10)}px`,
+                                overflowY: 'auto',
                               }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                              Reject Cancellation
-                            </button>
-                          </>
+                              {apt.status === 'pending' && (
+                                <button
+                                  onClick={() => {
+                                    onConfirm(apt.id ? String(apt.id) : '');
+                                    setOpenDropdown(null);
+                                    setDropdownPosition(null);
+                                  }}
+                                  className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-success/10 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  Confirm Appointment
+                                </button>
+                              )}
+                              {apt.status === 'confirmed' && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      onComplete(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Mark as Completed
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      onNoShow(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-alert/10 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Mark as No-Show
+                                  </button>
+                                </>
+                              )}
+                              {apt.status === 'pending' && (() => {
+                                const aptDate = new Date(apt.date || (apt as any).appointmentDate || '');
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                aptDate.setHours(0, 0, 0, 0);
+                                // Only show no-show option for past pending appointments
+                                if (aptDate < today) {
+                                  return (
+                                    <button
+                                      onClick={() => {
+                                        onNoShow(apt.id ? String(apt.id) : '');
+                                        setOpenDropdown(null);
+                                        setDropdownPosition(null);
+                                      }}
+                                      className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-alert/10 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                    >
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      Mark as No-Show
+                                    </button>
+                                  );
+                                }
+                                return null;
+                              })()}
+                              {apt.status === 'cancellation_requested' && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      onApproveCancellation(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-success/10 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Approve Cancellation
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      onRejectCancellation(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-alert/10 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reject Cancellation
+                                  </button>
+                                </>
+                              )}
+                              {apt.rescheduleRequested && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      onApproveReschedule(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-success/10 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Approve Reschedule
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      onRejectReschedule(apt.id ? String(apt.id) : '');
+                                      setOpenDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-alert/10 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reject Reschedule
+                                  </button>
+                                </>
+                              )}
+                              {apt.status !== 'completed' && apt.status !== 'cancelled' && apt.status !== 'cancellation_requested' && !apt.rescheduleRequested && (
+                                <button
+                                  onClick={() => {
+                                    onCancel(apt.id ? String(apt.id) : '');
+                                    setOpenDropdown(null);
+                                    setDropdownPosition(null);
+                                  }}
+                                  className="w-full text-left px-4 py-3 text-sm font-bold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Cancel Appointment
+                                </button>
+                              )}
+                            </div>
+                          </>,
+                          document.body
                         )}
-                        {apt.rescheduleRequested && (
-                          <>
-                            <button
-                              onClick={() => {
-                                onApproveReschedule(apt.id ? String(apt.id) : '');
-                                setOpenDropdown(null);
-                                setDropdownPosition(null);
-                              }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Approve Reschedule
-                            </button>
-                            <button
-                              onClick={() => {
-                                onRejectReschedule(apt.id ? String(apt.id) : '');
-                                setOpenDropdown(null);
-                                setDropdownPosition(null);
-                              }}
-                              className="w-full text-left px-4 py-3 text-sm font-bold text-orange-700 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                              Reject Reschedule
-                            </button>
-                          </>
-                        )}
-                        {apt.status !== 'completed' && apt.status !== 'cancelled' && apt.status !== 'cancellation_requested' && !apt.rescheduleRequested && (
-                          <button
-                            onClick={() => {
-                              onCancel(apt.id ? String(apt.id) : '');
-                              setOpenDropdown(null);
-                              setDropdownPosition(null);
-                            }}
-                            className="w-full text-left px-4 py-3 text-sm font-bold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            Cancel Appointment
-                          </button>
-                        )}
-                      </div>
-                    </>,
-                    document.body
-                  )}
-                </>
-              )}
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>

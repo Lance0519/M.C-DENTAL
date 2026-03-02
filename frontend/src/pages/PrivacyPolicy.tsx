@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
                 1. Introduction
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                M.C. Dental Clinic ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, use our appointment booking system, or receive dental services from our clinic.
+                M.C. Dental Clinic ("we," "our," or "us") is fully committed to protecting your privacy in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173), its Implementing Rules and Regulations, and other applicable laws of the Republic of the Philippines. This Privacy Policy outlines how we collect, process, manage, and protect your personal and sensitive health information when you avail of our dental services, use our appointment system, or visit our clinic.
               </p>
             </section>
 
@@ -39,127 +39,104 @@ export default function PrivacyPolicy() {
                 2. Information We Collect
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-3">
-                We may collect the following types of information:
+                To provide quality dental care, we collect the following types of information:
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4">
-                <li><strong>Personal Information:</strong> Name, email address, phone number, date of birth, gender, and home address.</li>
-                <li><strong>Health Information:</strong> Dental history, medical conditions, allergies, current medications, and treatment records.</li>
-                <li><strong>Appointment Data:</strong> Scheduled appointments, service history, and payment records.</li>
-                <li><strong>Account Information:</strong> Username, password (encrypted), and profile preferences.</li>
-                <li><strong>Technical Data:</strong> IP address, browser type, device information, and usage patterns on our website.</li>
+                <li><strong>Personal Information:</strong> Complete name, address, contact numbers, email address, date of birth, age, and gender.</li>
+                <li><strong>Sensitive Personal Information:</strong> Medical history (including previous illnesses, surgeries, allergies), dental records, medications currently taken, radiographs (X-rays), and treatment plans.</li>
+                <li><strong>Transaction Data:</strong> Scheduled appointments, billing details, and payment history.</li>
+                <li><strong>System/Technical Data:</strong> Account credentials, IP addresses, and digital activity strictly limited to the usage of our online portal.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                3. How We Use Your Information
+                3. Lawful Basis and Purpose of Processing
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-3">
-                We use your information to:
+                We collect and process your data based on your explicit consent, and for the following primary purposes:
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4">
-                <li>Provide and manage dental care services</li>
-                <li>Schedule and manage appointments</li>
-                <li>Process payments and billing</li>
-                <li>Send appointment reminders and confirmations</li>
-                <li>Communicate about promotions, health tips, and clinic updates</li>
-                <li>Improve our services and website functionality</li>
-                <li>Comply with legal and regulatory requirements</li>
+                <li><strong>Healthcare Delivery:</strong> Accurate diagnosis, medical clearance, and formulation of personalized dental treatment plans.</li>
+                <li><strong>Clinic Operations:</strong> Facilitating appointment scheduling, reminders, billing, and inventory management.</li>
+                <li><strong>Patient Communication:</strong> Sending post-treatment advice, check-up notices, and vital clinic updates.</li>
+                <li><strong>Regulatory Compliance:</strong> Fulfilling medical record-keeping standards required by Philippine health authorities and specialized dental boards.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                4. Information Sharing
+                4. Data Sharing and Disclosure
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:
+                Your medical and personal data is strictly confidential. We do not sell, trade, or distribute your information for commercial gain. We only disclose your information:
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4 mt-3">
-                <li>With your explicit consent</li>
-                <li>With healthcare providers involved in your care</li>
-                <li>To comply with legal obligations or court orders</li>
-                <li>With service providers who assist in our operations (under strict confidentiality agreements)</li>
+                <li>To attending dentists and allied health professionals directly involved in your care.</li>
+                <li>To third-party laboratories (e.g., for specialized fabrications like crowns or dentures) requiring clinical specifications.</li>
+                <li>When explicitly mandated by a valid court order or lawful request by government health agencies.</li>
+                <li>When you provide written consent for the release of your records to other healthcare providers or insurance companies.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                5. Data Security
+                5. Data Protection and Security Measures
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We implement appropriate technical and organizational measures to protect your personal information, including:
+                We employ strict organizational, physical, and technical security measures to prevent unauthorized access, accidental loss, disclosure, or alteration of your records:
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4 mt-3">
-                <li>Encryption of sensitive data during transmission and storage</li>
-                <li>Secure authentication systems</li>
-                <li>Regular security assessments and updates</li>
-                <li>Access controls limiting data access to authorized personnel only</li>
+                <li>End-to-end encryption for digital patient records and passwords.</li>
+                <li>Role-based digital access controls (only authorized clinicians and staff can access respective data tiers).</li>
+                <li>Secure physical filing systems for paper-based charting tools and consent forms.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                6. Your Rights
+                6. Rights of the Data Subject
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-3">
-                You have the right to:
+                Under the Data Privacy Act of 2012, you are entitled to the following rights:
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4">
-                <li>Access and review your personal information</li>
-                <li>Request correction of inaccurate data</li>
-                <li>Request deletion of your data (subject to legal retention requirements)</li>
-                <li>Opt-out of promotional communications</li>
-                <li>Withdraw consent for data processing</li>
+                <li><strong>Right to be Informed:</strong> To know that your data is being collected and processed.</li>
+                <li><strong>Right to Access:</strong> To request a copy of your dental records and digital data we hold.</li>
+                <li><strong>Right to Rectification:</strong> To correct any inaccuracies or errors in your personal or health profile.</li>
+                <li><strong>Right to Erasure or Blocking:</strong> To request the suspension, withdrawal, or removal of your data, provided this does not conflict with statutory medical retention laws.</li>
+                <li><strong>Right to Object:</strong> To withhold consent for data processing that is not strictly necessary for your medical treatment.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                7. Data Retention
+                7. Data Retention Policy
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We retain your personal and health information for as long as necessary to provide our services and comply with legal obligations. Medical records are typically retained for a minimum of 10 years as required by healthcare regulations in the Philippines.
+                We retain your dental and personal records in secure archives for a minimum period of <strong>ten (10) years</strong> from your last recorded visit, in compliance with Philippine medical and dental record-keeping standards. Afterwards, records are securely disposed of through digital wiping or physical shredding unless a longer retention period is required by active litigation or continuous treatment.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                8. Cookies and Tracking
+                8. Contact our Data Protection Officer (DPO)
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Our website uses cookies and similar technologies to enhance your browsing experience, remember your preferences, and analyze website usage. You can manage cookie preferences through your browser settings.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                9. Changes to This Policy
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on our website with an updated effective date.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                10. Contact Us
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                If you have any questions about this Privacy Policy or our data practices, please contact us:
+                If you wish to exercise your data privacy rights, raise a concern, or request further clarification regarding our privacy practices, please contact our Data Protection Officer:
               </p>
               <div className="mt-4 p-4 bg-gray-50 dark:bg-black-800 rounded-lg">
-                <p className="text-gray-700 dark:text-gray-300"><strong>M.C. Dental Clinic</strong></p>
-                <p className="text-gray-600 dark:text-gray-400">Email: info@mcdentalclinic.com</p>
+                <p className="text-gray-700 dark:text-gray-300"><strong>M.C. Dental Clinic DPO</strong></p>
+                <p className="text-gray-600 dark:text-gray-400">Email: dpo@mcdentalclinic.com</p>
                 <p className="text-gray-600 dark:text-gray-400">Phone: (02) 1234-5678</p>
-                <p className="text-gray-600 dark:text-gray-400">Hours: Mon-Sat 9AM-6PM</p>
+                <p className="text-gray-600 dark:text-gray-400">Address: [Clinic Physical Address, Philippines]</p>
               </div>
             </section>
           </div>
 
           <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="inline-flex items-center gap-2 text-gold-500 hover:text-gold-600 font-medium transition"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

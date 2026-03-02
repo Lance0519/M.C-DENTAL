@@ -1,5 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { HolidayOverlay } from './HolidayOverlay';
+import { Toaster } from 'react-hot-toast';
 
 export function AppLayout() {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -24,8 +26,10 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <HolidayOverlay />
+      <Toaster position="top-center" />
       <Outlet />
-      
+
       {/* Scroll to Top Button - Appears on all pages */}
       {showScrollToTop && (
         <button

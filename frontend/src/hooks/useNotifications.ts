@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '@/lib/api';
+import useSound from 'use-sound';
+import toast from 'react-hot-toast';
+import notificationSound from '@/assets/sounds/notification.mp3';
 
 export interface Notification {
   id: string;
@@ -27,6 +30,9 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [playNotificationSound] = useSound(notificationSound, { volume: 0.5 });
+  const prevUnreadCountRef = useRef(0);
+
   const loadNotifications = useCallback(async () => {
     try {
       setLoading(true);
@@ -34,17 +40,44 @@ export function useNotifications() {
       const response = await api.request('/notifications');
       const data = Array.isArray(response) ? response : (response as any)?.data ?? [];
       const normalized = (data as any[]).map(normalizeNotification);
+
+      const newUnreadCount = normalized.filter(n => !n.read).length;
+
+      // Check for new notifications
+      if (newUnreadCount > prevUnreadCountRef.current) {
+        playNotificationSound();
+
+        // Find the newest unread notification to show in the toast
+        const unreadNotifications = normalized.filter(n => !n.read);
+        if (unreadNotifications.length > 0) {
+          // Assuming the first one in the list is the most recent (or sort them if needed)
+          const latestNotification = unreadNotifications[0];
+          toast(latestNotification.title || 'New Notification', {
+            icon: '🔔',
+            duration: 3000,
+            style: {
+              borderRadius: '10px',
+              background: '#333',
+              color: '#fff',
+            },
+          });
+        }
+      }
+
+      prevUnreadCountRef.current = newUnreadCount;
+
       setNotifications(normalized);
-      setUnreadCount(normalized.filter(n => !n.read).length);
+      setUnreadCount(newUnreadCount);
     } catch (err) {
       console.error('Error loading notifications:', err);
       setError(err instanceof Error ? err.message : 'Failed to load notifications');
       setNotifications([]);
       setUnreadCount(0);
+      prevUnreadCountRef.current = 0;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [playNotificationSound]);
 
   useEffect(() => {
     loadNotifications();

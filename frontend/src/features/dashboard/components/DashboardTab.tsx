@@ -28,8 +28,9 @@ export function DashboardTab() {
   const { patients } = usePatients();
   const { services } = useServices();
   const { doctors } = useDoctors();
-  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month'>('today');
+  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains('dark'));
 
   // Listen for theme changes
@@ -72,9 +73,10 @@ export function DashboardTab() {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay());
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const yearStart = new Date(today.getFullYear(), 0, 1);
 
     // Filter appointments by period (includes future appointments in the period)
-    const getAppointmentsByPeriod = (period: 'today' | 'week' | 'month') => {
+    const getAppointmentsByPeriod = (period: 'today' | 'week' | 'month' | 'year') => {
       return appointments.filter((apt) => {
         const aptDate = new Date(apt.date || (apt as any).appointmentDate);
         aptDate.setHours(0, 0, 0, 0);
@@ -86,10 +88,13 @@ export function DashboardTab() {
           const weekEnd = new Date(weekStart);
           weekEnd.setDate(weekStart.getDate() + 6);
           return aptDate >= weekStart && aptDate <= weekEnd;
-        } else {
+        } else if (period === 'month') {
           // Include appointments from month start to end of month
           const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
           return aptDate >= monthStart && aptDate <= monthEnd;
+        } else {
+          const yearEnd = new Date(today.getFullYear(), 11, 31);
+          return aptDate >= yearStart && aptDate <= yearEnd;
         }
       });
     };
@@ -97,6 +102,7 @@ export function DashboardTab() {
     const todayApts = getAppointmentsByPeriod('today');
     const weekApts = getAppointmentsByPeriod('week');
     const monthApts = getAppointmentsByPeriod('month');
+    const yearApts = getAppointmentsByPeriod('year');
 
     // Calculate KPIs
     const calculateKPIs = (apts: Appointment[]) => {
@@ -112,6 +118,7 @@ export function DashboardTab() {
     const todayKPIs = calculateKPIs(todayApts);
     const weekKPIs = calculateKPIs(weekApts);
     const monthKPIs = calculateKPIs(monthApts);
+    const yearKPIs = calculateKPIs(yearApts);
 
     // Active patients (have at least one appointment)
     const activePatients = new Set(appointments.map((a) => a.patientId).filter(Boolean)).size;
@@ -207,7 +214,6 @@ export function DashboardTab() {
           cancelled: dayApts.filter((a) => a.status === 'cancelled').length,
         });
       }
-    } else {
       // Daily breakdown for This Month
       const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
       for (let i = 1; i <= daysInMonth; i++) {
@@ -224,6 +230,22 @@ export function DashboardTab() {
           scheduled: dayApts.length,
           completed: dayApts.filter((a) => a.status === 'completed').length,
           cancelled: dayApts.filter((a) => a.status === 'cancelled').length,
+        });
+      }
+    } else {
+      // Monthly breakdown for This Year
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      for (let month = 0; month < 12; month++) {
+        const monthFilterApts = yearApts.filter((a) => {
+          const aptDate = new Date(a.date || (a as any).appointmentDate);
+          return aptDate.getMonth() === month;
+        });
+
+        trendData.push({
+          date: monthNames[month],
+          scheduled: monthFilterApts.length,
+          completed: monthFilterApts.filter((a) => a.status === 'completed').length,
+          cancelled: monthFilterApts.filter((a) => a.status === 'cancelled').length,
         });
       }
     }
@@ -255,10 +277,12 @@ export function DashboardTab() {
         date.setDate(date.getDate() + index);
         const dateStr = normalizeDate(date.toISOString());
         bucketApts = weekApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
-      } else {
+      } else if (selectedPeriod === 'month') {
         const date = new Date(today.getFullYear(), today.getMonth(), index + 1);
         const dateStr = normalizeDate(date.toISOString());
         bucketApts = monthApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
+      } else {
+        bucketApts = yearApts.filter(a => new Date(a.date || (a as any).appointmentDate).getMonth() === index);
       }
 
       // Filter for completed only
@@ -322,6 +346,7 @@ export function DashboardTab() {
       todayKPIs,
       weekKPIs,
       monthKPIs,
+      yearKPIs,
       activePatients,
       newPatients,
       returningPatients,
@@ -340,13 +365,19 @@ export function DashboardTab() {
   const currentKPIs = useMemo(() => {
     if (selectedPeriod === 'today') return metrics.todayKPIs;
     if (selectedPeriod === 'week') return metrics.weekKPIs;
-    return metrics.monthKPIs;
+    if (selectedPeriod === 'month') return metrics.monthKPIs;
+    return metrics.yearKPIs;
   }, [selectedPeriod, metrics]);
 
   // Handle manual refresh
   const handleRefresh = async () => {
-    await loadAppointments();
-    setLastRefresh(new Date());
+    setIsRefreshing(true);
+    try {
+      await loadAppointments();
+      setLastRefresh(new Date());
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (
@@ -359,38 +390,31 @@ export function DashboardTab() {
         <div className="flex gap-2">
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 rounded-lg font-semibold transition bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700"
+            disabled={isRefreshing}
+            className="px-4 py-2 rounded-lg font-semibold transition bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700 disabled:opacity-50 flex items-center gap-2"
             title="Refresh data"
           >
-            🔄 Refresh
+            {isRefreshing ? (
+              <svg className="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              '🔄'
+            )}
+            Refresh
           </button>
-          <button
-            onClick={() => setSelectedPeriod('today')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'today'
-              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-              }`}
+
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value as 'today' | 'week' | 'month' | 'year')}
+            className="px-4 py-2 rounded-lg font-semibold transition bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gold-500"
           >
-            Today
-          </button>
-          <button
-            onClick={() => setSelectedPeriod('week')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'week'
-              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-              }`}
-          >
-            This Week
-          </button>
-          <button
-            onClick={() => setSelectedPeriod('month')}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${selectedPeriod === 'month'
-              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black'
-              : 'bg-white dark:bg-black-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-black-700 border border-gray-200 dark:border-gray-700'
-              }`}
-          >
-            This Month
-          </button>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
       </div>
 
@@ -435,7 +459,7 @@ export function DashboardTab() {
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title={`Appointment Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : 'This Month'})`}>
+        <ChartCard title={`Appointment Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : selectedPeriod === 'month' ? 'This Month' : 'This Year'})`}>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={metrics.trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
@@ -457,7 +481,7 @@ export function DashboardTab() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={`Revenue Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : 'This Month'})`}>
+        <ChartCard title={`Revenue Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : selectedPeriod === 'month' ? 'This Month' : 'This Year'})`}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={metrics.revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
@@ -488,7 +512,7 @@ export function DashboardTab() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ percent, cx, cy, midAngle, innerRadius, outerRadius }) => {
+                label={({ percent = 0, cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0 }) => {
                   if (percent < 0.05) return null;
                   const RADIAN = Math.PI / 180;
                   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -703,7 +727,7 @@ function StatCard({ title, value, period }: { title: string; value: string | num
     <div className="bg-white dark:bg-black-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
       <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">{title}</div>
       <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
-      <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{period === 'today' ? 'Today' : period === 'week' ? 'This Week' : 'This Month'}</div>
+      <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{period === 'today' ? 'Today' : period === 'week' ? 'This Week' : period === 'month' ? 'This Month' : 'This Year'}</div>
     </div>
   );
 }

@@ -614,7 +614,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-gradient-to-b from-gray-900 to-gray-800 text-white
+          fixed top-0 left-0 h-full
+          ${role === 'admin' ? 'bg-obsidian text-white' : 'bg-white text-black dark:bg-obsidian-dark dark:text-white'}
           transition-all duration-300 ease-in-out z-40 flex flex-col
           ${isCollapsed && !isMobile ? 'w-20' : 'w-64 md:w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
@@ -625,14 +626,18 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
         }}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700 sticky top-0 bg-gradient-to-b from-gray-900 to-gray-800 z-10">
+        <div className={`flex items-center justify-between p-4 sticky top-0 z-10 
+          ${role === 'admin' ? 'bg-obsidian border-b border-gray-800' : 'bg-white dark:bg-obsidian-dark border-b border-gray-200 dark:border-gray-800'}
+        `}>
           <button
             onClick={toggleSidebar}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+            className={`p-2 transition-colors flex-shrink-0 rounded-lg
+              ${role === 'admin' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}
+            `}
             aria-label="Toggle sidebar"
           >
             <svg
-              className="w-4 h-4 md:w-5 md:h-5 text-gold-400"
+              className="w-4 h-4 md:w-5 md:h-5 text-gold-metallic"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -656,7 +661,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
               }}
               className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity ml-2"
             >
-              <span className="text-xs md:text-sm font-semibold text-gold-400 truncate">
+              <span className="text-xs md:text-sm font-semibold text-gold-metallic truncate">
                 M.C DENTAL CLINIC
               </span>
               <img
@@ -695,10 +700,14 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                 w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all
                 text-sm md:text-base
                 ${item.isPrimary
-                  ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold hover:from-gold-400 hover:to-gold-300 shadow-md'
+                  ? (role === 'patient'
+                    ? 'bg-gold-soft text-black font-semibold hover:bg-gold-soft/80 shadow-md'
+                    : 'bg-gold-champagne text-black font-semibold hover:bg-gold-champagne/80 shadow-md')
                   : item.isActive
-                    ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30 font-medium'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? 'bg-gold-metallic/10 text-gold-metallic border border-gold-metallic/30 font-medium'
+                    : (role === 'admin'
+                      ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white')
                 }
                 ${isCollapsed && !isMobile ? 'justify-center' : ''}
               `}
@@ -713,7 +722,9 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-2 md:p-3 border-t border-gray-700 dark:border-gray-600 bg-gradient-to-b from-gray-900 to-gray-800 dark:from-black-950 dark:to-black-900 flex-shrink-0 mt-auto">
+        <div className={`p-2 md:p-3 flex-shrink-0 mt-auto
+          ${role === 'admin' ? 'bg-obsidian border-t border-gray-800' : 'bg-white dark:bg-obsidian-dark border-t border-gray-200 dark:border-gray-800'}
+        `}>
           {/* Theme Toggle */}
           <div className={`flex ${(isCollapsed && !isMobile) ? 'justify-center' : 'justify-end'} mb-2`}>
             <ThemeToggle size="sm" className={`${(isCollapsed && !isMobile) ? 'w-full' : ''}`} />
@@ -721,10 +732,12 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
           <div className={`flex items-center gap-1.5 md:gap-2 mb-2 ${(isCollapsed && !isMobile) ? 'flex-col' : 'flex-row'}`}>
             <button
               onClick={() => setShowProfileModal(true)}
-              className={`${(isCollapsed && !isMobile) ? 'w-full justify-center' : 'flex-1'} flex items-center gap-1.5 md:gap-2 p-1.5 md:p-2 rounded-lg hover:bg-gray-700 transition-colors`}
+              className={`${(isCollapsed && !isMobile) ? 'w-full justify-center' : 'flex-1'} flex items-center gap-1.5 md:gap-2 p-1.5 md:p-2 rounded-lg 
+                ${role === 'admin' ? 'hover:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'} 
+                transition-colors`}
               title={isCollapsed && !isMobile ? 'Edit Profile' : undefined}
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gold-500 flex items-center justify-center text-black font-semibold flex-shrink-0 shadow-md cursor-pointer hover:ring-2 hover:ring-gold-400 transition-all">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gold-metallic flex items-center justify-center text-obsidian font-semibold flex-shrink-0 shadow-md cursor-pointer hover:ring-2 hover:ring-gold-metallic transition-all">
                 {user?.profileImage ? (
                   <img src={user.profileImage} alt={displayName} className="w-full h-full rounded-full object-cover" />
                 ) : (
@@ -733,9 +746,9 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
               </div>
               {(!isCollapsed || isMobile) && (
                 <div className="flex-1 min-w-0 text-left">
-                  <div className="text-xs font-semibold text-white truncate leading-tight">{displayName}</div>
-                  <div className="text-xs text-gold-400 truncate leading-tight">{jobTitle}</div>
-                  <div className="text-xs text-gray-400 truncate leading-tight">{userRole}</div>
+                  <div className={`text-xs font-semibold truncate leading-tight ${role === 'admin' ? 'text-white' : 'text-black dark:text-white'}`}>{displayName}</div>
+                  <div className="text-xs text-gold-metallic truncate leading-tight">{jobTitle}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate leading-tight">{userRole}</div>
                 </div>
               )}
             </button>
@@ -744,14 +757,16 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
               <>
                 <button
                   onClick={() => setShowNotifications(true)}
-                  className={`relative p-1.5 md:p-2 rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0 ${(isCollapsed && !isMobile) ? 'w-full flex justify-center items-center' : 'self-center'}`}
+                  className={`relative p-1.5 md:p-2 rounded-lg transition-colors flex-shrink-0 
+                    ${role === 'admin' ? 'hover:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'} 
+                    ${(isCollapsed && !isMobile) ? 'w-full flex justify-center items-center' : 'self-center'}`}
                   title={unreadNotifications > 0 ? `${unreadNotifications} unread notifications` : 'Notifications'}
                 >
-                  <svg className="w-4 h-4 md:w-5 md:h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-gold-metallic" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {unreadNotifications > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-alert text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {unreadNotifications > 9 ? '9+' : unreadNotifications}
                     </span>
                   )}
@@ -774,7 +789,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                         {unreadNotifications > 0 && (
                           <button
                             onClick={() => markAllAsRead()}
-                            className="text-xs text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 font-semibold"
+                            className="text-xs text-teal-600 dark:text-teal-400 hover:text-gold-700 dark:hover:text-gold-300 font-semibold"
                           >
                             Mark all as read
                           </button>
@@ -809,8 +824,8 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                                   }
                                 }}
                                 className={`p-2.5 md:p-3 rounded-lg border cursor-pointer transition-colors ${!notif.read
-                                    ? 'bg-gold-50 dark:bg-gold-900/20 border-gold-200 dark:border-gold-700 hover:bg-gold-100 dark:hover:bg-gold-900/30'
-                                    : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                  ? 'bg-gold-50 dark:bg-gold-900/20 border-gold-200 dark:border-gold-700 hover:bg-gold-100 dark:hover:bg-gold-900/30'
+                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                                   }`}
                               >
                                 <div className="flex items-start gap-2">
@@ -1003,7 +1018,7 @@ function CreatePatientModal({
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
                 required
               />
             </div>
@@ -1014,7 +1029,7 @@ function CreatePatientModal({
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 placeholder-gray-400 dark:placeholder-gray-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Leave empty for default password"
               />
             </div>
@@ -1025,7 +1040,7 @@ function CreatePatientModal({
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
                 required
               />
             </div>
@@ -1036,7 +1051,7 @@ function CreatePatientModal({
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
               />
             </div>
 
@@ -1046,7 +1061,7 @@ function CreatePatientModal({
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
               />
             </div>
 
@@ -1056,7 +1071,7 @@ function CreatePatientModal({
                 type="date"
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
               />
             </div>
 
@@ -1065,7 +1080,7 @@ function CreatePatientModal({
               <select
                 value={formData.gender}
                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -1080,7 +1095,7 @@ function CreatePatientModal({
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={3}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-teal-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-teal-400/30"
               />
             </div>
           </div>

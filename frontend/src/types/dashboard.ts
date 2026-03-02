@@ -22,7 +22,7 @@ export interface Appointment {
   }>;
   date: string;
   time: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'cancellation_requested';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'cancellation_requested' | 'reschedule_requested' | 'no-show';
   notes?: string;
   walkInName?: string;
   walkInFullName?: string;

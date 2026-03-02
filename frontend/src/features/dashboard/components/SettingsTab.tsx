@@ -21,19 +21,20 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.getSettings('promotions');
+      const response = await api.getSettings();
       // Handle both direct response and wrapped response
       const responseData = (response as any)?.data ?? response;
-      const data = typeof responseData === 'object' && responseData !== null 
-        ? responseData as Record<string, string> 
+      const data = typeof responseData === 'object' && responseData !== null
+        ? responseData as Record<string, string>
         : {};
-      
+
       // If no settings exist, use defaults
       if (Object.keys(data).length === 0) {
         const defaults = {
           promo_banner_title: 'Special Promotions',
           promo_banner_subtitle: 'Limited time offers on selected dental services',
           promo_banner_bg_image: '',
+          active_occasion: 'none',
         };
         setSettings(defaults);
         setEditedSettings(defaults);
@@ -43,6 +44,7 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
           promo_banner_title: data.promo_banner_title || 'Special Promotions',
           promo_banner_subtitle: data.promo_banner_subtitle || 'Limited time offers on selected dental services',
           promo_banner_bg_image: data.promo_banner_bg_image || '',
+          active_occasion: data.active_occasion || 'none',
         };
         setSettings(settingsWithDefaults);
         setEditedSettings(settingsWithDefaults);
@@ -54,10 +56,11 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
         promo_banner_title: 'Special Promotions',
         promo_banner_subtitle: 'Limited time offers on selected dental services',
         promo_banner_bg_image: '',
+        active_occasion: 'none',
       };
       setSettings(defaults);
       setEditedSettings(defaults);
-      
+
       // Only show error if it's not a "table doesn't exist" type error
       const errorMessage = err instanceof Error ? err.message : 'Failed to load settings';
       if (!errorMessage.includes('not found') && !errorMessage.includes('does not exist')) {
@@ -81,6 +84,10 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
       await Promise.all(promises);
       setSettings({ ...editedSettings });
       setSuccessMessage('Settings saved successfully!');
+
+      // Notify other components like HolidayOverlay that settings changed
+      window.dispatchEvent(new CustomEvent('settingsUpdated'));
+
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Error saving settings:', err);
@@ -130,6 +137,36 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
         )}
 
         <div className="space-y-6">
+          {/* Holiday Animations */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Holiday Effects
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Add festive animations over the entire application
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Active Occasion
+              </label>
+              <select
+                value={editedSettings.active_occasion || 'none'}
+                onChange={(e) => handleChange('active_occasion', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="none">None (Disabled)</option>
+                <option value="xmas">Christmas (Falling Snow)</option>
+                <option value="newyear">New Year (Fireworks)</option>
+                <option value="cny">Chinese New Year (Floating Lanterns)</option>
+                <option value="valentines">Valentine's Day (Floating Hearts)</option>
+                <option value="halloween">Halloween (Floating Ghosts)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Select a visual effect to show on all pages. Set to 'None' to disable.
+              </p>
+            </div>
+          </div>
+
           {/* Promotion Banner Settings */}
           <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">

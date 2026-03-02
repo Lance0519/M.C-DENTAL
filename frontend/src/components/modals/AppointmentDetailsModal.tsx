@@ -263,17 +263,17 @@ export function AppointmentDetailsModal({
     const baseClasses = 'px-3 py-1 rounded-full text-sm font-semibold';
     switch (status) {
       case 'pending':
-        return `${baseClasses} bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300`;
+        return `${baseClasses} bg-alert/20 dark:bg-yellow-900/30 text-alert dark:text-yellow-300`;
       case 'confirmed':
         return `${baseClasses} bg-blue-500 dark:bg-blue-600 text-white`;
       case 'completed':
-        return `${baseClasses} bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300`;
+        return `${baseClasses} bg-success/20 dark:bg-green-900/30 text-success dark:text-green-300`;
       case 'cancelled':
         return `${baseClasses} bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300`;
       case 'cancellation_requested':
-        return `${baseClasses} bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300`;
+        return `${baseClasses} bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300`;
       case 'reschedule_requested':
-        return `${baseClasses} bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300`;
+        return `${baseClasses} bg-alert/20 dark:bg-orange-900/30 text-alert dark:text-orange-300`;
       default:
         return `${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300`;
     }
@@ -1058,7 +1058,7 @@ export function AppointmentDetailsModal({
               </div>
               {((appointment as any).paymentAmount !== undefined && (appointment as any).paymentAmount !== null) ? (
                 <>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-2xl font-bold text-success dark:text-green-400">
                     ₱{Number((appointment as any).paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   {(appointment as any).completedAt && (
@@ -1074,7 +1074,7 @@ export function AppointmentDetailsModal({
                   )}
                 </>
               ) : (
-                <div className="text-sm text-yellow-600 dark:text-yellow-400 italic">
+                <div className="text-sm text-alert dark:text-yellow-400 italic">
                   No payment amount recorded. Click "Add Amount" to record the payment.
                 </div>
               )}
@@ -1110,9 +1110,9 @@ export function AppointmentDetailsModal({
 
                 {/* Reschedule Request Actions */}
                 {(appointment.rescheduleRequested || appointment.status === 'reschedule_requested') && isStaffOrAdmin && (
-                  <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border-2 border-orange-200 dark:border-orange-700">
+                  <div className="mt-4 p-4 bg-alert/10 dark:bg-orange-900/20 rounded-lg border-2 border-orange-200 dark:border-orange-700">
                     <div className="mb-3">
-                      <p className="text-sm font-semibold text-orange-800 dark:text-orange-300 mb-2">Reschedule Request Details</p>
+                      <p className="text-sm font-semibold text-alert dark:text-orange-300 mb-2">Reschedule Request Details</p>
                       <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                         <p><span className="font-semibold">Current:</span> {appointment.date || (appointment as any).appointmentDate} at {appointment.time || (appointment as any).appointmentTime}</p>
                         <p><span className="font-semibold">Requested:</span> {(appointment as any).rescheduleRequestedDate || 'N/A'} at {(appointment as any).rescheduleRequestedTime || 'N/A'}</p>
@@ -1150,7 +1150,7 @@ export function AppointmentDetailsModal({
                           }
                         }}
                         disabled={updating}
-                        className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-2 bg-success hover:opacity-90 text-white font-semibold rounded-lg  transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -1264,7 +1264,7 @@ export function AppointmentDetailsModal({
                       This amount will be recorded for revenue tracking. Enter the actual amount the patient paid.
                     </p>
                     {paymentAmount && !isNaN(parseFloat(paymentAmount)) && parseFloat(paymentAmount) > 0 && (
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      <p className="text-xs text-success dark:text-green-400 mt-1">
                         ✓ Amount: ₱{parseFloat(paymentAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     )}
@@ -1415,7 +1415,7 @@ export function AppointmentDetailsModal({
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {isEditingStatus && (
-                    <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-semibold">
+                    <span className="px-2 py-1 bg-alert/20 dark:bg-yellow-900/30 text-alert dark:text-yellow-300 rounded text-xs font-semibold">
                       Status
                     </span>
                   )}
@@ -1425,7 +1425,7 @@ export function AppointmentDetailsModal({
                     </span>
                   )}
                   {treatmentImages.length > 0 && (
-                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-semibold">
+                    <span className="px-2 py-1 bg-success/20 dark:bg-green-900/30 text-success dark:text-green-300 rounded text-xs font-semibold">
                       {treatmentImages.length} Image{treatmentImages.length > 1 ? 's' : ''}
                     </span>
                   )}

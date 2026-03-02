@@ -119,10 +119,41 @@ export function validatePhone(phone: string) {
   return cleaned.length >= 10;
 }
 
+const commonWeakPasswords = [
+  'password', 'password123', '12345678', '123456789',
+  'qwerty', 'qwertyuiop', 'admin123', 'welcome',
+  'letmein123', 'iloveyou'
+];
+
 export function validatePasswordStrength(password: string) {
-  if (!password || password.length < 6) {
-    return { valid: false, message: 'Password must be at least 6 characters.' };
+  if (!password) {
+    return { valid: false, message: 'Password is required.' };
   }
+
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters.' };
+  }
+
+  if (password.length > 16) {
+    return { valid: false, message: 'Password cannot exceed 16 characters.' };
+  }
+
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+  if (!hasLowercase) return { valid: false, message: 'Password must contain at least one lowercase letter.' };
+  if (!hasUppercase) return { valid: false, message: 'Password must contain at least one uppercase letter.' };
+  if (!hasNumber) return { valid: false, message: 'Password must contain at least one number.' };
+  if (!hasSymbol) return { valid: false, message: 'Password must contain at least one special character/symbol.' };
+
+  // Basic check against extremely common/weak passwords
+  const normalizedPassword = password.toLowerCase();
+  if (commonWeakPasswords.some(weakPassword => normalizedPassword.includes(weakPassword))) {
+    return { valid: false, message: 'This password is too common or easily guessable. Please choose a unique passphrase.' };
+  }
+
   return { valid: true, message: 'Password strength looks good.' };
 }
 

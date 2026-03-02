@@ -6,6 +6,7 @@ import { validateEmailFormat, validatePasswordStrength, validatePhone, validateU
 import { useAuthStore } from '@/store/auth-store';
 import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { ClaimAccountModal } from '@/components/modals/ClaimAccountModal';
+import { PasswordStrengthMeter } from '@/features/auth/components/PasswordStrengthMeter';
 import clinicLogo from '@/assets/images/logo.png';
 import api from '@/lib/api';
 
@@ -27,6 +28,7 @@ export function AuthPage() {
   const [logoError, setLogoError] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [resetToken, setResetToken] = useState<string | null>(null);
+  const [regPasswordInput, setRegPasswordInput] = useState(''); // Tracking password state for the strength meter
   const hasCheckedAuth = useRef(false);
   const registerFormRef = useRef<HTMLFormElement>(null);
   const forgotPasswordFormRef = useRef<HTMLFormElement>(null);
@@ -36,7 +38,7 @@ export function AuthPage() {
   useEffect(() => {
     const token = searchParams.get('token');
     const isReset = searchParams.get('reset') === 'true';
-    
+
     if (token && isReset) {
       setResetToken(token);
       setMode('reset');
@@ -112,6 +114,52 @@ export function AuthPage() {
     }
   }
 
+  // Cache form inputs to localStorage
+  useEffect(() => {
+    if (mode === 'register' && registerFormRef.current) {
+      try {
+        const cachedData = localStorage.getItem('registration_form_cache');
+        if (cachedData) {
+          const parsed = JSON.parse(cachedData);
+          const form = registerFormRef.current;
+          Object.keys(parsed).forEach((key) => {
+            const input = form.elements.namedItem(key) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+            if (input && input.type !== 'password') {
+              input.value = parsed[key];
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load cached form data', err);
+      }
+    }
+  }, [mode]);
+
+  const handleFormChange = (e: FormEvent<HTMLFormElement>) => {
+    if (mode !== 'register') return;
+
+    // Use setTimeout to ensure form value is updated before saving
+    setTimeout(() => {
+      if (!registerFormRef.current) return;
+      const formData = new FormData(registerFormRef.current);
+      const dataToCache: Record<string, string> = {};
+
+      formData.forEach((value, key) => {
+        // DO NOT cache passwords ever
+        if (key.toLowerCase().includes('password')) return;
+        if (typeof value === 'string') {
+          dataToCache[key] = value;
+        }
+      });
+
+      try {
+        localStorage.setItem('registration_form_cache', JSON.stringify(dataToCache));
+      } catch (err) {
+        console.warn('Could not cache form data', err);
+      }
+    }, 0);
+  };
+
   async function handleRegister(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -161,17 +209,24 @@ export function AuthPage() {
     setLoading(false);
 
     if (result && result.success) {
+      // Success! Clear the cached input data
+      try {
+        localStorage.removeItem('registration_form_cache');
+      } catch (err) {
+        // ignore storage errors
+      }
+
       // Reset form using ref (event.currentTarget may be null in async code)
       if (registerFormRef.current) {
         registerFormRef.current.reset();
       }
-      
+
       // Clear any existing messages first
       setMessage(null);
-      
+
       // Switch to login view immediately
       setMode('login');
-      
+
       // Set success message on login page after mode switch
       // Use setTimeout to ensure mode switch completes first
       setTimeout(() => {
@@ -181,9 +236,9 @@ export function AuthPage() {
         });
       }, 50);
     } else {
-      setMessage({ 
-        type: 'error', 
-        text: result?.message || 'Registration failed. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: result?.message || 'Registration failed. Please try again.'
       });
     }
   }
@@ -253,19 +308,19 @@ export function AuthPage() {
       });
 
       setLoading(false);
-      
+
       // Reset form
       if (resetPasswordFormRef.current) {
         resetPasswordFormRef.current.reset();
       }
-      
+
       // Clear URL params and switch to login
       setResetToken(null);
       navigate('/login', { replace: true });
       setMode('login');
-      setMessage({ 
-        type: 'success', 
-        text: 'Password reset successfully! You can now login with your new password.' 
+      setMessage({
+        type: 'success',
+        text: 'Password reset successfully! You can now login with your new password.'
       });
     } catch (error) {
       setLoading(false);
@@ -319,13 +374,13 @@ export function AuthPage() {
               {mode === 'login' ? 'Welcome Back' : mode === 'register' ? 'Create Account' : mode === 'reset' ? 'New Password' : 'Reset Password'}
             </h1>
             <p className="text-base text-gray-600 dark:text-gray-300 mt-2">
-              {mode === 'login' 
-                ? 'Sign in to access your account and manage your appointments' 
-                : mode === 'register' 
-                ? 'Join us today and start your journey to better dental health'
-                : mode === 'reset'
-                ? 'Enter your new password below'
-                : 'Enter your email to recover your password'}
+              {mode === 'login'
+                ? 'Sign in to access your account and manage your appointments'
+                : mode === 'register'
+                  ? 'Join us today and start your journey to better dental health'
+                  : mode === 'reset'
+                    ? 'Enter your new password below'
+                    : 'Enter your email to recover your password'}
             </p>
           </div>
 
@@ -390,7 +445,7 @@ export function AuthPage() {
                 </svg>
               </button>
             </div>
-            
+
             {/* First Time Login / Claim Account */}
             <div className="pt-4 mt-4 border-t border-dashed border-gray-300 dark:border-gray-600">
               <button
@@ -415,6 +470,7 @@ export function AuthPage() {
             id="registerForm"
             className={`space-y-6 ${mode === 'register' ? 'block' : 'hidden'}`}
             onSubmit={handleRegister}
+            onChange={handleFormChange}
           >
             <div className="space-y-6">
               {/* Personal Details Section */}
@@ -524,9 +580,35 @@ export function AuthPage() {
                   </label>
                   <input type="text" id="regUsername" name="username" className={inputClasses} required autoComplete="username" />
                 </div>
-                <PasswordInput id="regPassword" name="password" label="Password" required />
+                <div>
+                  <PasswordInput
+                    id="regPassword"
+                    name="password"
+                    label="Password"
+                    required
+                    value={regPasswordInput}
+                    onChange={(e) => setRegPasswordInput(e.target.value)}
+                  />
+                  <PasswordStrengthMeter password={regPasswordInput} />
+                </div>
                 <PasswordInput id="regConfirmPassword" name="confirmPassword" label="Confirm Password" required />
               </div>
+            </div>
+
+            {/* DPA Consent Checkbox */}
+            <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-black-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center h-5 mt-0.5">
+                <input
+                  id="dpaConsent"
+                  name="dpaConsent"
+                  type="checkbox"
+                  required
+                  className="w-4 h-4 text-gold-500 bg-white dark:bg-black-900 border-gray-300 dark:border-gray-600 rounded focus:ring-gold-500 dark:focus:ring-gold-400 focus:ring-2"
+                />
+              </div>
+              <label htmlFor="dpaConsent" className="text-sm text-gray-600 dark:text-gray-300 leading-snug">
+                I have read and agree to the <Link to="/terms-of-service" target="_blank" className="font-semibold text-gold-600 dark:text-gold-400 hover:underline">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank" className="font-semibold text-gold-600 dark:text-gold-400 hover:underline">Privacy Policy</Link>. I consent to the collection and processing of my personal and health information in accordance with the Data Privacy Act of 2012.
+              </label>
             </div>
 
             <button type="submit" className={primaryButtonClasses} disabled={loading}>

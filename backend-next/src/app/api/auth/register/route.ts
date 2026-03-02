@@ -7,7 +7,7 @@ const registerSchema = z.object({
   fullName: z.string(),
   username: z.string(),
   email: z.string().email(),
-  password: z.string(),
+  password: z.string().min(8, 'Password must be at least 8 characters.').max(16, 'Password cannot exceed 16 characters.'),
   phone: z.string().optional(),
   dateOfBirth: z.string().optional(),
   address: z.string().optional(),
