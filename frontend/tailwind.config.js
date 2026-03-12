@@ -115,13 +115,14 @@ const config = {
           '100%': { transform: 'translateY(-110vh) scale(1)', opacity: '0' },
         },
         'firework-burst': {
-          '0%': { transform: 'scale(0)' },
-          '50%': { transform: 'scale(1)' },
+          '0%': { transform: 'scale(0)', opacity: '1' },
+          '15%': { transform: 'scale(1)', opacity: '1' },
           '100%': { transform: 'scale(1)', opacity: '0' },
         },
         'firework-particle': {
-          '0%': { transform: 'rotate(var(--r)) translateY(0) scale(1)', opacity: '1' },
-          '100%': { transform: 'rotate(var(--r)) translateY(-80px) scale(0)', opacity: '0' },
+          '0%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-60px) scale(0.8)' },
+          '100%': { transform: 'translateY(-100px) scale(0)' },
         },
         'float-heart': {
           '0%': { transform: 'translateY(10vh) scale(0.5) rotate(-10deg)', opacity: '0' },

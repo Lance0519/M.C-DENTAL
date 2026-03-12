@@ -139,12 +139,21 @@ function NewYearOverlay() {
                 {Array.from({ length: 8 }).map((_, j) => (
                     <div
                         key={j}
-                        className={`absolute w-1 h-12 origin-bottom rounded-full ${color}`}
+                        className="absolute origin-bottom -ml-[2px]"
                         style={{
-                            '--r': `${j * 45}deg`,
-                            animation: `firework-particle 2s ease-out infinite ${animationDelay}s`
-                        } as React.CSSProperties}
-                    />
+                            transform: `rotate(${j * 45}deg)`,
+                            bottom: 0,
+                            width: '4px',
+                            height: '3rem',
+                        }}
+                    >
+                        <div
+                            className={`w-full h-full rounded-full ${color}`}
+                            style={{
+                                animation: `firework-particle 2s ease-out infinite ${animationDelay}s`
+                            }}
+                        />
+                    </div>
                 ))}
             </div>
         );
