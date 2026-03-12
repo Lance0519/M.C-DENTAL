@@ -23,7 +23,7 @@ import type { Appointment } from '@/types/dashboard';
 
 const COLORS = ['#D4AF37', '#F4D03F', '#F7DC6F', '#E8B923', '#C9A961'];
 
-export function DashboardTab() {
+export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
   const { appointments, loadAppointments } = useAppointments();
   const { patients } = usePatients();
   const { services } = useServices();
@@ -333,9 +333,9 @@ export function DashboardTab() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between order-1">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-gold-600 to-gold-400 bg-clip-text text-transparent">
           Dashboard Overview
         </h1>
@@ -371,35 +371,37 @@ export function DashboardTab() {
       </div>
 
       {/* Key Performance Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Total Appointments"
-          value={appointments.length}
-          subtitle={`${appointments.filter(a => a.status === 'completed').length} completed, ${appointments.filter(a => a.status === 'cancelled').length} cancelled`}
-          icon="📅"
-        />
-        <KPICard
-          title="No-Show Rate"
-          value={`${currentKPIs.noShowRate}%`}
-          subtitle={`${currentKPIs.noShow} no-shows`}
-          icon="❌"
-        />
-        <KPICard
-          title="Active Patients"
-          value={metrics.activePatients}
-          subtitle={`${metrics.newPatients} new, ${metrics.returningPatients} returning`}
-          icon="👥"
-        />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="New Patients" value={metrics.newPatients} period={selectedPeriod} />
-        <StatCard title="Returning Patients" value={metrics.returningPatients} period={selectedPeriod} />
-        <StatCard title="Cancellation Rate" value={`${metrics.cancellationRate}%`} period={selectedPeriod} />
-        <StatCard title="Rescheduling Rate" value={`${metrics.reschedulingRate}%`} period={selectedPeriod} />
+      <div className="order-2 flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <KPICard
+            title="Total Appointments"
+            value={appointments.length}
+            subtitle={`${appointments.filter(a => a.status === 'completed').length} completed, ${appointments.filter(a => a.status === 'cancelled').length} cancelled`}
+            icon="📅"
+          />
+          <KPICard
+            title="No-Show Rate"
+            value={`${currentKPIs.noShowRate}%`}
+            subtitle={`${currentKPIs.noShow} no-shows`}
+            icon="❌"
+          />
+          <KPICard
+            title="Active Patients"
+            value={metrics.activePatients}
+            subtitle={`${metrics.newPatients} new, ${metrics.returningPatients} returning`}
+            icon="👥"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="New Patients" value={metrics.newPatients} period={selectedPeriod} />
+          <StatCard title="Returning Patients" value={metrics.returningPatients} period={selectedPeriod} />
+          <StatCard title="Cancellation Rate" value={`${metrics.cancellationRate}%`} period={selectedPeriod} />
+          <StatCard title="Rescheduling Rate" value={`${metrics.reschedulingRate}%`} period={selectedPeriod} />
+        </div>
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${role === 'admin' ? 'order-5' : 'order-3'}`}>
         <ChartCard title={`Appointment Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : selectedPeriod === 'month' ? 'This Month' : 'This Year'})`}>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={metrics.trendData}>
@@ -424,7 +426,7 @@ export function DashboardTab() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${role === 'admin' ? 'order-3' : 'order-4'}`}>
         <ChartCard title="Patient Demographics - Age Groups">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -502,7 +504,7 @@ export function DashboardTab() {
       </div>
 
       {/* Provider Overview and Popular Services */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${role === 'admin' ? 'order-4' : 'order-5'}`}>
         <ChartCard title="Provider Overview">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -556,72 +558,74 @@ export function DashboardTab() {
       </div>
 
       {/* Upcoming Appointments */}
-      <ChartCard title="Upcoming Appointments (Next 7 Days)">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Date & Time</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Patient</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Service</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Doctor</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {metrics.upcomingApts.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500 dark:text-gray-400">
-                    No upcoming appointments
-                  </td>
+      <div className="order-6 w-full">
+        <ChartCard title="Upcoming Appointments (Next 7 Days)">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Date & Time</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Patient</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Service</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Doctor</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Status</th>
                 </tr>
-              ) : (
-                metrics.upcomingApts.map((apt) => {
-                  const patient = patients.find((p) => p.id === apt.patientId);
-                  const doctor = doctors.find((d) => d.id === apt.doctorId);
-                  const service = services.find((s) => s.id === apt.serviceId);
-                  const aptDate = new Date(apt.date || (apt as any).appointmentDate);
-                  const aptTime = apt.time || (apt as any).appointmentTime || '';
+              </thead>
+              <tbody>
+                {metrics.upcomingApts.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500 dark:text-gray-400">
+                      No upcoming appointments
+                    </td>
+                  </tr>
+                ) : (
+                  metrics.upcomingApts.map((apt) => {
+                    const patient = patients.find((p) => p.id === apt.patientId);
+                    const doctor = doctors.find((d) => d.id === apt.doctorId);
+                    const service = services.find((s) => s.id === apt.serviceId);
+                    const aptDate = new Date(apt.date || (apt as any).appointmentDate);
+                    const aptTime = apt.time || (apt as any).appointmentTime || '';
 
-                  return (
-                    <tr key={apt.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-black-800">
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {aptDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{aptTime}</div>
-                      </td>
-                      <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
-                        {patient?.fullName || apt.patientName || 'Guest'}
-                      </td>
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{service?.name || apt.serviceName || 'N/A'}</td>
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{doctor?.name || apt.doctorName || 'N/A'}</td>
-                      <td className="py-3 px-4 text-center">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${apt.status === 'confirmed'
-                            ? 'bg-blue-500 text-white'
-                            : apt.status === 'pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : apt.status === 'no-show'
-                                ? 'bg-orange-500 text-white'
-                                : apt.status === 'completed'
-                                  ? 'bg-green-500 text-white'
-                                  : apt.status === 'cancelled'
-                                    ? 'bg-red-500 text-white'
-                                    : 'bg-gray-100 text-gray-800'
-                            }`}
-                        >
-                          {apt.status?.toUpperCase().replace('-', ' ') || 'PENDING'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </ChartCard>
+                    return (
+                      <tr key={apt.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-black-800">
+                        <td className="py-3 px-4">
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {aptDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{aptTime}</div>
+                        </td>
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                          {patient?.fullName || apt.patientName || 'Guest'}
+                        </td>
+                        <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{service?.name || apt.serviceName || 'N/A'}</td>
+                        <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{doctor?.name || apt.doctorName || 'N/A'}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${apt.status === 'confirmed'
+                              ? 'bg-blue-500 text-white'
+                              : apt.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : apt.status === 'no-show'
+                                  ? 'bg-orange-500 text-white'
+                                  : apt.status === 'completed'
+                                    ? 'bg-green-500 text-white'
+                                    : apt.status === 'cancelled'
+                                      ? 'bg-red-500 text-white'
+                                      : 'bg-gray-100 text-gray-800'
+                              }`}
+                          >
+                            {apt.status?.toUpperCase().replace('-', ' ') || 'PENDING'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </ChartCard>
+      </div>
     </div >
   );
 }

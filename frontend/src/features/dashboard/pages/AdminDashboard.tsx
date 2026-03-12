@@ -86,7 +86,7 @@ export function AdminDashboard() {
 function AdminDashboardContent({ activeTab }: { activeTab: string }) {
   switch (activeTab) {
     case 'dashboard':
-      return <DashboardTab />;
+      return <DashboardTab role="admin" />;
     case 'appointments':
       return <AppointmentsTab />;
     case 'patients':
