@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import api from '@/lib/api';
@@ -19,75 +19,93 @@ function BeforeAfterSlider({ beforeImage, afterImage, title }: { beforeImage: st
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleMove = (clientX: number) => {
+  const handleMove = useCallback((clientX: number) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = clientX - rect.left;
     const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
     setSliderPosition(percentage);
-  };
-
-  const handleMouseDown = () => setIsDragging(true);
-  const handleMouseUp = () => setIsDragging(false);
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) handleMove(e.clientX);
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    handleMove(e.touches[0].clientX);
-  };
+  }, []);
 
   useEffect(() => {
-    const handleGlobalMouseUp = () => setIsDragging(false);
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, []);
+    const handleMouseUp = () => setIsDragging(false);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+        handleMove(e.clientX);
+      }
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDragging) {
+        handleMove(e.touches[0].clientX);
+      }
+    };
+
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchend', handleMouseUp);
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove, { passive: false });
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
+
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchend', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isDragging, handleMove]);
+
+  const handleInteractionStart = (clientX: number) => {
+    setIsDragging(true);
+    handleMove(clientX);
+  };
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[4/3] rounded-xl overflow-hidden cursor-ew-resize select-none group"
-      onMouseMove={handleMouseMove}
-      onTouchMove={handleTouchMove}
+      className="relative w-full aspect-[4/3] rounded-xl overflow-hidden cursor-ew-resize select-none group touch-none"
+      onMouseDown={(e) => handleInteractionStart(e.clientX)}
+      onTouchStart={(e) => handleInteractionStart(e.touches[0].clientX)}
     >
       {/* After Image (Background) */}
       <img
         src={afterImage}
         alt={`${title} - After`}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         draggable={false}
       />
 
       {/* Before Image (Clipped) */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ width: `${sliderPosition}%` }}
       >
         <img
           src={beforeImage}
           alt={`${title} - Before`}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{ width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%' }}
           draggable={false}
         />
       </div>
 
       {/* Labels */}
-      <div className="absolute top-3 left-3 px-3 py-1 bg-black/70 text-white text-sm font-semibold rounded-full backdrop-blur-sm">
+      <div className="absolute top-3 left-3 px-3 py-1 bg-black/70 text-white text-sm font-semibold rounded-full backdrop-blur-sm pointer-events-none z-20">
         Before
       </div>
-      <div className="absolute top-3 right-3 px-3 py-1 bg-gold-500 text-black text-sm font-semibold rounded-full">
+      <div className="absolute top-3 right-3 px-3 py-1 bg-gold-500 text-black text-sm font-semibold rounded-full pointer-events-none z-20">
         After
       </div>
 
       {/* Slider Handle */}
       <div
-        className="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize z-10"
+        className="absolute top-0 bottom-0 w-1 bg-white shadow-lg pointer-events-none z-10"
         style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleMouseDown}
       >
         {/* Handle Circle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center border-2 border-gold-500 group-hover:scale-110 transition-transform">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center border-2 border-gold-500 transition-transform">
           <svg className="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
           </svg>
@@ -95,7 +113,7 @@ function BeforeAfterSlider({ beforeImage, afterImage, title }: { beforeImage: st
       </div>
 
       {/* Instruction overlay */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 text-white text-xs font-medium rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 text-white text-xs font-medium rounded-full backdrop-blur-sm transition-opacity pointer-events-none z-20 ${isDragging ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`}>
         Drag to compare
       </div>
     </div>
@@ -137,10 +155,10 @@ export function GalleryPage() {
 
   // Get unique treatments for filter
   const treatments = ['all', ...new Set(cases.map(c => c.treatment))];
-  
+
   // Filter cases
-  const filteredCases = selectedTreatment === 'all' 
-    ? cases 
+  const filteredCases = selectedTreatment === 'all'
+    ? cases
     : cases.filter(c => c.treatment === selectedTreatment);
 
   return (
@@ -158,7 +176,7 @@ export function GalleryPage() {
               Smile Gallery
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              See the amazing transformations we've achieved for our patients. 
+              See the amazing transformations we've achieved for our patients.
               Drag the slider to compare before and after results.
             </p>
           </div>
@@ -174,11 +192,10 @@ export function GalleryPage() {
                   <button
                     key={treatment}
                     onClick={() => setSelectedTreatment(treatment)}
-                    className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${
-                      selectedTreatment === treatment
+                    className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${selectedTreatment === treatment
                         ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black shadow-lg'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                    }`}
+                      }`}
                   >
                     {treatment === 'all' ? 'All Treatments' : treatment}
                   </button>
