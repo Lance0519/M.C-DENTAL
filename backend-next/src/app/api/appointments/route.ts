@@ -244,17 +244,15 @@ export async function POST(req: NextRequest) {
   } = parsed.data;
   const supabase = supabaseAdmin();
 
-  // Check for existing active appointments (limit: 2 per patient)
+  // Check for existing active appointments (limit: 2 per patient per day)
   // Exclude guest bookings from this limit
   const isGuestBooking = patientId.startsWith('guest_appointment');
   if (!isGuestBooking) {
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-
     const { data: existingAppointments, error: countErr } = await supabase
       .from('appointments')
       .select('id, appointment_date, status')
       .eq('patient_id', patientId)
-      .gte('appointment_date', today) // Only count future appointments
+      .eq('appointment_date', date) // Only count appointments for the SPECIFIC day
       .in('status', ['pending', 'confirmed', 'reschedule_requested', 'cancellation_requested']); // Active statuses
 
     if (countErr) {
@@ -265,7 +263,7 @@ export async function POST(req: NextRequest) {
     const activeAppointmentCount = (existingAppointments ?? []).length;
     if (activeAppointmentCount >= 2) {
       return error(
-        'You can only have a maximum of 2 pending appointments at a time. Please cancel or complete an existing appointment before booking a new one.',
+        'You can only have a maximum of 2 appointments per day.',
         400
       );
     }

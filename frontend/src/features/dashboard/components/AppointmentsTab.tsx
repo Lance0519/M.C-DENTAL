@@ -1288,8 +1288,7 @@ function CalendarView({
                 hover:shadow-md transition-all
                 ${isToday ? 'ring-2 ring-blue-400' : ''}
                 ${isPast ? 'opacity-60' : ''}
-                ${dayAppointments.length > 0 ? getDayStatusColor() : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-black-800 hover:bg-gray-50 dark:hover:bg-black-700'}
-                ${dayAppointments.length === 0 && !isPast ? 'border-gray-200 dark:border-gray-700 bg-white dark:bg-black-800' : ''}
+                ${dayAppointments.length > 0 ? getDayStatusColor() : (isPast ? 'border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/60' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-black-800 hover:bg-gray-50 dark:hover:bg-black-700')}
               `}
               onClick={(e) => {
                 e.stopPropagation();
@@ -1456,11 +1455,11 @@ function AppointmentsListView({
           >
             {/* Card Header */}
             <div className={`bg-gradient-to-r px-6 py-4 rounded-t-xl ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
-                apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
-                  apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
-                    apt.status === 'completed' ? 'from-green-500 to-green-400' :
-                      apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
-                        'from-red-500 to-red-400'
+              apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
+                apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
+                  apt.status === 'completed' ? 'from-green-500 to-green-400' :
+                    apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
+                      'from-red-500 to-red-400'
               }`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -1477,16 +1476,16 @@ function AppointmentsListView({
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-3 py-1.5 rounded-full text-xs font-bold ${(apt.rescheduleRequested || apt.status === 'reschedule_requested')
+                      ? 'bg-white/20 text-white border-2 border-white/30'
+                      : apt.status === 'confirmed'
                         ? 'bg-white/20 text-white border-2 border-white/30'
-                        : apt.status === 'confirmed'
+                        : apt.status === 'pending'
                           ? 'bg-white/20 text-white border-2 border-white/30'
-                          : apt.status === 'pending'
+                          : apt.status === 'completed'
                             ? 'bg-white/20 text-white border-2 border-white/30'
-                            : apt.status === 'completed'
+                            : apt.status === 'cancellation_requested'
                               ? 'bg-white/20 text-white border-2 border-white/30'
-                              : apt.status === 'cancellation_requested'
-                                ? 'bg-white/20 text-white border-2 border-white/30'
-                                : 'bg-white/20 text-white border-2 border-white/30'
+                              : 'bg-white/20 text-white border-2 border-white/30'
                       }`}
                   >
                     {(apt.rescheduleRequested || apt.status === 'reschedule_requested')

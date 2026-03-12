@@ -74,7 +74,7 @@ export interface AuditLogParams {
  */
 export async function logAudit(params: AuditLogParams): Promise<boolean> {
   const { action, userId, userName, userRole, details, ipAddress } = params;
-  
+
   const supabase = supabaseAdmin();
   const id = `audit${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
 
@@ -91,6 +91,24 @@ export async function logAudit(params: AuditLogParams): Promise<boolean> {
   if (insertErr) {
     console.error('Audit log error:', insertErr);
     return false;
+  }
+
+  // Auto-archive: Delete logs older than 6 years (2190 days)
+  try {
+    const sixYearsAgo = new Date();
+    sixYearsAgo.setDate(sixYearsAgo.getDate() - 2190);
+    const olderThan = sixYearsAgo.toISOString();
+
+    const { error: deleteErr } = await supabase
+      .from('audit_logs')
+      .delete()
+      .lt('created_at', olderThan);
+
+    if (deleteErr) {
+      console.error('Old audit logs background auto-archive error:', deleteErr);
+    }
+  } catch (err) {
+    console.error('Error during audit log auto-archive check:', err);
   }
 
   return true;

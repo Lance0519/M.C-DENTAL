@@ -283,24 +283,24 @@ export function AuditTab() {
 
     // Build readable details string prioritizing important fields
     const parts: string[] = [];
-    
+
     // Names (prioritized - show first for context)
     if (details.serviceName) parts.push(`Service: ${details.serviceName}`);
     if (details.promotionTitle) parts.push(`Promotion: ${details.promotionTitle}`);
     if (details.patientName) parts.push(`Patient: ${details.patientName}`);
     if (details.doctorName) parts.push(`Doctor: ${details.doctorName}`);
     if (details.staffName) parts.push(`Staff: ${details.staffName}`);
-    
+
     // Status change (important for activation/deactivation)
     if (details.statusChange && typeof details.statusChange === 'string') {
       parts.push(`Status: ${details.statusChange}`);
     }
-    
+
     // Action description
     if (details.action && typeof details.action === 'string' && !details.statusChange) {
       parts.push(details.action);
     }
-    
+
     // Date/Time info
     if (details.date && details.time) {
       parts.push(`Date: ${details.date} at ${details.time}`);
@@ -309,20 +309,20 @@ export function AuditTab() {
     } else if (details.time) {
       parts.push(`Time: ${details.time}`);
     }
-    
+
     // Day (for schedules)
     if (details.day) parts.push(`Day: ${details.day}`);
-    
+
     // Services list
     if (details.services && typeof details.services === 'string') {
       parts.push(`Services: ${details.services}`);
     }
-    
+
     // Login method
     if (details.loginMethod) {
       parts.push(`Login Method: ${details.loginMethod}`);
     }
-    
+
     // Updated fields (only if there are no more important details)
     if (parts.length <= 1 && details.updatedFields && Array.isArray(details.updatedFields)) {
       const fields = details.updatedFields.filter((f: unknown) => f !== 'updated_at');
@@ -330,7 +330,7 @@ export function AuditTab() {
         parts.push(`Updated: ${fields.join(', ')}`);
       }
     }
-    
+
     // If we have parts, return them joined
     if (parts.length > 0) {
       return parts.join(' • ');
@@ -339,16 +339,16 @@ export function AuditTab() {
     // Fallback to original logic for any remaining fields
     const entries = Object.entries(details);
     if (entries.length === 0) return 'No details';
-    
+
     // Filter out internal fields
-    const filteredEntries = entries.filter(([key]) => 
-      !['description', 'actionTimestamp', 'action', 'patientName', 'doctorName', 
+    const filteredEntries = entries.filter(([key]) =>
+      !['description', 'actionTimestamp', 'action', 'patientName', 'doctorName',
         'serviceName', 'staffName', 'promotionTitle', 'date', 'time', 'day',
         'services', 'loginMethod', 'updatedFields', 'statusChange'].includes(key)
     );
-    
+
     if (filteredEntries.length === 0) return 'No additional details';
-    
+
     // Format remaining details in a more readable way
     return filteredEntries
       .map(([key, value]) => {
@@ -357,7 +357,7 @@ export function AuditTab() {
           .replace(/([A-Z])/g, ' $1')
           .replace(/^./, (str) => str.toUpperCase())
           .trim();
-        
+
         // Format value based on type
         let formattedValue: string;
         if (value === null || value === undefined) {
@@ -374,7 +374,7 @@ export function AuditTab() {
         } else {
           formattedValue = String(value);
         }
-        
+
         return `${formattedKey}: ${formattedValue}`;
       })
       .join(' • ');
@@ -429,11 +429,11 @@ export function AuditTab() {
     try {
       // Call the system reset API to delete ALL data
       const response = await api.request('/system/reset', { method: 'DELETE' });
-      
+
       // Reload all data
       await loadAuditLogs();
       await loadAppointments();
-      
+
       const result = response as any;
       if (result?.errors?.length > 0) {
         alert(`System reset completed with some errors:\n${result.errors.join('\n')}`);
@@ -832,7 +832,7 @@ function CalendarView({
           const colorClass = getDateColor(date);
 
           const isPast = isPastDate(date);
-          
+
           return (
             <button
               key={dateStr}
@@ -841,7 +841,7 @@ function CalendarView({
                 aspect-square p-2 rounded-lg border-2 transition-all
                 ${isToday(date) ? 'ring-2 ring-gold-500' : ''}
                 ${isSelected(date) ? 'bg-gold-100 dark:bg-gold-900/30 border-gold-500' : colorClass || 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-black-800'}
-                ${isPast ? 'opacity-50 grayscale' : ''}
+                ${isPast ? 'opacity-50 grayscale bg-gray-100 dark:bg-gray-800/60' : ''}
                 ${logs.length > 0 ? 'font-semibold' : 'text-gray-400 dark:text-gray-500'}
               `}
             >

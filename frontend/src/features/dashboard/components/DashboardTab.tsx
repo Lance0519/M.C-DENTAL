@@ -3,7 +3,7 @@ import { useAppointments } from '@/hooks/useAppointments';
 import { usePatients } from '@/hooks/usePatients';
 import { useServices } from '@/hooks/useServices';
 import { useDoctors } from '@/hooks/useDoctors';
-import { calculateAppointmentRevenue, normalizeDate } from '@/lib/revenue-calculator';
+import { normalizeDate } from '@/lib/revenue-calculator';
 import {
   LineChart,
   Line,
@@ -251,53 +251,6 @@ export function DashboardTab() {
     }
 
     // Revenue trends (based on actual completed appointments in the period buckets)
-    const revenueData = trendData.map((d, index) => {
-      // Logic to re-filter revenue based on the bucket time range
-      // For simplicity, we can reuse the calculated 'completed' count concept 
-      // BUT we need the actual appointments to sum revenue.
-      // Re-running the filter per bucket to be safe and accurate with the previous logic
-
-      let bucketApts: Appointment[] = [];
-      if (selectedPeriod === 'today') {
-        // Re-filter for specific hour
-        // Note: d.date is "8 AM", etc. 
-        const i = index + 8; // Mapping back to loop index
-        bucketApts = todayApts.filter((a) => {
-          if (a.time) {
-            const [h] = a.time.split(':');
-            let hour = parseInt(h);
-            if (a.time.toLowerCase().includes('pm') && hour < 12) hour += 12;
-            if (a.time.toLowerCase().includes('am') && hour === 12) hour = 0;
-            return hour === i;
-          }
-          return new Date(a.date || (a as any).appointmentDate).getHours() === i;
-        });
-      } else if (selectedPeriod === 'week') {
-        const date = new Date(weekStart);
-        date.setDate(date.getDate() + index);
-        const dateStr = normalizeDate(date.toISOString());
-        bucketApts = weekApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
-      } else if (selectedPeriod === 'month') {
-        const date = new Date(today.getFullYear(), today.getMonth(), index + 1);
-        const dateStr = normalizeDate(date.toISOString());
-        bucketApts = monthApts.filter(a => normalizeDate(a.date || (a as any).appointmentDate) === dateStr);
-      } else {
-        bucketApts = yearApts.filter(a => new Date(a.date || (a as any).appointmentDate).getMonth() === index);
-      }
-
-      // Filter for completed only
-      const completedApts = bucketApts.filter(a => a.status === 'completed');
-
-      // Sum revenue
-      const revenue = completedApts.reduce((sum, apt) => {
-        return sum + calculateAppointmentRevenue(apt, services);
-      }, 0);
-
-      return {
-        ...d,
-        revenue: Math.round(revenue),
-      };
-    });
 
     // Patient demographics
     const ageGroups = { '0-18': 0, '19-35': 0, '36-50': 0, '51-65': 0, '65+': 0 };
@@ -353,7 +306,6 @@ export function DashboardTab() {
       providerStats,
       popularServices,
       trendData,
-      revenueData,
       ageData,
       genderData,
       cancellationRate,
@@ -438,18 +390,7 @@ export function DashboardTab() {
           subtitle={`${metrics.newPatients} new, ${metrics.returningPatients} returning`}
           icon="👥"
         />
-        <KPICard
-          title="Revenue"
-          value={`₱${appointments.filter(a => a.status === 'completed').reduce((sum, apt) => sum + (Number((apt as any).paymentAmount) || 0), 0).toLocaleString()}`}
-          subtitle={`Outstanding: ₱${appointments.filter(a => a.status === 'pending' || a.status === 'confirmed').reduce((sum, apt) => {
-            const service = services.find(s => s.id === apt.serviceId);
-            return sum + (service ? parseFloat(service.price?.replace(/[^0-9.]/g, '') || '0') : 0);
-          }, 0).toLocaleString()}`}
-          icon="💰"
-        />
       </div>
-
-      {/* Quick Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="New Patients" value={metrics.newPatients} period={selectedPeriod} />
         <StatCard title="Returning Patients" value={metrics.returningPatients} period={selectedPeriod} />
@@ -478,26 +419,6 @@ export function DashboardTab() {
               <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} name="Completed" />
               <Line type="monotone" dataKey="cancelled" stroke="#ef4444" strokeWidth={2} name="Cancelled" />
             </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title={`Revenue Trends (${selectedPeriod === 'today' ? 'Today' : selectedPeriod === 'week' ? 'This Week' : selectedPeriod === 'month' ? 'This Month' : 'This Year'})`}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={metrics.revenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-              <XAxis dataKey="date" stroke="#6b7280" className="dark:stroke-gray-400" />
-              <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: isDarkMode ? '#1a1a1a' : '#fff',
-                  border: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  color: isDarkMode ? '#f3f4f6' : '#111827',
-                }}
-                formatter={(value: number) => `₱${value.toLocaleString()}`}
-              />
-              <Bar dataKey="revenue" fill="#D4AF37" radius={[8, 8, 0, 0]} />
-            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
@@ -545,7 +466,7 @@ export function DashboardTab() {
                   color: isDarkMode ? '#f9fafb' : '#111827',
                   fontWeight: 600,
                 }}
-                formatter={(value: number, name: string) => {
+                formatter={(value: any, name: any) => {
                   const total = metrics.ageData.reduce((sum, d) => sum + d.value, 0);
                   const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
                   return [`${value} patients (${percent}%)`, name];
@@ -701,7 +622,7 @@ export function DashboardTab() {
           </table>
         </div>
       </ChartCard>
-    </div>
+    </div >
   );
 }
 

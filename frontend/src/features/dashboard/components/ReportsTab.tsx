@@ -4,11 +4,9 @@ import { useAppointments } from '@/hooks/useAppointments';
 import { usePatients } from '@/hooks/usePatients';
 import { useServices } from '@/hooks/useServices';
 import { useDoctors } from '@/hooks/useDoctors';
-import { calculateAppointmentRevenue, getAppointmentCompletionDate, normalizeDate } from '@/lib/revenue-calculator';
+import { normalizeDate } from '@/lib/revenue-calculator';
 import { filterAppointmentsByDateRange } from '@/lib/appointment-filters';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -31,7 +29,7 @@ export function ReportsTab() {
   const { patients, loading: patientsLoading, error: patientsError, loadPatients } = usePatients();
   const { services, loading: servicesLoading, error: servicesError, loadServices } = useServices();
   const { doctors, loading: doctorsLoading, error: doctorsError, loadDoctors } = useDoctors();
-  
+
   const [dateRange, setDateRange] = useState<'week' | 'month' | 'year'>('month');
   const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -52,7 +50,7 @@ export function ReportsTab() {
 
   // Check if any data is loading
   const isLoading = appointmentsLoading || patientsLoading || servicesLoading || doctorsLoading;
-  
+
   // Check if there are any errors
   const hasError = appointmentsError || patientsError || servicesError || doctorsError;
 
@@ -98,7 +96,7 @@ export function ReportsTab() {
     startDate.setHours(0, 0, 0, 0); // Start of day
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999); // End of day
-    
+
     // Calculate date range - include both past and future appointments
     if (dateRange === 'week') {
       startDate.setDate(today.getDate() - 6); // Last 7 days including today
@@ -134,7 +132,7 @@ export function ReportsTab() {
         console.warn('ReportsTab - Appointment missing date:', apt.id);
         return false;
       }
-      
+
       try {
         // Use normalizeDate to handle date parsing consistently
         const normalizedAptDate = normalizeDate(aptDateStr);
@@ -142,7 +140,7 @@ export function ReportsTab() {
           console.warn('ReportsTab - Could not normalize appointment date:', apt.id, aptDateStr);
           return false;
         }
-        
+
         // Parse normalized date to compare
         const dateParts = normalizedAptDate.split('-');
         const aptYear = parseInt(dateParts[0], 10);
@@ -150,16 +148,16 @@ export function ReportsTab() {
         const aptDay = parseInt(dateParts[2], 10);
         const aptDate = new Date(aptYear, aptMonth, aptDay);
         aptDate.setHours(0, 0, 0, 0);
-        
+
         // Normalize start and end dates
         const normalizedStart = new Date(startDate);
         normalizedStart.setHours(0, 0, 0, 0);
         const normalizedEnd = new Date(endDate);
         normalizedEnd.setHours(23, 59, 59, 999);
-        
+
         // Include appointments within the range (past, present, and future)
         const isInRange = aptDate >= normalizedStart && aptDate <= normalizedEnd;
-        
+
         if (!isInRange && appointments.length <= 10) {
           // Only log for small datasets to avoid console spam
           console.debug('ReportsTab - Appointment outside date range:', {
@@ -169,7 +167,7 @@ export function ReportsTab() {
             endDate: normalizedEnd.toISOString().split('T')[0]
           });
         }
-        
+
         return isInRange;
       } catch (error) {
         console.warn('ReportsTab - Error parsing date:', aptDateStr, error);
@@ -187,7 +185,7 @@ export function ReportsTab() {
     // Total Appointments by Status
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    
+
     const statusCounts = {
       scheduled: filteredApts.length,
       completed: filteredApts.filter((a) => a.status === 'completed').length,
@@ -195,8 +193,8 @@ export function ReportsTab() {
       noShow: filteredApts.filter((a) => a.status === 'no-show').length,
     };
 
-    const noShowRate = statusCounts.scheduled > 0 
-      ? ((statusCounts.noShow / statusCounts.scheduled) * 100).toFixed(1) 
+    const noShowRate = statusCounts.scheduled > 0
+      ? ((statusCounts.noShow / statusCounts.scheduled) * 100).toFixed(1)
       : '0.0';
 
     // New vs Returning Patients
@@ -228,81 +226,12 @@ export function ReportsTab() {
       })
       .filter((p) => p.appointments > 0);
 
-    // Revenue (based on actual completed appointments)
-    const revenueByPeriod: Array<{ period: string; revenue: number }> = [];
-    const periodCount = dateRange === 'week' ? 7 : dateRange === 'month' ? 30 : 12;
-    const todayForPeriods = new Date();
-    todayForPeriods.setHours(0, 0, 0, 0);
-    
-    for (let i = periodCount - 1; i >= 0; i--) {
-      const date = new Date(todayForPeriods);
-      if (dateRange === 'week' || dateRange === 'month') {
-        date.setDate(date.getDate() - i);
-      } else {
-        // Year: go back i months
-        date.setMonth(date.getMonth() - i);
-        date.setDate(1); // First day of month
-      }
-      date.setHours(0, 0, 0, 0);
-      
-      // Calculate actual revenue for this period
-      // For revenue, use completion date (completedAt) if available, otherwise use updatedAt or appointment date
-      // This ensures revenue is recorded in the period when the service was actually completed
-      const periodDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      
-      // Filter completed appointments by completion date
-      const completedInPeriod = filteredApts.filter((apt) => {
-        if (apt.status !== 'completed') return false;
-        
-        // Get completion date (prioritizes completedAt > updatedAt > appointment date)
-        const completionDate = getAppointmentCompletionDate(apt);
-        if (!completionDate) {
-          // Fallback to appointment date if no completion date
-          const aptDate = normalizeDate(apt.date || (apt as any).appointmentDate);
-          if (!aptDate) return false;
-          
-          if (dateRange === 'year') {
-            const aptMonth = aptDate.substring(0, 7);
-            const periodMonth = periodDateStr.substring(0, 7);
-            return aptMonth === periodMonth;
-          }
-          return aptDate === periodDateStr;
-        }
-        
-        // Match by completion date
-        if (dateRange === 'year') {
-          // Match by month (compare YYYY-MM)
-          const aptMonth = completionDate.substring(0, 7); // YYYY-MM
-          const periodMonth = periodDateStr.substring(0, 7); // YYYY-MM
-          return aptMonth === periodMonth;
-        } else {
-          // Match by exact date
-          return completionDate === periodDateStr;
-        }
-      });
-      
-      // Calculate revenue (only from completed appointments)
-      const revenue = completedInPeriod.reduce((sum, apt) => {
-        return sum + calculateAppointmentRevenue(apt, services);
-      }, 0);
-      
-      let periodLabel: string;
-      if (dateRange === 'year') {
-        periodLabel = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      } else {
-        periodLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      }
-      
-      revenueByPeriod.push({
-        period: periodLabel,
-        revenue: Math.round(revenue),
-      });
-    }
+    // Revenue (based on actual completed appointments) removed
 
     // Patient Demographics
     const ageGroups = { '0-18': 0, '19-35': 0, '36-50': 0, '51-65': 0, '65+': 0 };
     const genderCounts: Record<string, number> = { Male: 0, Female: 0, Other: 0 };
-    
+
     patients.forEach((patient) => {
       if (patient && patient.dateOfBirth) {
         try {
@@ -311,7 +240,7 @@ export function ReportsTab() {
             const age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
             const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
-            
+
             if (actualAge <= 18) ageGroups['0-18']++;
             else if (actualAge <= 35) ageGroups['19-35']++;
             else if (actualAge <= 50) ageGroups['36-50']++;
@@ -338,11 +267,11 @@ export function ReportsTab() {
           return aptDoctorId === docId;
         });
         const completed = docApts.filter((a) => a.status === 'completed').length;
-        
+
         // Calculate utilization based on date range
         const totalSlots = dateRange === 'week' ? 140 : dateRange === 'month' ? 600 : 7200;
         const utilization = docApts.length > 0 ? ((docApts.length / totalSlots) * 100).toFixed(1) : '0.0';
-        
+
         return {
           name: doc.name || (doc as any).fullName || 'Unknown',
           appointments: docApts.length,
@@ -366,28 +295,28 @@ export function ReportsTab() {
         }
       })
       .filter((lt): lt is number => lt !== null);
-      
-    const avgLeadTime = leadTimes.length > 0 
+
+    const avgLeadTime = leadTimes.length > 0
       ? (leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length).toFixed(1)
       : '0';
 
     // Cancellation & Rescheduling Rates
-    const cancelledCount = filteredApts.filter((a) => 
+    const cancelledCount = filteredApts.filter((a) =>
       a.status === 'cancelled' || a.status === 'cancellation_requested'
     ).length;
     const rescheduledCount = filteredApts.filter((a) => (a as any).rescheduleRequested).length;
-    const cancellationRate = filteredApts.length > 0 
-      ? ((cancelledCount / filteredApts.length) * 100).toFixed(1) 
+    const cancellationRate = filteredApts.length > 0
+      ? ((cancelledCount / filteredApts.length) * 100).toFixed(1)
       : '0.0';
-    const reschedulingRate = filteredApts.length > 0 
-      ? ((rescheduledCount / filteredApts.length) * 100).toFixed(1) 
+    const reschedulingRate = filteredApts.length > 0
+      ? ((rescheduledCount / filteredApts.length) * 100).toFixed(1)
       : '0.0';
 
     // Most Popular Procedures
     const serviceCounts = new Map<string, number>();
     filteredApts.forEach((apt) => {
-      const serviceName = apt.serviceName || 
-        (apt.serviceId ? services.find((s) => String(s.id) === String(apt.serviceId))?.name : null) || 
+      const serviceName = apt.serviceName ||
+        (apt.serviceId ? services.find((s) => String(s.id) === String(apt.serviceId))?.name : null) ||
         'Unknown';
       serviceCounts.set(serviceName, (serviceCounts.get(serviceName) || 0) + 1);
     });
@@ -412,7 +341,6 @@ export function ReportsTab() {
       newPatients,
       returningPatients,
       providerVolume: [...providerVolume], // Create new array reference
-      revenueByPeriod: [...revenueByPeriod], // Create new array reference
       ageGroups: { ...ageGroups }, // Create new object reference
       genderCounts: { ...genderCounts }, // Create new object reference
       providerProductivity: [...providerProductivity], // Create new array reference
@@ -433,7 +361,6 @@ export function ReportsTab() {
       newPatients: 0,
       returningPatients: 0,
       providerVolume: [],
-      revenueByPeriod: [],
       ageGroups: { '0-18': 0, '19-35': 0, '36-50': 0, '51-65': 0, '65+': 0 },
       genderCounts: { Male: 0, Female: 0, Other: 0 },
       providerProductivity: [],
@@ -454,10 +381,10 @@ export function ReportsTab() {
       loadPatients();
       loadServices();
       loadDoctors();
-      
+
       // Update last refresh time to trigger recalculation
       setLastRefresh(new Date());
-      
+
       // Log after a brief delay to see updated data
       setTimeout(() => {
         console.log('ReportsTab - After refresh:', {
@@ -571,17 +498,17 @@ export function ReportsTab() {
             className="px-4 py-2 bg-white dark:bg-black-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all hover:border-gold-500 dark:hover:border-gold-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             title="Refresh reports data"
           >
-            <svg 
-              className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
@@ -691,33 +618,6 @@ export function ReportsTab() {
         </ReportSection>
       </div>
 
-      {/* Revenue Trends */}
-      <ReportSection title="Revenue Trends">
-        {reports.revenueByPeriod.length > 0 ? (
-          <ResponsiveContainer key={`revenue-${lastRefresh.getTime()}-${dateRange}`} width="100%" height={350}>
-            <LineChart data={[...reports.revenueByPeriod]}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-              <XAxis dataKey="period" stroke="#6b7280" className="dark:stroke-gray-400" />
-              <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                }}
-                formatter={(value: number) => `₱${value.toLocaleString()}`}
-              />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={3} name="Revenue" />
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            No revenue data available for the selected period
-          </div>
-        )}
-      </ReportSection>
-
       {/* Patient Demographics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ReportSection title="Patient Demographics - Age Groups">
@@ -731,7 +631,7 @@ export function ReportsTab() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ percent, cx, cy, midAngle, innerRadius, outerRadius }: { percent: number; cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number }) => {
+                  label={({ percent, cx, cy, midAngle, innerRadius, outerRadius }: any) => {
                     if (percent < 0.05) return null;
                     const RADIAN = Math.PI / 180;
                     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -754,7 +654,7 @@ export function ReportsTab() {
                       <Cell key={`cell-${index}-${lastRefresh.getTime()}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: isDarkMode ? '#1f2937' : '#fff',
                     border: isDarkMode ? '1px solid #4b5563' : '1px solid #e5e7eb',
@@ -767,15 +667,15 @@ export function ReportsTab() {
                     color: isDarkMode ? '#f9fafb' : '#111827',
                     fontWeight: 600,
                   }}
-                  formatter={(value: number, name: string) => {
+                  formatter={(value: any, name: any) => {
                     const total = Object.values(reports.ageGroups).reduce((sum, v) => sum + v, 0);
                     const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
                     return [`${value} patients (${percent}%)`, name];
                   }}
                 />
-                <Legend 
+                <Legend
                   wrapperStyle={{ color: isDarkMode ? '#f3f4f6' : '#111827' }}
-                  verticalAlign="bottom" 
+                  verticalAlign="bottom"
                   height={36}
                 />
               </PieChart>
@@ -888,7 +788,7 @@ export function ReportsTab() {
           </div>
         )}
       </ReportSection>
-    </div>
+    </div >
   );
 }
 
