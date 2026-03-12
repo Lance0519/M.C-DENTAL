@@ -258,7 +258,8 @@ export function AuditTab() {
     return 'bg-gray-100 text-gray-800';
   };
 
-  const formatDetails = (details: Record<string, unknown> | string): string => {
+  const formatDetails = (detailsRaw: Record<string, unknown> | string): string => {
+    let details = detailsRaw;
     // Handle case where details might be a string (legacy data or incorrect storage)
     if (typeof details === 'string') {
       // Try to parse as JSON first
@@ -386,14 +387,20 @@ export function AuditTab() {
 
   const confirmExport = async () => {
     const csvData = [
-      ['Timestamp', 'Action', 'User', 'Role', 'Details'],
-      ...filteredLogs.map((log) => [
-        formatTimestamp(log.timestamp),
-        log.action,
-        log.userName,
-        log.userRole,
-        formatDetails(log.details),
-      ]),
+      ['Timestamp', 'Action', 'User', 'Role', 'Details', 'Retention'],
+      ...filteredLogs.map((log) => {
+        const diffMs = new Date().getTime() - new Date(log.timestamp).getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const daysLeft = Math.max(0, 2190 - diffDays);
+        return [
+          formatTimestamp(log.timestamp),
+          log.action,
+          log.userName,
+          log.userRole,
+          formatDetails(log.details),
+          `${daysLeft} days`
+        ];
+      }),
     ];
 
     const csvContent = csvData.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
@@ -904,6 +911,7 @@ function AuditLogsTableView({
               <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">User</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Role</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Details</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Retention (Days Left)</th>
             </tr>
           </thead>
           <tbody>
@@ -947,6 +955,19 @@ function AuditLogsTableView({
                   <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400 capitalize">{log.userRole}</td>
                   <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400 max-w-md truncate" title={typeof log.details === 'string' ? log.details : formatDetails(log.details)}>
                     {typeof log.details === 'string' ? log.details : formatDetails(log.details)}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400">
+                    {(() => {
+                      const diffMs = new Date().getTime() - new Date(log.timestamp).getTime();
+                      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                      const daysLeft = Math.max(0, 2190 - diffDays);
+                      const isExpiringSoon = daysLeft <= 30;
+                      return (
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${isExpiringSoon ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                          {daysLeft} days
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))

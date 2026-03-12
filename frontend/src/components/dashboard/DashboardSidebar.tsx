@@ -615,7 +615,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
       <aside
         className={`
           fixed top-0 left-0 h-full
-          ${role === 'admin' ? 'bg-obsidian text-white' : 'bg-white text-black dark:bg-obsidian-dark dark:text-white'}
+          bg-white text-black dark:bg-obsidian-dark dark:text-white
           transition-all duration-300 ease-in-out z-40 flex flex-col
           ${isCollapsed && !isMobile ? 'w-20' : 'w-64 md:w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
@@ -627,12 +627,12 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
       >
         {/* Sidebar Header */}
         <div className={`flex items-center justify-between p-4 sticky top-0 z-10 
-          ${role === 'admin' ? 'bg-obsidian border-b border-gray-800' : 'bg-white dark:bg-obsidian-dark border-b border-gray-200 dark:border-gray-800'}
+          bg-white dark:bg-obsidian-dark border-b border-gray-200 dark:border-gray-800
         `}>
           <button
             onClick={toggleSidebar}
             className={`p-2 transition-colors flex-shrink-0 rounded-lg
-              ${role === 'admin' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}
+              hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400
             `}
             aria-label="Toggle sidebar"
           >
@@ -705,9 +705,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                     : 'bg-gold-champagne text-black font-semibold hover:bg-gold-champagne/80 shadow-md')
                   : item.isActive
                     ? 'bg-gold-metallic/10 text-gold-metallic border border-gold-metallic/30 font-medium'
-                    : (role === 'admin'
-                      ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white')
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white'
                 }
                 ${isCollapsed && !isMobile ? 'justify-center' : ''}
               `}
@@ -723,7 +721,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
 
         {/* Sidebar Footer */}
         <div className={`p-2 md:p-3 flex-shrink-0 mt-auto
-          ${role === 'admin' ? 'bg-obsidian border-t border-gray-800' : 'bg-white dark:bg-obsidian-dark border-t border-gray-200 dark:border-gray-800'}
+          bg-white dark:bg-obsidian-dark border-t border-gray-200 dark:border-gray-800
         `}>
           {/* Theme Toggle */}
           <div className={`flex ${(isCollapsed && !isMobile) ? 'justify-center' : 'justify-end'} mb-2`}>
@@ -733,7 +731,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
             <button
               onClick={() => setShowProfileModal(true)}
               className={`${(isCollapsed && !isMobile) ? 'w-full justify-center' : 'flex-1'} flex items-center gap-1.5 md:gap-2 p-1.5 md:p-2 rounded-lg 
-                ${role === 'admin' ? 'hover:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'} 
+                hover:bg-gray-100 dark:hover:bg-gray-800
                 transition-colors`}
               title={isCollapsed && !isMobile ? 'Edit Profile' : undefined}
             >
@@ -746,7 +744,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
               </div>
               {(!isCollapsed || isMobile) && (
                 <div className="flex-1 min-w-0 text-left">
-                  <div className={`text-xs font-semibold truncate leading-tight ${role === 'admin' ? 'text-white' : 'text-black dark:text-white'}`}>{displayName}</div>
+                  <div className="text-xs font-semibold truncate leading-tight text-black dark:text-white">{displayName}</div>
                   <div className="text-xs text-gold-metallic truncate leading-tight">{jobTitle}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 truncate leading-tight">{userRole}</div>
                 </div>
@@ -758,7 +756,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                 <button
                   onClick={() => setShowNotifications(true)}
                   className={`relative p-1.5 md:p-2 rounded-lg transition-colors flex-shrink-0 
-                    ${role === 'admin' ? 'hover:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800'} 
+                    hover:bg-gray-100 dark:hover:bg-gray-800
                     ${(isCollapsed && !isMobile) ? 'w-full flex justify-center items-center' : 'self-center'}`}
                   title={unreadNotifications > 0 ? `${unreadNotifications} unread notifications` : 'Notifications'}
                 >
