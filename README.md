@@ -42,7 +42,7 @@ Projects_1/
 ### Step 1: Clone or Navigate to Project
 
 ```cmd
-cd "C:\Users\justi\Desktop\Backup for codes\ETO NA IMMIGRATE SA SUPABASE\With dark mode latest\Projects_1" (EXAMPLE LANG TO DEPENDE KUNG NASAAN NAKALAY YUNG FOLDER)
+cd path/to/Projects_1
 ```
 
 ---
@@ -81,25 +81,6 @@ SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
 ```
 
-++++++++++++++++++++++++++++++++++++++++++
-ETO YON 
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://picpieblvlmrpxgfcjmq.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpY3BpZWJsdmxtcnB4Z2Zjam1xIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mzk3MDgzMiwiZXhwIjoyMDc5NTQ2ODMyfQ.4N6jV27rA80Tj_lxfGXmdyYbGuH741R9GD9iqsiytCY
-SUPABASE_DB_PASSWORD=DentalClini123
-
-# Authentication
-JWT_SECRET=32a30fc5-3f33-4147-9557-74e148b23019
-
-
-# Email (Resend) - optional for now
-RESEND_API_KEY=re_Ksrr7LYP_HrhtFoZBbEQdzdbu8xmz1HYa
-EMAIL_FROM_ADDRESS=M.C. Dental <onboarding@resend.dev>
-
-# Frontend URL
-CLIENT_BASE_URL=http://localhost:5173
-
-____________________________________________________________
 > **Note:** Get your Supabase credentials from [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API
 
 #### 2.4 Start Backend Server
@@ -123,7 +104,7 @@ Press `Win + R`, type `cmd`, and press Enter.
 #### 3.2 Navigate to Frontend Directory
 
 ```cmd
-cd "C:\Users\justi\Desktop\Backup for codes\ETO NA IMMIGRATE SA SUPABASE\With dark mode latest\Projects_1\frontend"
+cd frontend
 ```
 
 #### 3.3 Install Dependencies
@@ -149,13 +130,6 @@ The frontend will start on **http://localhost:5173**
 | **Frontend** | http://localhost:5173 |
 | **Backend API** | http://localhost:3000/api |
 
-### Default Admin Account
-
-```
-Username: admin
-Password: Admin@123
-```
-
 ---
 
 ## 📋 Running Both Servers (Quick Method)
@@ -164,13 +138,13 @@ Password: Admin@123
 
 **Terminal 1 (Backend):**
 ```cmd
-cd "C:\Users\justi\Desktop\Backup for codes\ETO NA IMMIGRATE SA SUPABASE\With dark mode latest\Projects_1\backend-next"
+cd backend-next
 npm run dev
 ```
 
 **Terminal 2 (Frontend):**
 ```cmd
-cd "C:\Users\justi\Desktop\Backup for codes\ETO NA IMMIGRATE SA SUPABASE\With dark mode latest\Projects_1\frontend"
+cd frontend
 npm run dev
 ```
 
@@ -333,4 +307,4 @@ This project is proprietary software for M.C Dental Clinic.
 
 ---
 
-*Last updated: November 2024*
+*Last updated: April 2026*
