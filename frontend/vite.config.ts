@@ -1,15 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import legacy from '@vitejs/plugin-legacy';
 import { fileURLToPath, URL } from 'node:url';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
-    legacy({
-      targets: ['defaults', 'not IE 11']
-    })
+    react()
   ],
   resolve: {
     alias: {
@@ -29,6 +25,7 @@ export default defineConfig({
 
   },
   build: {
+    target: 'es2022',
     chunkSizeWarningLimit: 1500,
     sourcemap: false
   }
