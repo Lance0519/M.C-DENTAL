@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { ClaimAccountModal } from '@/components/modals/ClaimAccountModal';
 import { PasswordStrengthMeter } from '@/features/auth/components/PasswordStrengthMeter';
+import { MaskedDateInput } from '@/features/auth/components/MaskedDateInput';
 import clinicLogo from '@/assets/images/logo.png';
 import api from '@/lib/api';
 
@@ -502,7 +503,12 @@ export function AuthPage() {
                     <label htmlFor="regDOB" className="text-sm font-bold text-gray-900 dark:text-gray-100">
                       Date of Birth
                     </label>
-                    <input type="date" id="regDOB" name="dateOfBirth" className={inputClasses} required />
+                    <MaskedDateInput 
+                      id="regDOB" 
+                      name="dateOfBirth" 
+                      required 
+                      className={inputClasses.replace('dark:focus:border-gold-400', '').replace('dark:focus:ring-gold-400/30', '')}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="regGender" className="text-sm font-bold text-gray-900 dark:text-gray-100">
