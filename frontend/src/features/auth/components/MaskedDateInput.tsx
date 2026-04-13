@@ -113,7 +113,7 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
               setCurrentYear(y);
               setShowYearPicker(false);
             }}
-            className={`py-2 rounded-lg text-sm font-bold transition-colors ${currentYear === y ? 'bg-gold-500 text-black shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'hover:bg-zinc-800 text-zinc-300 hover:text-white'}`}
+            className={`py-2 rounded-lg text-sm font-bold transition-colors ${currentYear === y ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-white shadow-lg' : 'hover:bg-gray-100 dark:hover:bg-black-800 text-gray-700 dark:text-gray-300 hover:text-gold-500 dark:hover:text-gold-400'}`}
           >
             {y}
           </button>
@@ -149,8 +149,8 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
           }}
           className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 
             ${isSelected 
-              ? 'bg-gold-500 text-black shadow-[0_0_15px_rgba(255,215,0,0.6)] scale-110' 
-              : 'text-zinc-300 hover:bg-zinc-800 hover:text-cyan-400'}`}
+              ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-white shadow-lg scale-110' 
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-black-800 hover:text-gold-500 dark:hover:text-gold-400'}`}
         >
           {day}
         </button>
@@ -186,14 +186,14 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
       {showCalendar && (
         <div 
           ref={calendarRef}
-          className="absolute z-50 top-full mt-2 left-0 w-[320px] bg-[#121212] border border-cyan-500/30 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8),_0_0_20px_rgba(0,255,255,0.1)] p-4 transform origin-top animate-in fade-in zoom-in-95 duration-200"
+          className="absolute z-50 top-full mt-2 left-0 w-[320px] bg-white dark:bg-black-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 transform origin-top animate-in fade-in zoom-in-95 duration-200"
         >
           {/* Header Navigation (The "Jump" Part) */}
-          <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-800">
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center gap-1">
               {/* Back Button */}
               {!showYearPicker && (
-                <button type="button" onClick={() => setCurrentMonth(prev => prev === 0 ? 11 : prev - 1)} className="p-1 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-cyan-400 transition-colors">
+                <button type="button" onClick={() => setCurrentMonth(prev => prev === 0 ? 11 : prev - 1)} className="p-1 hover:bg-gray-100 dark:hover:bg-black-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
               )}
@@ -201,7 +201,7 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
               <button 
                 type="button" 
                 onClick={() => setShowYearPicker(false)}
-                className={`px-2 py-1 text-sm font-bold transition-colors ${!showYearPicker ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                className={`px-2 py-1 text-sm font-bold transition-colors ${!showYearPicker ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
               >
                 {months[currentMonth]}
               </button>
@@ -209,14 +209,14 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
               <button 
                 type="button" 
                 onClick={() => setShowYearPicker(!showYearPicker)}
-                className={`px-2 py-1 text-sm font-bold transition-all rounded ${showYearPicker ? 'text-gold-400 bg-gold-400/10' : 'text-zinc-400 hover:text-white'}`}
+                className={`px-2 py-1 text-sm font-bold transition-all rounded ${showYearPicker ? 'text-gold-600 dark:text-gold-400 bg-gold-50 dark:bg-gold-500/10' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
                 {currentYear} <span className="text-[10px] opacity-70">▼</span>
               </button>
 
               {/* Forward Button */}
               {!showYearPicker && (
-                <button type="button" onClick={() => setCurrentMonth(prev => prev === 11 ? 0 : prev + 1)} className="p-1 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-cyan-400 transition-colors">
+                <button type="button" onClick={() => setCurrentMonth(prev => prev === 11 ? 0 : prev + 1)} className="p-1 hover:bg-gray-100 dark:hover:bg-black-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gold-500 dark:hover:text-gold-400 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
               )}
@@ -230,7 +230,7 @@ export function MaskedDateInput({ id, name, className, required }: MaskedDateInp
             <div>
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {daysOfWeek.map((d, i) => (
-                  <div key={i} className="text-center text-xs font-semibold text-cyan-500/70 py-1">
+                  <div key={i} className="text-center text-xs font-bold text-gray-400 dark:text-gray-500 py-1">
                     {d}
                   </div>
                 ))}
