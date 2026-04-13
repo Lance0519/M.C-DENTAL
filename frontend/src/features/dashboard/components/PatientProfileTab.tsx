@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import api from '@/lib/api';
 import type { PatientProfile } from '@/types/user';
 import { useAuthStore } from '@/store/auth-store';
+import { PHAddressPicker } from '@/features/auth/components/PHAddressPicker';
 
 interface PatientProfileTabProps {
   user: PatientProfile;
@@ -341,13 +342,11 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Address</label>
-                  <textarea
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    rows={3}
-                    className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2.5 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors resize-y placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Enter your full address"
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Address (Leave empty dropdowns to keep original)</label>
+                  <PHAddressPicker
+                    defaultValue={formData.address}
+                    onChange={(value) => setFormData({ ...formData, address: value })}
+                    className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2.5 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
                   />
                 </div>
               </div>

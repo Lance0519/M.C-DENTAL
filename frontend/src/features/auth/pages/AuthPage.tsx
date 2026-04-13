@@ -8,6 +8,7 @@ import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { ClaimAccountModal } from '@/components/modals/ClaimAccountModal';
 import { PasswordStrengthMeter } from '@/features/auth/components/PasswordStrengthMeter';
 import { MaskedDateInput } from '@/features/auth/components/MaskedDateInput';
+import { PHAddressPicker } from '@/features/auth/components/PHAddressPicker';
 import clinicLogo from '@/assets/images/logo.png';
 import api from '@/lib/api';
 
@@ -537,12 +538,7 @@ export function AuthPage() {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Address</h3>
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="regAddress" className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                    Complete Address
-                  </label>
-                  <textarea id="regAddress" name="address" className={`${inputClasses} min-h-[96px]`} rows={2} required></textarea>
-                </div>
+                <PHAddressPicker id="regAddress" name="address" className={inputClasses} required />
               </div>
 
               {/* Contact Details Section */}
