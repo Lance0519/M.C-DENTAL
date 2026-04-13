@@ -57,6 +57,9 @@ export function AdminDashboard() {
   useEffect(() => {
     if (authUser && authUser.role === 'admin') {
       setUser(authUser as StaffProfile);
+    }
+  }, [authUser]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
