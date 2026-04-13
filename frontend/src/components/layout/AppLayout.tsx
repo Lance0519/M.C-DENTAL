@@ -34,7 +34,7 @@ export function AppLayout() {
       {showScrollToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-gold-500 to-gold-400 text-black p-3 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
+          className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black p-3 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
           aria-label="Scroll to top"
           title="Scroll to top"
         >

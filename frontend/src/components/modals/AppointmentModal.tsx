@@ -1056,7 +1056,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, appointment, pati
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Appointment'}
           </button>

@@ -857,7 +857,7 @@ export function AppointmentDetailsModal({
                 {isStaffOrAdmin && appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
                   <button
                     onClick={handleEditDoctorClick}
-                    className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
+                    className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg hover:shadow-lg transition"
                   >
                     Change Dentist
                   </button>
@@ -940,7 +940,7 @@ export function AppointmentDetailsModal({
                   <button
                     onClick={handleUpdateDoctor}
                     disabled={updating || !editDoctorId || !editDoctorTime}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
                   >
                     {updating ? 'Updating...' : 'Save Changes'}
                   </button>
@@ -979,7 +979,7 @@ export function AppointmentDetailsModal({
                 {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
                   <button
                     onClick={handleEditClick}
-                    className="mt-2 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition"
+                    className="mt-2 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg hover:shadow-lg transition"
                   >
                     Update Date/Time
                   </button>
@@ -1016,7 +1016,7 @@ export function AppointmentDetailsModal({
                   <button
                     onClick={handleUpdateDateTime}
                     disabled={updating}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50"
                   >
                     {updating ? 'Updating...' : 'Save Changes'}
                   </button>
@@ -1050,7 +1050,7 @@ export function AppointmentDetailsModal({
                       setIsEditingStatus(true);
                       setEditStatus('completed');
                     }}
-                    className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
+                    className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded hover:shadow-md transition"
                   >
                     {((appointment as any).paymentAmount) ? 'Edit Amount' : 'Add Amount'}
                   </button>
@@ -1093,7 +1093,7 @@ export function AppointmentDetailsModal({
                   {getValidStatusTransitions(appointment.status || 'pending', appointmentDate).length > 0 && (
                     <button
                       onClick={handleEditStatusClick}
-                      className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
+                      className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded hover:shadow-md transition"
                     >
                       Change Status
                     </button>
@@ -1300,7 +1300,7 @@ export function AppointmentDetailsModal({
                   <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Notes</div>
                   <button
                     onClick={handleEditNotesClick}
-                    className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded hover:shadow-md transition"
+                    className="text-xs px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded hover:shadow-md transition"
                   >
                     {appointment.notes ? 'Edit Notes' : 'Add Notes'}
                   </button>
@@ -1359,7 +1359,7 @@ export function AppointmentDetailsModal({
                     htmlFor="appointment-image-upload"
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all select-none ${uploadingImages || treatmentImages.length >= 5
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-50'
-                        : 'bg-gradient-to-r from-gold-500 to-gold-400 text-black hover:shadow-md cursor-pointer active:scale-95'
+                        : 'bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black hover:shadow-md cursor-pointer active:scale-95'
                       }`}
                   >
                     📁 Choose Files
@@ -1434,7 +1434,7 @@ export function AppointmentDetailsModal({
               <button
                 onClick={handleSaveAllChanges}
                 disabled={updating || uploadingImages}
-                className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
+                className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
               >
                 {updating || uploadingImages ? 'Saving All Changes...' : 'Save All Changes'}
               </button>

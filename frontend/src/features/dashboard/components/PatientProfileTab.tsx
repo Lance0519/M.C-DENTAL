@@ -204,7 +204,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
         {!isEditing && (
           <button
             onClick={handleEdit}
-            className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
+            className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
           >
             Edit Profile
           </button>
@@ -219,7 +219,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
 
       <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-8 py-6 border-b-2 border-gold-600">
+        <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-8 py-6 border-b-2 border-gold-600">
           <div className="flex items-center gap-6">
             {/* Profile Picture */}
             <div className="relative">
@@ -363,7 +363,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -375,7 +375,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
 
       {/* Patient Images Section */}
       <div className="mt-8 bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-8 py-4 border-b-2 border-gold-600">
+        <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-8 py-4 border-b-2 border-gold-600">
           <h2 className="text-xl font-bold text-black">My Dental Images</h2>
           <p className="text-black/70 text-sm">View and manage your dental X-rays, photos, and treatment images</p>
         </div>

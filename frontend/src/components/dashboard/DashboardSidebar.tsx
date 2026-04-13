@@ -590,7 +590,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
 
       {/* Mobile Hamburger Button */}
       <button
-        className="fixed top-3 left-3 z-50 md:hidden bg-gradient-to-r from-gold-500 to-gold-400 p-2.5 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95"
+        className="fixed top-3 left-3 z-50 md:hidden bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 p-2.5 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 active:scale-95"
         onClick={toggleSidebar}
         aria-label="Toggle sidebar"
         aria-expanded={isMobileOpen}
@@ -863,7 +863,7 @@ export function DashboardSidebar({ role, activeTab, onTabChange, user, onCollaps
                                 setIsMobileOpen(false);
                               }
                             }}
-                            className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg hover:shadow-md transition"
+                            className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg hover:shadow-md transition"
                           >
                             View All in Audit Log
                           </button>
@@ -1109,7 +1109,7 @@ function CreatePatientModal({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+              className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
             >
               {loading ? 'Creating...' : 'Create Patient'}
             </button>

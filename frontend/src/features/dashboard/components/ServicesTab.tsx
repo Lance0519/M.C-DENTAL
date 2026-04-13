@@ -116,7 +116,7 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
           {(role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -223,7 +223,7 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
           {(role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               + Add Your First Service
             </button>
@@ -245,7 +245,7 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
                   }`}
               >
                 {/* Service Header with Icon and Edit Button */}
-                <div className={`bg-gradient-to-r px-6 py-4 ${isActive ? 'from-gold-500 to-gold-400' : 'from-gray-400 to-gray-500'
+                <div className={`bg-gradient-to-r px-6 py-4 ${isActive ? 'from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700' : 'from-gray-400 to-gray-500'
                   }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -317,8 +317,8 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
                         <button
                           onClick={() => handleDeactivate(service)}
                           className={`flex-1 px-4 py-3 rounded-lg transition-all font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-2 ${isActive
-                            ? 'text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 border-orange-600'
-                            : 'text-white bg-gradient-to-r from-green-500 to-green-400 hover:from-green-600 hover:to-green-500 border-green-600'
+                            ? 'text-white bg-gradient-to-r from-orange-500 to-orange-400 dark:from-orange-800 dark:to-orange-700 hover:from-orange-600 hover:to-orange-500 dark:hover:from-orange-700 dark:hover:to-orange-600 border-orange-600'
+                            : 'text-white bg-gradient-to-r from-green-500 to-green-400 dark:from-green-800 dark:to-green-700 hover:from-green-600 hover:to-green-500 dark:hover:from-green-700 dark:hover:to-green-600 border-green-600'
                             }`}
                           title={isActive ? 'Deactivate this service' : 'Activate this service'}
                         >
@@ -333,7 +333,7 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
                         </button>
                         <button
                           onClick={() => handleDelete(service)}
-                          className="flex-1 px-4 py-3 text-white bg-gradient-to-r from-red-500 to-red-400 hover:from-red-600 hover:to-red-500 rounded-lg transition-all font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-2 border-red-600"
+                          className="flex-1 px-4 py-3 text-white bg-gradient-to-r from-red-500 to-red-400 dark:from-red-800 dark:to-red-700 hover:from-red-600 hover:to-red-500 dark:hover:from-red-700 dark:hover:to-red-600 rounded-lg transition-all font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-2 border-red-600"
                           title="Delete this service"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,7 +592,7 @@ function CreateServiceModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Service'}
           </button>
@@ -767,7 +767,7 @@ function EditServiceModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Updating...' : 'Update Service'}
           </button>

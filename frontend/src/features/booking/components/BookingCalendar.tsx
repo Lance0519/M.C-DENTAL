@@ -183,7 +183,7 @@ export function BookingCalendar({
               className={`
                 aspect-square flex items-center justify-center rounded-full text-sm font-medium transition-all
                 ${isSelected
-                  ? 'bg-gradient-to-br from-gold-500 to-gold-400 text-black shadow-lg scale-110 z-10 relative'
+                  ? 'bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black shadow-lg scale-110 z-10 relative'
                   : isDisabled
                     ? isClinicClosed
                       ? 'text-red-400 dark:text-red-500 cursor-not-allowed opacity-60 line-through bg-gray-100 dark:bg-gray-800/50'

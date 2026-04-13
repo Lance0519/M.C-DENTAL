@@ -23,7 +23,7 @@ export function AppointmentSuccessModal({
       <div className="space-y-6">
         {/* Success Icon */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 flex items-center justify-center shadow-lg">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 flex items-center justify-center shadow-lg">
             <svg
               className="w-12 h-12 text-black"
               fill="none"
@@ -101,7 +101,7 @@ export function AppointmentSuccessModal({
         <div className="flex justify-center pt-2">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 uppercase tracking-wide"
+            className="px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 uppercase tracking-wide"
           >
             OK
           </button>

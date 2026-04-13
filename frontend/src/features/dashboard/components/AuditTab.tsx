@@ -522,7 +522,7 @@ export function AuditTab() {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition"
+                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition"
               >
                 Verify
               </button>
@@ -554,7 +554,7 @@ export function AuditTab() {
           </button>
           <button
             onClick={handleExport}
-            className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition"
+            className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition"
           >
             Export Logs
           </button>

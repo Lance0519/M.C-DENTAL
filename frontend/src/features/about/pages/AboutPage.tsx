@@ -75,7 +75,7 @@ export function AboutPage() {
                   </div>
                 </div>
                 <div className="relative">
-                  <div className="w-full h-96 bg-gradient-to-br from-gold-500 to-gold-400 rounded-2xl shadow-2xl flex items-center justify-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                  <div className="w-full h-96 bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 rounded-2xl shadow-2xl flex items-center justify-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
                     <div className="w-32 h-32 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
                       <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2L2 7v10c0 5 4 8 10 10 6-2 10-5 10-10V7l-10-5z" />

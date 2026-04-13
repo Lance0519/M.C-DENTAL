@@ -78,7 +78,7 @@ export function PatientClinicHoursTab() {
             </div>
 
             <div className="bg-white dark:bg-black-800 rounded-xl shadow-lg border-2 border-gold-200 dark:border-gold-800 overflow-hidden max-w-4xl mx-auto">
-                <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-6 py-4">
+                <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-6 py-4">
                     <div className="flex items-center gap-3">
                         <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

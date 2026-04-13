@@ -75,7 +75,7 @@ export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
         {(role === 'admin' || role === 'staff') && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -149,7 +149,7 @@ export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
           {(role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               + Add Your First Dentist
             </button>
@@ -165,7 +165,7 @@ export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
                 className="w-20 h-20 rounded-full object-cover border-4 border-gold-400 shadow-lg"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 flex items-center justify-center text-3xl font-bold text-black shadow-lg border-4 border-gold-300">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 flex items-center justify-center text-3xl font-bold text-black shadow-lg border-4 border-gold-300">
                 {doctor.name?.charAt(0).toUpperCase() || 'D'}
               </div>
             );
@@ -176,7 +176,7 @@ export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
                 className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-500 overflow-hidden transform hover:-translate-y-1"
               >
                 {/* Doctor Header */}
-                <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-6 py-5">
+                <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-6 py-5">
                   <div className="flex items-center gap-4">
                     {profileImg}
                     <div className="flex-1 min-w-0">
@@ -413,7 +413,7 @@ function CreateDoctorModal({
               className="w-32 h-32 rounded-full object-cover border-4 border-gold-400 shadow-lg"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 flex items-center justify-center text-4xl font-bold text-black shadow-lg">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 flex items-center justify-center text-4xl font-bold text-black shadow-lg">
               {formData.name.charAt(0).toUpperCase() || 'D'}
             </div>
           )}
@@ -475,7 +475,7 @@ function CreateDoctorModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Dentist'}
           </button>
@@ -596,7 +596,7 @@ function EditDoctorModal({
               className="w-32 h-32 rounded-full object-cover border-4 border-gold-400 shadow-lg"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 flex items-center justify-center text-4xl font-bold text-black shadow-lg">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 flex items-center justify-center text-4xl font-bold text-black shadow-lg">
               {formData.name.charAt(0).toUpperCase() || 'D'}
             </div>
           )}
@@ -658,7 +658,7 @@ function EditDoctorModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Updating...' : 'Update Dentist'}
           </button>

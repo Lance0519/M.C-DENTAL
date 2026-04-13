@@ -65,7 +65,7 @@ export function HomePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="group bg-white dark:bg-black-900 rounded-2xl p-8 shadow-lg dark:shadow-black-800/50 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-400 dark:from-blue-800 dark:to-blue-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2c-4.4 0-8 3.6-8 8 0 1.8.6 3.5 1.7 4.9L12 22l6.3-7.1c1.1-1.4 1.7-3.1 1.7-4.9 0-4.4-3.6-8-8-8z" />
                     <circle cx="12" cy="10" r="3" />
@@ -75,7 +75,7 @@ export function HomePage() {
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">Access to experienced dental professionals across various specialties</p>
               </div>
               <div className="group bg-white dark:bg-black-900 rounded-2xl p-8 shadow-lg dark:shadow-black-800/50 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-400 dark:from-green-800 dark:to-green-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -84,7 +84,7 @@ export function HomePage() {
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">Schedule appointments online 24/7 with just a few clicks</p>
               </div>
               <div className="group bg-white dark:bg-black-900 rounded-2xl p-8 shadow-lg dark:shadow-black-800/50 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-400 dark:from-purple-800 dark:to-purple-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -93,7 +93,7 @@ export function HomePage() {
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">View, reschedule, or cancel appointments from your dashboard</p>
               </div>
               <div className="group bg-white dark:bg-black-900 rounded-2xl p-8 shadow-lg dark:shadow-black-800/50 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>

@@ -105,7 +105,7 @@ export function GalleryTab({}: GalleryTabProps) {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -187,7 +187,7 @@ export function GalleryTab({}: GalleryTabProps) {
           <p className="text-gray-600 dark:text-gray-400 mb-6">Start showcasing your work by adding your first before & after case</p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
           >
             + Add Your First Case
           </button>
@@ -229,7 +229,7 @@ export function GalleryTab({}: GalleryTabProps) {
               {/* Case Info */}
               <div className="p-4 pt-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black text-xs font-bold rounded-full">
+                  <span className="px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black text-xs font-bold rounded-full">
                     {caseItem.treatment}
                   </span>
                 </div>
@@ -247,7 +247,7 @@ export function GalleryTab({}: GalleryTabProps) {
               <div className="px-4 py-3 bg-gray-50 dark:bg-black-800 border-t border-gray-200 dark:border-gray-700 flex gap-2">
                 <button
                   onClick={() => handleEdit(caseItem)}
-                  className="flex-1 px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
                 >
                   Edit
                 </button>
@@ -537,7 +537,7 @@ function CreateCaseModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
           >
             {loading ? 'Adding...' : 'Add Case'}
           </button>
@@ -719,7 +719,7 @@ function EditCaseModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
           >
             {loading ? 'Updating...' : 'Update Case'}
           </button>

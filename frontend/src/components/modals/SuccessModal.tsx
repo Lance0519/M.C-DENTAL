@@ -33,7 +33,7 @@ export function SuccessModal({
       <div className="text-center py-4">
         {/* Success Icon */}
         <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center shadow-lg">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 dark:from-green-700 dark:to-green-800 flex items-center justify-center shadow-lg">
             <svg
               className="w-10 h-10 text-white"
               fill="none"
@@ -59,7 +59,7 @@ export function SuccessModal({
         {!autoClose && (
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
             OK
           </button>

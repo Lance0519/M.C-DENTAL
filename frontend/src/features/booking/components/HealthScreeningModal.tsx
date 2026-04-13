@@ -278,7 +278,7 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full max-w-xs mx-auto block px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg hover:shadow-lg transition-all uppercase tracking-wide"
+            className="w-full max-w-xs mx-auto block px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg hover:shadow-lg transition-all uppercase tracking-wide"
           >
             Submit
           </button>
@@ -302,7 +302,7 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
         <div className="space-y-6">
           {/* Warning Icon */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 dark:from-yellow-800 dark:to-yellow-700 flex items-center justify-center shadow-lg">
               <svg
                 className="w-12 h-12 text-black"
                 fill="none"
@@ -341,7 +341,7 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
           <div className="flex justify-center pt-2">
             <button
               onClick={handleSymptomsModalClose}
-              className="px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 uppercase tracking-wide"
+              className="px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 uppercase tracking-wide"
             >
               OK
             </button>

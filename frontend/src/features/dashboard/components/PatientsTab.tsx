@@ -127,7 +127,7 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
         {(role === 'admin' || role === 'staff') && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -221,14 +221,14 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
           {searchQuery ? (
             <button
               onClick={clearSearch}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               Clear Search
             </button>
           ) : (role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               + Add Your First Patient
             </button>
@@ -245,7 +245,7 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
                 className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-500 overflow-hidden transform hover:-translate-y-1"
               >
                 {/* Patient Card Header - Enhanced */}
-                <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-6 py-5">
+                <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-6 py-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       {/* Patient Avatar */}
@@ -307,7 +307,7 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
                 <div className="p-6 pt-0">
                   <button
                     onClick={() => handleViewProfile(patient)}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow hover:shadow-md transition"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow hover:shadow-md transition"
                   >
                     View Full Profile
                   </button>
@@ -625,7 +625,7 @@ function PatientProfileModal({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+                    className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
                   >
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
@@ -634,7 +634,7 @@ function PatientProfileModal({
                 <button
                   type="button"
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
+                  className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
                 >
                   Edit Profile
                 </button>
@@ -753,7 +753,7 @@ function MedicalHistorySection({
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
+            className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
           >
             + Add Medical Record
           </button>
@@ -1175,7 +1175,7 @@ function AddMedicalHistoryModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
           >
             {loading ? 'Adding...' : 'Add Record'}
           </button>
@@ -1376,7 +1376,7 @@ function CreatePatientModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Patient'}
           </button>

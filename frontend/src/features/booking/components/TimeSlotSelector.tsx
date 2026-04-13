@@ -243,7 +243,7 @@ export function TimeSlotSelector({
     return (
       <div className="flex-1 min-w-[300px]">
         <div className="bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/30 dark:to-gold-800/30 border-2 border-gold-500 rounded-xl p-6 text-center animate-fade-in">
-          <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-black">
+          <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-black">
             ✓
           </div>
           <h3 className="text-lg font-bold text-gold-700 dark:text-gold-300 mb-4">Appointment Selected</h3>
@@ -273,7 +273,7 @@ export function TimeSlotSelector({
     <div className="flex-1 min-w-[300px]">
       {selectedDate && (
         <>
-          <div className="bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold text-center py-2 px-4 rounded-lg mb-2">
+          <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold text-center py-2 px-4 rounded-lg mb-2">
             {formatDate(selectedDate)}
           </div>
           <div className="text-xs text-gray-600 dark:text-gray-400 text-center mb-4">
@@ -298,7 +298,7 @@ export function TimeSlotSelector({
               className={`
                 w-full px-6 py-3 border-2 rounded-lg text-center font-medium transition-all
                 ${selectedTime === slot
-                  ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black border-gold-500 shadow-lg scale-105'
+                  ? 'bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black border-gold-500 shadow-lg scale-105'
                   : 'bg-white dark:bg-black-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:border-gold-500 hover:bg-gold-50 dark:hover:bg-gold-900/20 hover:text-gold-700 dark:hover:text-gold-300'
                 }
               `}

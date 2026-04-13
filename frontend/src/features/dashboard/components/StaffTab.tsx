@@ -72,7 +72,7 @@ export function StaffTab() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Staff Management</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
+          className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
         >
           + Add Staff
         </button>
@@ -96,7 +96,7 @@ export function StaffTab() {
               className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-400 dark:hover:border-gold-500 overflow-hidden transform hover:-translate-y-1"
             >
               {/* Staff Card Header - gold accent */}
-              <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-6 py-4 border-b-2 border-gold-600">
+              <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-6 py-4 border-b-2 border-gold-600">
                 <div className="flex items-center gap-3">
                   {/* Profile Picture or Initials */}
                   {staffMember.profileImage ? (
@@ -172,7 +172,7 @@ export function StaffTab() {
               <div className="px-6 py-4 bg-gray-50 dark:bg-black-800 border-t border-gray-200 dark:border-gray-700 flex gap-3">
                 <button
                   onClick={() => handleEdit(staffMember)}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                 >
                   Edit
                 </button>
@@ -248,7 +248,7 @@ export function StaffTab() {
           </p>
           <button
             onClick={() => setShowSuccessModal(false)}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition"
           >
             Done
           </button>
@@ -398,7 +398,7 @@ function CreateStaffModal({
             )}
           </div>
           <div className="flex gap-3">
-            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
+            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
               <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               Change Photo
             </label>
@@ -519,7 +519,7 @@ function CreateStaffModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Staff'}
           </button>
@@ -675,7 +675,7 @@ function EditStaffModal({
             )}
           </div>
           <div className="flex gap-3">
-            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
+            <label className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer">
               <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               Change Photo
             </label>
@@ -790,7 +790,7 @@ function EditStaffModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
           >
             {loading ? 'Updating...' : 'Update Staff'}
           </button>

@@ -232,7 +232,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Appointments</h1>
         <button
           onClick={handleBookAppointment}
-          className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
+          className="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
         >
           + Book Appointment
         </button>
@@ -247,7 +247,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
             <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-4">No upcoming appointments</p>
             <button
               onClick={handleBookAppointment}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
             >
               Book an Appointment
             </button>
@@ -260,7 +260,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                 className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-400 dark:hover:border-gold-500 overflow-hidden transform hover:-translate-y-1"
               >
                 {/* Appointment Card Header - gold accent */}
-                <div className="bg-gradient-to-r from-gold-500 to-gold-400 px-6 py-4 border-b-2 border-gold-600">
+                <div className="bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 px-6 py-4 border-b-2 border-gold-600">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-black">{getServiceName(appointment)}</h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${formatStatus(appointment.status)}`}>
@@ -311,7 +311,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
                 <div className="px-6 py-4 bg-gray-50 dark:bg-black-800 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-2">
                   <button
                     onClick={() => handleViewDetails(appointment)}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                   >
                     View Details
                   </button>
@@ -425,7 +425,7 @@ export function PatientAppointmentsTab({ user }: PatientAppointmentsTabProps) {
 
                   <button
                     onClick={() => handleViewDetails(appointment)}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                   >
                     View Details
                   </button>
@@ -592,7 +592,7 @@ function AppointmentDetailsModal({
       <div className="flex justify-end gap-3 pt-6 border-t-2 border-gray-200 dark:border-gray-700 mt-6">
         <button
           onClick={onClose}
-          className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
+          className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105"
         >
           Close
         </button>

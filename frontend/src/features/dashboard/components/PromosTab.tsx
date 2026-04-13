@@ -131,7 +131,7 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
           {(role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -202,7 +202,7 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
           {(role === 'admin' || role === 'staff') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               + Create Your First Promotion
             </button>
@@ -224,7 +224,7 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
               >
                 {/* Promo Header - Gold accent */}
                 <div className={`bg-gradient-to-r px-6 py-4 border-b-2 ${
-                  isActive ? 'from-gold-500 to-gold-400 border-gold-600' : 'from-gray-400 to-gray-500 border-gray-600'
+                  isActive ? 'from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 border-gold-600' : 'from-gray-400 to-gray-500 border-gray-600'
                 }`}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold text-black dark:text-black">{promo.title}</h3>
@@ -297,7 +297,7 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
                 <div className="px-6 py-4 bg-gray-50 dark:bg-black-800 border-t border-gray-200 dark:border-gray-700 flex gap-2">
                   <button
                     onClick={() => handleEdit(promo)}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 text-sm"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 text-sm"
                   >
                     Edit
                   </button>
@@ -305,8 +305,8 @@ export function PromosTab({ role = 'staff' }: PromosTabProps) {
                     onClick={() => handleDeactivate(promo)}
                     className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition-all transform hover:scale-105 ${
                       isActive
-                        ? 'bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:from-orange-600 hover:to-orange-500'
-                        : 'bg-gradient-to-r from-green-500 to-green-400 text-white hover:from-green-600 hover:to-green-500'
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-400 dark:from-orange-800 dark:to-orange-700 text-white hover:from-orange-600 hover:to-orange-500 dark:hover:from-orange-700 dark:hover:to-orange-600'
+                        : 'bg-gradient-to-r from-green-500 to-green-400 dark:from-green-800 dark:to-green-700 text-white hover:from-green-600 hover:to-green-500 dark:hover:from-green-700 dark:hover:to-green-600'
                     }`}
                   >
                     {isActive ? 'Deactivate' : 'Activate'}
@@ -593,7 +593,7 @@ function CreatePromoModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Promotion'}
           </button>
@@ -803,7 +803,7 @@ function EditPromoModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
           >
             {loading ? 'Updating...' : 'Update Promotion'}
           </button>

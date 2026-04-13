@@ -63,7 +63,7 @@ export function DashboardLayout({
       {/* Scroll to Top Button */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 text-black shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 ${
+        className={`fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 ${
           showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0 pointer-events-none'
         }`}
         aria-label="Scroll to top"

@@ -314,7 +314,7 @@ export function AppointmentsTab() {
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 text-sm font-bold rounded-xl bg-gradient-to-r from-gold-500 to-gold-400 text-black shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 flex items-center gap-2"
+            className="px-6 py-3 text-sm font-bold rounded-xl bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1309,7 +1309,7 @@ function CalendarView({
                   {day}
                 </div>
                 {dayAppointments.length > 0 && (
-                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[22px] h-6 px-1.5 text-xs font-bold text-white bg-gradient-to-r from-gold-500 to-gold-400 rounded-full shadow-md border-2 border-white">
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[22px] h-6 px-1.5 text-xs font-bold text-white bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 rounded-full shadow-md border-2 border-white">
                     {dayAppointments.length}
                   </span>
                 )}
@@ -1644,7 +1644,7 @@ function AppointmentsListView({
                           setDropdownPosition({ top, left });
                           setOpenDropdown(apt.id ? String(apt.id) : null);
                         }}
-                        className="px-4 py-2.5 text-sm font-bold rounded-lg bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-600 hover:to-gold-500 text-black border-2 border-gold-600 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                        className="px-4 py-2.5 text-sm font-bold rounded-lg bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 hover:from-gold-600 hover:to-gold-500 dark:hover:from-gold-700 dark:hover:to-gold-600 text-black border-2 border-gold-600 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
                       >
                         Actions
                         <svg className={`w-4 h-4 transition-transform ${openDropdown === (apt.id ? String(apt.id) : null) ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

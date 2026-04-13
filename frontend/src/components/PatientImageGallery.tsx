@@ -203,7 +203,7 @@ export function PatientImageGallery({
         {canEdit && canUploadMore && (
           <button
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow hover:shadow-md transition flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow hover:shadow-md transition flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -543,7 +543,7 @@ export function PatientImageGallery({
               <button
                 onClick={handleUpload}
                 disabled={uploadLoading || !uploadData.imagePreview}
-                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow hover:shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow hover:shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {uploadLoading && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
@@ -637,7 +637,7 @@ export function PatientImageGallery({
               <button
                 onClick={handleSaveEdit}
                 disabled={uploadLoading}
-                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold rounded-lg shadow hover:shadow-md transition disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-semibold rounded-lg shadow hover:shadow-md transition disabled:opacity-50 flex items-center gap-2"
               >
                 {uploadLoading && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>

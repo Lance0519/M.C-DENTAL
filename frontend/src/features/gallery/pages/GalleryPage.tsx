@@ -193,7 +193,7 @@ export function GalleryPage() {
                     key={treatment}
                     onClick={() => setSelectedTreatment(treatment)}
                     className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${selectedTreatment === treatment
-                        ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black shadow-lg'
+                        ? 'bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black shadow-lg'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                   >
@@ -245,7 +245,7 @@ export function GalleryPage() {
                     {/* Case Info */}
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 text-black text-xs font-bold rounded-full">
+                        <span className="px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black text-xs font-bold rounded-full">
                           {caseItem.treatment}
                         </span>
                       </div>

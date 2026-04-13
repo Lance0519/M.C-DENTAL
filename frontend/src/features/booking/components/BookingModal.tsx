@@ -829,7 +829,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide"
+              className="w-full px-6 py-4 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide"
             >
               {loading ? 'Booking...' : 'Book Now'}
             </button>
@@ -886,7 +886,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
               type="button"
               onClick={handleConfirmBooking}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-400 dark:from-gold-800 dark:to-gold-700 text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Processing...' : 'Confirm Booking'}
             </button>
