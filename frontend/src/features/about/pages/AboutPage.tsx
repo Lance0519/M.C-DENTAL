@@ -60,18 +60,26 @@ export function AboutPage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-6">Our Mission</h2>
-                  <div className="space-y-4 text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <p>
-                      At M.C DENTAL CLINIC, we are committed to providing exceptional dental care with compassion, expertise,
-                      and innovation. Our mission is to improve the oral health and confidence of our community by delivering
-                      accessible, high-quality dental services.
-                    </p>
-                    <p>
-                      We believe that everyone deserves a beautiful, healthy smile, and we strive to make dental care more
-                      convenient and patient-centered through our comprehensive appointment system and state-of-the-art treatments.
-                    </p>
+                <div className="space-y-12">
+                  <div>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
+                      <span className="text-3xl">🦷</span> Our Mission
+                    </h2>
+                    <div className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p>
+                        At M.C. Dental Clinic, our mission is to provide compassionate, family-centered dental care using the latest technology and modern techniques. We are dedicated to creating a warm, welcoming environment where every patient — from kids to adults — feels comfortable, cared for, and confident in their smile.
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
+                      <span className="text-3xl">🌟</span> Our Vision
+                    </h2>
+                    <div className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p>
+                        Our vision is to be a trusted leader in modern family dentistry — combining innovation, expertise, and genuine care to deliver healthy, beautiful smiles for generations. We aim to make every visit a positive experience through advanced dental solutions and a personal touch that feels like family.
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="relative">
