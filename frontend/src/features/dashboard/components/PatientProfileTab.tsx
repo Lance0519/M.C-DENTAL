@@ -66,16 +66,29 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
         });
 
         if (authUser && authUser.id === patientData.id) {
-          setAuthUser({
-            ...authUser,
-            fullName: patientData.fullName,
-            email: patientData.email,
-            phone: patientData.phone,
-            dateOfBirth: patientData.dateOfBirth,
-            gender: patientData.gender,
-            address: patientData.address,
-            profileImage: patientData.profileImage,
-          });
+          // Prevent infinite re-render loops by only triggering Zustand mutation if data physically changed
+          const authPatient = authUser as PatientProfile;
+          const hasChanges = 
+            authPatient.fullName !== patientData.fullName ||
+            authPatient.email !== patientData.email ||
+            authPatient.phone !== patientData.phone ||
+            authPatient.dateOfBirth !== patientData.dateOfBirth ||
+            authPatient.gender !== patientData.gender ||
+            authPatient.address !== patientData.address ||
+            authPatient.profileImage !== patientData.profileImage;
+            
+          if (hasChanges) {
+            setAuthUser({
+              ...authUser,
+              fullName: patientData.fullName,
+              email: patientData.email,
+              phone: patientData.phone,
+              dateOfBirth: patientData.dateOfBirth,
+              gender: patientData.gender,
+              address: patientData.address,
+              profileImage: patientData.profileImage,
+            });
+          }
         }
       }
     } catch (err) {
