@@ -507,7 +507,7 @@ export function AuthPage() {
                       id="regDOB" 
                       name="dateOfBirth" 
                       required 
-                      className={inputClasses.replace('dark:focus:border-gold-400', '').replace('dark:focus:ring-gold-400/30', '')}
+                      className={inputClasses}
                     />
                   </div>
                   <div className="space-y-2">
