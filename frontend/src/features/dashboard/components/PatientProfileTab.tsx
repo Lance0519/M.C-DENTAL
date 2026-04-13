@@ -19,6 +19,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [useAddressPicker, setUseAddressPicker] = useState(false);
   const [formData, setFormData] = useState({
     fullName: user.fullName || '',
     email: user.email || '',
@@ -95,6 +96,7 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
 
   const handleCancel = () => {
     setIsEditing(false);
+    setUseAddressPicker(false);
     setFormData({
       fullName: currentUser.fullName || '',
       email: currentUser.email || '',
@@ -342,12 +344,40 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Address (Leave empty dropdowns to keep original)</label>
-                  <PHAddressPicker
-                    defaultValue={formData.address}
-                    onChange={(value) => setFormData({ ...formData, address: value })}
-                    className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2.5 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
-                  />
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Address</label>
+                  {!useAddressPicker ? (
+                    <div>
+                      <textarea
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        rows={2}
+                        className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2.5 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 transition-colors resize-y placeholder-gray-400"
+                        placeholder="Enter your full address"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setUseAddressPicker(true)} 
+                        className="text-sm mt-2 text-gold-600 dark:text-gold-400 hover:text-gold-700 font-semibold underline flex items-center gap-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        Use Structured Drodown Picker
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative bg-gray-50 dark:bg-black-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+                      <PHAddressPicker
+                        onChange={(value) => setFormData({ ...formData, address: value })}
+                        className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2.5 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 transition-colors"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setUseAddressPicker(false)} 
+                        className="text-sm mt-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-bold underline text-center w-full"
+                      >
+                        Cancel & Switch back to Manual Typing
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
