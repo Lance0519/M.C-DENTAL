@@ -1355,6 +1355,7 @@ function AppointmentsListView({
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const buttonRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
+  const [expandedAptId, setExpandedAptId] = useState<string | null>(null);
 
   const getPatientDisplayName = (apt: Appointment): string => {
     const patientIdStr = typeof apt.patientId === 'string' ? apt.patientId : apt.patientId ? String(apt.patientId) : '';
@@ -1452,46 +1453,46 @@ function AppointmentsListView({
           }
         })() : 'N/A';
 
+        const isExpanded = expandedAptId === String(apt.id);
+
         return (
           <div
             key={apt.id}
-            onClick={() => onViewDetails(apt)}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-black-800 dark:to-black-900 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-600 transform hover:-translate-y-1 cursor-pointer"
+            onClick={() => apt.id && setExpandedAptId(isExpanded ? null : String(apt.id))}
+            className={`bg-gradient-to-br from-white to-gray-50 dark:from-black-800 dark:to-black-900 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-600 ${!isExpanded ? 'hover:-translate-y-1 rounded-xl' : 'rounded-xl'} cursor-pointer overflow-hidden`}
           >
-            {/* Card Header */}
-            <div className={`bg-gradient-to-r px-6 py-4 rounded-t-xl ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
+            {/* Card Header (Collapsible trigger) */}
+            <div className={`transition-all bg-gradient-to-r px-6 py-4 ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
               apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
                 apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
                   apt.status === 'completed' ? 'from-green-500 to-green-400' :
                     apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
                       'from-red-500 to-red-400'
               }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{formattedDate}</h3>
-                    <p className="text-sm text-white/90">{formattedTime}</p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-white truncate">{patientName}</h3>
+                      {(isGuest || isWalkin) && (
+                        <span className="px-2 py-0.5 rounded bg-white/20 text-white text-xs font-semibold whitespace-nowrap">
+                          {isGuest ? 'Guest' : 'Walk-in'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-white/90 truncate">
+                      {formattedDate} at {formattedTime} &bull; {getServiceName(apt)}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 self-end md:self-auto flex-shrink-0">
                   <span
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold ${(apt.rescheduleRequested || apt.status === 'reschedule_requested')
-                      ? 'bg-white/20 text-white border-2 border-white/30'
-                      : apt.status === 'confirmed'
-                        ? 'bg-white/20 text-white border-2 border-white/30'
-                        : apt.status === 'pending'
-                          ? 'bg-white/20 text-white border-2 border-white/30'
-                          : apt.status === 'completed'
-                            ? 'bg-white/20 text-white border-2 border-white/30'
-                            : apt.status === 'cancellation_requested'
-                              ? 'bg-white/20 text-white border-2 border-white/30'
-                              : 'bg-white/20 text-white border-2 border-white/30'
-                      }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold bg-white/20 text-white border-2 border-white/30 whitespace-nowrap`}
                   >
                     {(apt.rescheduleRequested || apt.status === 'reschedule_requested')
                       ? 'RESCHEDULE-REQUESTED'
@@ -1499,14 +1500,23 @@ function AppointmentsListView({
                         ? 'CANCELLATION REQUESTED'
                         : apt.status?.toUpperCase() || 'PENDING'}
                   </span>
+                  <div className={`w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Card Body */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {/* Patient Info */}
+            {/* Card Body (Collapsible Section) */}
+            <div 
+              className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+            >
+              <div className="overflow-hidden">
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    {/* Patient Info */}
                 <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="w-10 h-10 bg-blue-200 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1817,6 +1827,8 @@ function AppointmentsListView({
                     )}
                   </>
                 )}
+              </div>
+              </div>
               </div>
             </div>
           </div>
