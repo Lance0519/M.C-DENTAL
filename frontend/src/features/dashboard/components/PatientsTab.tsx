@@ -7,6 +7,7 @@ import { useDoctors } from '@/hooks/useDoctors';
 import { Modal } from '@/components/modals/Modal';
 import { SuccessModal } from '@/components/modals/SuccessModal';
 import { PatientImageGallery } from '@/components/PatientImageGallery';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/auth-store';
 import type { PatientProfile } from '@/types/user';
 import type { Appointment, MedicalHistoryRecord } from '@/types/dashboard';
@@ -16,8 +17,10 @@ interface PatientsTabProps {
 }
 
 export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
-  const { patients, loadPatients, createPatient, updatePatient } = usePatients();
-  const { appointments, loadAppointments } = useAppointments();
+  const { patients, loadPatients, createPatient, updatePatient, loading: patientsLoading } = usePatients();
+  const { appointments, loadAppointments, loading: appointmentsLoading } = useAppointments();
+  
+  const isLoading = patientsLoading || appointmentsLoading;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<PatientProfile | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -28,6 +31,23 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
   useEffect(() => {
     loadAppointments();
   }, [loadAppointments]);
+
+  // Get upcoming appointments for a patient - matching legacy logic
+  const getUpcomingAppointments = (patientId: string): Appointment[] => {
+    const patientAppointments = appointments.filter((apt) => apt.patientId === patientId);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return patientAppointments.filter((apt) => {
+      const aptDate = apt.date || (apt as any).appointmentDate;
+      if (!aptDate) return false;
+
+      const appointmentDate = new Date(aptDate);
+      appointmentDate.setHours(0, 0, 0, 0);
+
+      return appointmentDate >= today && apt.status !== 'cancelled';
+    });
+  };
 
   // Filter patients based on search query - matching legacy logic exactly
   const filteredPatients = patients.filter((patient) => {
@@ -53,22 +73,21 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
     );
   });
 
-  // Get upcoming appointments for a patient - matching legacy logic
-  const getUpcomingAppointments = (patientId: string): Appointment[] => {
-    const patientAppointments = appointments.filter((apt) => apt.patientId === patientId);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  // Sort patients to show those with upcoming appointments first
+  const sortedAndFilteredPatients = [...filteredPatients].sort((a, b) => {
+    const upcomingA = getUpcomingAppointments(a.id || '');
+    const upcomingB = getUpcomingAppointments(b.id || '');
 
-    return patientAppointments.filter((apt) => {
-      const aptDate = apt.date || (apt as any).appointmentDate;
-      if (!aptDate) return false;
+    if (upcomingA.length > 0 && upcomingB.length === 0) return -1;
+    if (upcomingB.length > 0 && upcomingA.length === 0) return 1;
 
-      const appointmentDate = new Date(aptDate);
-      appointmentDate.setHours(0, 0, 0, 0);
-
-      return appointmentDate >= today && apt.status !== 'cancelled';
-    });
-  };
+    if (upcomingA.length > 0 && upcomingB.length > 0) {
+      const getTime = (apts: Appointment[]) => Math.min(...apts.map(apt => new Date(apt.date || (apt as any).appointmentDate).getTime()));
+      return getTime(upcomingA) - getTime(upcomingB);
+    }
+    
+    return (a.fullName || '').localeCompare(b.fullName || '');
+  });
 
   const handleViewProfile = (patient: PatientProfile) => {
     setSelectedPatient(patient);
@@ -158,7 +177,7 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
             placeholder="Search patients by name, email, phone, username, or ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-5 py-4 pl-12 pr-12 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-4 focus:ring-gold-500/20 dark:focus:ring-gold-400/20 transition-all shadow-sm hover:shadow-md placeholder-gray-400 dark:placeholder-gray-500"
+            className="w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white py-4 pl-12 pr-12 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-4 focus:ring-gold-500/20 dark:focus:ring-gold-400/20 transition-all shadow-sm hover:shadow-md placeholder-gray-400 dark:placeholder-gray-500"
           />
           <svg
             className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -182,7 +201,11 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
       </div>
 
       {/* Patients List - Enhanced */}
-      {filteredPatients.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading patients database..." />
+        </div>
+      ) : sortedAndFilteredPatients.length === 0 ? (
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 text-center">
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gold-100 to-gold-200 dark:from-gold-900/30 dark:to-gold-800/30 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +236,7 @@ export function PatientsTab({ role = 'staff' }: PatientsTabProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPatients.map((patient) => {
+          {sortedAndFilteredPatients.map((patient) => {
             const upcomingAppts = getUpcomingAppointments(patient.id || '');
 
             return (

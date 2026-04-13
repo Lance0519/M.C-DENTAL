@@ -19,15 +19,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import type { Appointment } from '@/types/dashboard';
 
 const COLORS = ['#D4AF37', '#F4D03F', '#F7DC6F', '#E8B923', '#C9A961'];
 
 export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
-  const { appointments, loadAppointments } = useAppointments();
-  const { patients } = usePatients();
-  const { services } = useServices();
-  const { doctors } = useDoctors();
+  const { appointments, loadAppointments, loading: appointmentsLoading } = useAppointments();
+  const { patients, loading: patientsLoading } = usePatients();
+  const { services, loading: servicesLoading } = useServices();
+  const { doctors, loading: doctorsLoading } = useDoctors();
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -370,8 +371,14 @@ export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
         </div>
       </div>
 
-      {/* Key Performance Indicators */}
-      <div className="order-2 flex flex-col gap-6">
+      {appointmentsLoading || patientsLoading || servicesLoading || doctorsLoading ? (
+        <div className="order-2 flex items-center justify-center min-h-[400px] bg-white dark:bg-black-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+          <LoadingSpinner size="lg" message="Loading dashboard statistics..." />
+        </div>
+      ) : (
+        <>
+          {/* Key Performance Indicators */}
+          <div className="order-2 flex flex-col gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <KPICard
             title="Total Appointments"
@@ -626,6 +633,8 @@ export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
           </div>
         </ChartCard>
       </div>
+        </>
+      )}
     </div >
   );
 }

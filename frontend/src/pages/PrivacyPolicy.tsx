@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
             Privacy Policy
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8">
-            Last updated: November 27, 2025
+            Last updated: March 2, 2026
           </p>
 
           <div className="prose prose-gray dark:prose-invert max-w-none space-y-6">

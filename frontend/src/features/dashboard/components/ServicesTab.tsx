@@ -4,6 +4,7 @@ import { ServiceDurations } from '@/lib/service-durations';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { SuccessModal } from '@/components/modals/SuccessModal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import type { ServiceItem } from '@/types/user';
 
 interface ServicesTabProps {
@@ -11,7 +12,7 @@ interface ServicesTabProps {
 }
 
 export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
-  const { services, loadServices, createService, updateService, deleteService } = useServices();
+  const { services, loadServices, createService, updateService, deleteService, loading: servicesLoading } = useServices();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -206,7 +207,11 @@ export function ServicesTab({ role = 'staff' }: ServicesTabProps) {
       )}
 
       {/* Services List - Enhanced card layout */}
-      {displayedServices.length === 0 ? (
+      {servicesLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading services database..." />
+        </div>
+      ) : displayedServices.length === 0 ? (
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 text-center">
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gold-100 to-gold-200 dark:from-gold-900/30 dark:to-gold-800/30 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

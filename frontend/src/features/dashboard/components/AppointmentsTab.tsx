@@ -10,12 +10,13 @@ import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { PaymentModal } from '@/components/modals/PaymentModal';
 import { AppointmentDetailsModal } from '@/components/modals/AppointmentDetailsModal';
 import { Modal } from '@/components/modals/Modal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { filterAppointments } from '@/lib/appointment-filters';
 import type { Appointment } from '@/types/dashboard';
 import type { PatientProfile, DoctorProfile, ServiceItem } from '@/types/user';
 
 export function AppointmentsTab() {
-  const { appointments, loadAppointments, updateAppointment } = useAppointments();
+  const { appointments, loadAppointments, updateAppointment, loading: appointmentsLoading } = useAppointments();
   const { patients, loadPatients } = usePatients();
   const { services } = useServices();
   const { doctors } = useDoctors();
@@ -334,7 +335,7 @@ export function AppointmentsTab() {
             {isCalendarView ? 'List View' : 'Calendar View'}
           </button>
           <button
-            onClick={loadAppointments}
+            onClick={() => loadAppointments()}
             className="px-6 py-3 text-sm font-bold rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-black-700 transition-all hover:-translate-y-0.5 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,7 +517,11 @@ export function AppointmentsTab() {
         </div>
       </div>
 
-      {isCalendarView ? (
+      {appointmentsLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl p-16 flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 shadow-md">
+          <LoadingSpinner size="lg" message="Loading appointments database..." />
+        </div>
+      ) : isCalendarView ? (
         <CalendarView
           appointments={filteredAppointments}
           currentMonth={currentMonth}

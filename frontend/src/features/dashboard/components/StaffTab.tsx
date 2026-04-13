@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useStaff } from '@/hooks/useStaff';
-import { StorageService } from '@/lib/storage';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import type { StaffProfile } from '@/types/user';
 
 export function StaffTab() {
-  const { staff, loadStaff, createStaff, updateStaff, deleteStaff } = useStaff();
+  const { staff, loadStaff, createStaff, updateStaff, deleteStaff, loading: staffLoading } = useStaff();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffProfile | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -19,7 +19,7 @@ export function StaffTab() {
   }, [loadStaff]);
 
   useEffect(() => {
-    const handleUserUpdated = (event: Event) => {
+    const handleUserUpdated = () => {
       // Refresh staff list when any user is updated
       // This ensures StaffTab stays in sync when profiles are updated via ProfileModal
       loadStaff();
@@ -79,7 +79,11 @@ export function StaffTab() {
       </div>
 
       {/* Staff List - beautiful gold/white/black themed cards */}
-      {staff.length === 0 ? (
+      {staffLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-12 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading staff database..." />
+        </div>
+      ) : staff.length === 0 ? (
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-12 text-center">
           <div className="text-6xl mb-4">👥</div>
           <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">No staff accounts found</p>
@@ -626,7 +630,7 @@ function EditStaffModal({
         const imageData = await fileToDataUrl(profileImageFile);
         updates.profileImage = imageData;
       } else if (!profileImagePreview && staff.profileImage) {
-        updates.profileImage = null;
+        updates.profileImage = undefined;
       }
 
       // Only update password if provided

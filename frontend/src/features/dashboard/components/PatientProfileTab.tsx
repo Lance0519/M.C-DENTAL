@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProfileModal } from '@/components/modals/ProfileModal';
 import { SuccessModal } from '@/components/modals/SuccessModal';
 import { PatientImageGallery } from '@/components/PatientImageGallery';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import api from '@/lib/api';
 import type { PatientProfile } from '@/types/user';
 import { useAuthStore } from '@/store/auth-store';
@@ -26,10 +27,12 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
     address: user.address || '',
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadPatientData = useCallback(async () => {
     try {
+      setInitialLoading(true);
       const response = await api.request(`/patients?id=${user.id}`);
       const data = (response as any)?.data ?? response;
       if (data) {
@@ -75,6 +78,8 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
       }
     } catch (err) {
       console.error('Error loading patient data:', err);
+    } finally {
+      setInitialLoading(false);
     }
   }, [authUser, setAuthUser, user.id]);
 
@@ -183,6 +188,14 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
     }
     return name[0].toUpperCase();
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px] bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700">
+        <LoadingSpinner size="lg" message="Loading profile..." />
+      </div>
+    );
+  }
 
   return (
     <div>

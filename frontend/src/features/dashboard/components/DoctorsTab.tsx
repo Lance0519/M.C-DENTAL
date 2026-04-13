@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDoctors } from '@/hooks/useDoctors';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import type { DoctorProfile } from '@/types/user';
 
 interface DoctorsTabProps {
@@ -9,7 +10,7 @@ interface DoctorsTabProps {
 }
 
 export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
-  const { doctors, loadDoctors, createDoctor, updateDoctor, deleteDoctor } = useDoctors();
+  const { doctors, loadDoctors, createDoctor, updateDoctor, deleteDoctor, loading: doctorsLoading } = useDoctors();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorProfile | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -131,7 +132,11 @@ export function DoctorsTab({ role = 'staff' }: DoctorsTabProps) {
       )}
 
       {/* Doctors List - Enhanced card layout */}
-      {doctors.length === 0 ? (
+      {doctorsLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading dentists database..." />
+        </div>
+      ) : doctors.length === 0 ? (
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 text-center">
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gold-100 to-gold-200 dark:from-gold-900/30 dark:to-gold-800/30 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -3,6 +3,7 @@ import { useSchedules } from '@/hooks/useSchedules';
 import { useDoctors } from '@/hooks/useDoctors';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import type { Schedule } from '@/hooks/useSchedules';
 import type { DoctorProfile } from '@/types/user';
 
@@ -11,7 +12,7 @@ interface SchedulesTabProps {
 }
 
 export function SchedulesTab({ role = 'staff' }: SchedulesTabProps) {
-  const { schedules, loadSchedules, createSchedule, updateSchedule, deleteSchedule } = useSchedules();
+  const { schedules, loadSchedules, createSchedule, updateSchedule, deleteSchedule, loading: schedulesLoading } = useSchedules();
   const { doctors } = useDoctors();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
@@ -131,7 +132,11 @@ export function SchedulesTab({ role = 'staff' }: SchedulesTabProps) {
       )}
 
       {/* Schedules List - Enhanced grouped layout */}
-      {schedulesByDoctor.length === 0 || schedulesByDoctor.every((g) => g.schedules.length === 0) ? (
+      {schedulesLoading ? (
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading schedules database..." />
+        </div>
+      ) : schedulesByDoctor.length === 0 || schedulesByDoctor.every((g) => g.schedules.length === 0) ? (
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 text-center">
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gold-100 to-gold-200 dark:from-gold-900/30 dark:to-gold-800/30 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,7 +298,7 @@ function CreateScheduleModal({
   onSuccess: () => void;
   doctors: DoctorProfile[];
   schedules: Schedule[];
-  createSchedule: (schedule: Omit<Schedule, 'id'>) => { success: boolean; message?: string; data?: Schedule };
+  createSchedule: (schedule: Omit<Schedule, 'id'>) => Promise<{ success: boolean; message?: string; data?: Schedule }>;
 }) {
   const [formData, setFormData] = useState({
     doctorId: '',
@@ -354,7 +359,7 @@ function CreateScheduleModal({
         endTime: formData.endTime,
       };
 
-      const result = createSchedule(scheduleData);
+      const result = await createSchedule(scheduleData);
       if (result.success) {
         onSuccess();
       } else {

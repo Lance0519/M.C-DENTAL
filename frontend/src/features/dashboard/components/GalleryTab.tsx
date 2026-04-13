@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/components/modals/Modal';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { SuccessModal } from '@/components/modals/SuccessModal';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import api from '@/lib/api';
 
 interface GalleryCase {
@@ -18,7 +19,7 @@ interface GalleryTabProps {
   role?: 'admin' | 'staff';
 }
 
-export function GalleryTab({ role = 'staff' }: GalleryTabProps) {
+export function GalleryTab({}: GalleryTabProps) {
   const [cases, setCases] = useState<GalleryCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -169,8 +170,8 @@ export function GalleryTab({ role = 'staff' }: GalleryTabProps) {
 
       {/* Loading State */}
       {loading && (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
+        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-black-900 dark:to-black-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 p-16 flex items-center justify-center">
+          <LoadingSpinner size="lg" message="Loading gallery cases..." />
         </div>
       )}
 
