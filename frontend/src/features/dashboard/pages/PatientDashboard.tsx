@@ -5,6 +5,7 @@ import { PatientAppointmentsTab } from '../components/PatientAppointmentsTab';
 import { PatientHistoryTab } from '../components/PatientHistoryTab';
 import { PatientProfileTab } from '../components/PatientProfileTab';
 import { PatientClinicHoursTab } from '../components/PatientClinicHoursTab';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/auth-store';
 import type { PatientProfile } from '@/types/user';
 
@@ -41,7 +42,7 @@ export function PatientDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="lg" message="Loading dashboard..." />
       </div>
     );
   }

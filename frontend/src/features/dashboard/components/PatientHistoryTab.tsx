@@ -4,6 +4,7 @@ import { useServices } from '@/hooks/useServices';
 import { useDoctors } from '@/hooks/useDoctors';
 import type { PatientProfile } from '@/types/user';
 import type { MedicalHistoryRecord } from '@/types/dashboard';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 interface PatientHistoryTabProps {
   user: PatientProfile;
@@ -69,7 +70,7 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-600"></div>
+        <LoadingSpinner size="lg" message="Loading medical history..." />
       </div>
     );
   }

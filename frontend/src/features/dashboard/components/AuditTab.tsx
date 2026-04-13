@@ -9,6 +9,7 @@ import { useDoctors } from '@/hooks/useDoctors';
 import { useStaff } from '@/hooks/useStaff';
 import { useAuditLogs, type AuditLog } from '@/hooks/useAuditLogs';
 import { useAuthStore } from '@/store/auth-store';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import api from '@/lib/api';
 
 export function AuditTab() {
@@ -466,7 +467,7 @@ export function AuditTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-600"></div>
+        <LoadingSpinner size="lg" message="Loading audit logs..." />
       </div>
     );
   }

@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { Appointment } from '@/types/dashboard';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 const COLORS = ['#D4AF37', '#F4D03F', '#F7DC6F', '#E8B923', '#C9A961'];
 
@@ -449,10 +450,7 @@ export function ReportsTab() {
   if (isLoading && !isRefreshing) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading reports data...</p>
-        </div>
+        <LoadingSpinner size="lg" message="Loading reports data..." />
       </div>
     );
   }
@@ -532,7 +530,7 @@ export function ReportsTab() {
       </div>
 
       {/* Debug Info - Only show in development or when there's an issue */}
-      {process.env.NODE_ENV === 'development' && (appointments.length === 0 || reports.statusCounts.scheduled === 0) && (
+      {import.meta.env.DEV && (appointments.length === 0 || reports.statusCounts.scheduled === 0) && (
         <div className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4 mb-4">
           <p className="text-yellow-400 text-sm font-semibold mb-2">Debug Information (Development Only):</p>
           <div className="text-yellow-300 text-xs space-y-1">

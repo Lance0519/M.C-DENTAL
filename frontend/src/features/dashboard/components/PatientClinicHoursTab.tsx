@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { formatTime } from '@/lib/utils';
 import type { ClinicSchedule } from '@/types/user';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
 
@@ -64,7 +65,7 @@ export function PatientClinicHoursTab() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
+                <LoadingSpinner size="lg" message="Loading clinic hours..." />
             </div>
         );
     }

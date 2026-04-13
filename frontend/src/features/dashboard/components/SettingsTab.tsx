@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 interface SettingsTabProps {
   role?: 'admin' | 'staff';
@@ -107,7 +108,7 @@ export function SettingsTab({ role = 'admin' }: SettingsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="md" message="Loading settings..." />
       </div>
     );
   }
