@@ -1462,12 +1462,12 @@ function AppointmentsListView({
             className={`bg-gradient-to-br from-white to-gray-50 dark:from-black-800 dark:to-black-900 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-gold-300 dark:hover:border-gold-600 ${!isExpanded ? 'hover:-translate-y-1 rounded-xl' : 'rounded-xl'} cursor-pointer overflow-hidden`}
           >
             {/* Card Header (Collapsible trigger) */}
-            <div className={`transition-all bg-gradient-to-r px-6 py-4 ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400' :
-              apt.status === 'confirmed' ? 'from-blue-500 to-blue-400' :
-                apt.status === 'pending' ? 'from-yellow-500 to-yellow-400' :
-                  apt.status === 'completed' ? 'from-green-500 to-green-400' :
-                    apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400' :
-                      'from-red-500 to-red-400'
+            <div className={`transition-all bg-gradient-to-r px-6 py-4 ${(apt.rescheduleRequested || apt.status === 'reschedule_requested') ? 'from-orange-500 to-orange-400 dark:from-orange-800 dark:to-orange-700' :
+              apt.status === 'confirmed' ? 'from-blue-500 to-blue-400 dark:from-blue-800 dark:to-blue-700' :
+                apt.status === 'pending' ? 'from-yellow-500 to-yellow-400 dark:from-yellow-700 dark:to-yellow-600' :
+                  apt.status === 'completed' ? 'from-green-500 to-green-400 dark:from-green-800 dark:to-green-700' :
+                    apt.status === 'cancellation_requested' ? 'from-orange-500 to-orange-400 dark:from-orange-800 dark:to-orange-700' :
+                      'from-red-500 to-red-400 dark:from-red-800 dark:to-red-700'
               }`}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4 min-w-0">
