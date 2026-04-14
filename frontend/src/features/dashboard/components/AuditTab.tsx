@@ -242,21 +242,21 @@ export function AuditTab() {
 
   const getActionBadgeColor = (action: string) => {
     if (action.includes('create') || action.includes('add')) {
-      return 'bg-green-100 text-green-800';
+      return 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300';
     }
     if (action.includes('update') || action.includes('edit')) {
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300';
     }
     if (action.includes('delete') || action.includes('remove')) {
-      return 'bg-red-100 text-red-800';
+      return 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300';
     }
     if (action.includes('login') || action.includes('logout')) {
-      return 'bg-purple-100 text-purple-800';
+      return 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300';
     }
     if (action.includes('confirm') || action.includes('approve')) {
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300';
     }
-    return 'bg-gray-100 text-gray-800';
+    return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300';
   };
 
   const formatDetails = (detailsRaw: Record<string, unknown> | string): string => {
@@ -487,12 +487,12 @@ export function AuditTab() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Access to audit logs requires additional authentication. Please enter your admin password to continue.
           </p>
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
-              <label htmlFor="audit-password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="audit-password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Admin Password
               </label>
               <input
@@ -504,19 +504,19 @@ export function AuditTab() {
                   setPasswordError('');
                 }}
                 placeholder="Enter your admin password"
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 transition-colors"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white rounded-lg focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
                 autoFocus
                 required
               />
               {passwordError && (
-                <p className="mt-2 text-sm text-red-600">{passwordError}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">{passwordError}</p>
               )}
             </div>
             <div className="flex gap-3 justify-end">
               <button
                 type="button"
                 onClick={handlePasswordModalClose}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition font-semibold"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition font-semibold"
               >
                 Cancel
               </button>
@@ -774,15 +774,15 @@ function CalendarView({
     const logs = getLogsForDate(date);
     if (logs.length === 0) return '';
     if (logs.some((log) => log.action.includes('delete') || log.action.includes('remove'))) {
-      return 'bg-red-100 border-red-300';
+      return 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700';
     }
     if (logs.some((log) => log.action.includes('create') || log.action.includes('add'))) {
-      return 'bg-green-100 border-green-300';
+      return 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700';
     }
     if (logs.some((log) => log.action.includes('update') || log.action.includes('edit'))) {
-      return 'bg-blue-100 border-blue-300';
+      return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700';
     }
-    return 'bg-yellow-100 border-yellow-300';
+    return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700';
   };
 
   const days = [];
@@ -918,10 +918,10 @@ function AuditLogsTableView({
           <tbody>
             {filteredLogs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-gray-500">
+                <td colSpan={5} className="py-12 text-center text-gray-500 dark:text-gray-400">
                   <div className="flex flex-col items-center gap-2">
                     <svg
-                      className="w-12 h-12 text-gray-400"
+                      className="w-12 h-12 text-gray-400 dark:text-gray-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -933,8 +933,8 @@ function AuditLogsTableView({
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <p className="text-lg font-semibold">No audit logs found</p>
-                    <p className="text-sm">Try adjusting your filters</p>
+                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">No audit logs found</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
                   </div>
                 </td>
               </tr>
@@ -964,7 +964,7 @@ function AuditLogsTableView({
                       const daysLeft = Math.max(0, 2190 - diffDays);
                       const isExpiringSoon = daysLeft <= 30;
                       return (
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${isExpiringSoon ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${isExpiringSoon ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'}`}>
                           {daysLeft} days
                         </span>
                       );

@@ -553,9 +553,10 @@ export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
               <YAxis dataKey="name" type="category" stroke="#6b7280" width={120} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: isDarkMode ? '#1a1a1a' : '#fff',
+                  border: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
                   borderRadius: '8px',
+                  color: isDarkMode ? '#f3f4f6' : '#111827',
                 }}
               />
               <Bar dataKey="count" fill="#D4AF37" radius={[0, 8, 8, 0]} />
