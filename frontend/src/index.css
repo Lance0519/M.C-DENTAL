@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: 14px; /* Scales down the entire Tailwind REM ecosystem by 12.5% for a crisper, more compact dashboard aesthetic */
+}
+
 :root {
   /* Boutique Dental Design System - Light Mode */
   --background: 0 0% 96%;

@@ -43,7 +43,7 @@ export const HolidayOverlay = memo(function HolidayOverlay() {
     if (occasion === 'none') return null;
 
     return (
-        <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-40 overflow-hidden">
             {occasion === 'xmas' && <ChristmasOverlay />}
             {occasion === 'cny' && <ChineseNewYearOverlay />}
             {occasion === 'newyear' && <NewYearOverlay />}

@@ -65,8 +65,8 @@ export function AboutPage() {
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                       <span className="text-3xl">🦷</span> Our Mission
                     </h2>
-                    <div className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                      <p>
+                    <div className="text-lg leading-relaxed">
+                      <p className="text-gray-700 dark:text-gray-200">
                         At M.C. Dental Clinic, our mission is to provide compassionate, family-centered dental care using the latest technology and modern techniques. We are dedicated to creating a warm, welcoming environment where every patient — from kids to adults — feels comfortable, cared for, and confident in their smile.
                       </p>
                     </div>
@@ -75,8 +75,8 @@ export function AboutPage() {
                     <h2 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                       <span className="text-3xl">🌟</span> Our Vision
                     </h2>
-                    <div className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                      <p>
+                    <div className="text-lg leading-relaxed">
+                      <p className="text-gray-700 dark:text-gray-200">
                         Our vision is to be a trusted leader in modern family dentistry — combining innovation, expertise, and genuine care to deliver healthy, beautiful smiles for generations. We aim to make every visit a positive experience through advanced dental solutions and a personal touch that feels like family.
                       </p>
                     </div>

@@ -75,12 +75,6 @@ export function HealthScreeningModal({ isOpen, onClose, onComplete }: HealthScre
               <p className="text-sm text-gold-500">Affordable • Professional • Caring</p>
             </div>
           </div>
-          <button
-            onClick={handleGoBack}
-            className="w-10 h-10 rounded-full border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-black transition-all flex items-center justify-center"
-          >
-            ✕
-          </button>
         </div>
 
         {/* Warning */}

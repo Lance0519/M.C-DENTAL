@@ -32,6 +32,7 @@ export function useNotifications() {
 
   const [playNotificationSound] = useSound(notificationSound, { volume: 0.5 });
   const prevUnreadCountRef = useRef(0);
+  const isInitialLoadRef = useRef(true);
 
   const loadNotifications = useCallback(async () => {
     try {
@@ -43,8 +44,8 @@ export function useNotifications() {
 
       const newUnreadCount = normalized.filter(n => !n.read).length;
 
-      // Check for new notifications
-      if (newUnreadCount > prevUnreadCountRef.current) {
+      // Check for new notifications, but skip playing sound on initial load
+      if (!isInitialLoadRef.current && newUnreadCount > prevUnreadCountRef.current) {
         playNotificationSound();
 
         // Find the newest unread notification to show in the toast
@@ -65,6 +66,7 @@ export function useNotifications() {
       }
 
       prevUnreadCountRef.current = newUnreadCount;
+      isInitialLoadRef.current = false;
 
       setNotifications(normalized);
       setUnreadCount(newUnreadCount);
