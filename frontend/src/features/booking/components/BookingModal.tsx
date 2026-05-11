@@ -867,8 +867,7 @@ export function BookingModal({ isOpen, onClose, onSuccess }: BookingModalProps) 
               </p>
               <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-                  <strong>Important:</strong> Once confirmed, only clinic staff members can modify or cancel this appointment.
-                  Please ensure all details are correct before proceeding.
+                  <strong>Please Note:</strong> Once submitted, your appointment will be <strong>pending for approval</strong> and will be reviewed by our clinic staff. Please make sure that the service you selected is correct before proceeding. You will receive a notification message on your account once your appointment has been confirmed by the staff. If you are using a <strong> guest account </strong>, our staff team will contact you upon approval of your booking.
                 </p>
               </div>
             </div>
