@@ -28,7 +28,7 @@ export function useMedicalHistory(patientId?: string) {
       setMedicalHistory(sorted);
     } catch (err) {
       console.error('Error loading medical history:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load medical history');
+      setError(err instanceof Error ? err.message : 'Failed to load dental history');
       setMedicalHistory([]);
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export function useMedicalHistory(patientId?: string) {
       await loadMedicalHistory();
       return { success: true, data: response };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create medical history record';
+      const message = err instanceof Error ? err.message : 'Failed to create dental history record';
       return { success: false, message };
     }
   };
@@ -62,7 +62,7 @@ export function useMedicalHistory(patientId?: string) {
       await loadMedicalHistory();
       return { success: true, data: response };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update medical history record';
+      const message = err instanceof Error ? err.message : 'Failed to update dental history record';
       return { success: false, message };
     }
   };
@@ -75,7 +75,7 @@ export function useMedicalHistory(patientId?: string) {
       await loadMedicalHistory();
       return { success: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete medical history record';
+      const message = err instanceof Error ? err.message : 'Failed to delete dental history record';
       return { success: false, message };
     }
   };

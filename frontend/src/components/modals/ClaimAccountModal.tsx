@@ -106,7 +106,7 @@ export function ClaimAccountModal({ isOpen, onClose, onSuccess }: ClaimAccountMo
                 First Time Login?
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                If you've booked an appointment as a guest, you can claim your account to access your appointments and medical history.
+                If you've booked an appointment as a guest, you can claim your account to access your appointments and dental history.
               </p>
             </div>
 

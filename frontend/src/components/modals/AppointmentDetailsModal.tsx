@@ -779,7 +779,7 @@ export function AppointmentDetailsModal({
 
       // Show success modal
       setSuccessMessage(
-        `Treatment session images have been saved to medical history successfully!\n\n${imageUrls.length} image${imageUrls.length > 1 ? 's' : ''} uploaded.`
+        `Treatment session images have been saved to dental history successfully!\n\n${imageUrls.length} image${imageUrls.length > 1 ? 's' : ''} uploaded.`
       );
       setShowSuccessModal(true);
 
@@ -793,7 +793,7 @@ export function AppointmentDetailsModal({
           'Please try uploading fewer images or contact support to clear storage space.'
         );
       } else {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to save images to medical history';
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save images to dental history';
         setUploadError(errorMessage);
       }
     } finally {

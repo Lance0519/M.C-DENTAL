@@ -26,7 +26,17 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const validateEmail = (email: string): string | null => {
+    if (!email.trim()) return null; // Don't show error for empty (required attr handles that)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address (e.g. name@gmail.com)';
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (isOpen && user) {
@@ -73,9 +83,10 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
 
     try {
       // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError('Please enter a valid email address');
+      const emailValidationError = validateEmail(formData.email);
+      if (emailValidationError) {
+        setError(emailValidationError);
+        setEmailError(emailValidationError);
         setLoading(false);
         return;
       }
@@ -271,10 +282,30 @@ export function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalPr
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30 transition-colors"
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData({ ...formData, email: val });
+                if (emailError) {
+                  setEmailError(validateEmail(val));
+                }
+              }}
+              onBlur={() => setEmailError(validateEmail(formData.email))}
+              className={`w-full rounded-lg border-2 ${
+                emailError
+                  ? 'border-red-400 dark:border-red-500 focus:border-red-500 dark:focus:border-red-400 focus:ring-2 focus:ring-red-500/30 dark:focus:ring-red-400/30'
+                  : 'border-gray-300 dark:border-gray-600 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30'
+              } bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 transition-colors`}
+              placeholder="e.g. name@gmail.com"
               required
             />
+            {emailError && (
+              <p className="mt-1.5 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {emailError}
+              </p>
+            )}
           </div>
 
           {/* Phone */}

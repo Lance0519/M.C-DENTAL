@@ -70,7 +70,7 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <LoadingSpinner size="lg" message="Loading medical history..." />
+        <LoadingSpinner size="lg" message="Loading dental history..." />
       </div>
     );
   }
@@ -78,13 +78,13 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Medical History</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dental History</h1>
       </div>
 
       {medicalHistory.length === 0 ? (
         <div className="bg-white dark:bg-black-900 rounded-lg shadow p-12 text-center border border-gray-200 dark:border-gray-700">
           <div className="text-5xl mb-4">📋</div>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">No medical history records found</p>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">No dental history records found</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -141,7 +141,7 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
               {/* Medical Images */}
               {record.images && record.images.length > 0 && (
                 <div className="mt-4">
-                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Medical Images:</div>
+                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Dental Images:</div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {record.images.map((imageUrl, idx) => (
                       <div
@@ -151,7 +151,7 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
                       >
                         <img
                           src={imageUrl}
-                          alt={`Medical record image ${idx + 1}`}
+                          alt={`Dental record image ${idx + 1}`}
                           className="w-full h-40 object-cover"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
@@ -177,7 +177,7 @@ export function PatientHistoryTab({ user }: PatientHistoryTabProps) {
         >
           <img
             src={selectedImage}
-            alt="Medical record image"
+            alt="Dental record image"
             className="max-w-full max-h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />

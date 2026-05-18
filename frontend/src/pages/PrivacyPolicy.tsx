@@ -43,7 +43,7 @@ export default function PrivacyPolicy() {
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4">
                 <li><strong>Personal Information:</strong> Complete name, address, contact numbers, email address, date of birth, age, and gender.</li>
-                <li><strong>Sensitive Personal Information:</strong> Medical history (including previous illnesses, surgeries, allergies), dental records, medications currently taken, radiographs (X-rays), and treatment plans.</li>
+                <li><strong>Sensitive Personal Information:</strong> Dental history (including previous illnesses, surgeries, allergies), dental records, medications currently taken, radiographs (X-rays), and treatment plans.</li>
                 <li><strong>Transaction Data:</strong> Scheduled appointments, billing details, and payment history.</li>
                 <li><strong>System/Technical Data:</strong> Account credentials, IP addresses, and digital activity strictly limited to the usage of our online portal.</li>
               </ul>

@@ -585,7 +585,7 @@ export function AuditTab() {
         onClose={() => setShowResetConfirm(false)}
         onConfirm={confirmReset}
         title="Reset All Data"
-        message="⚠️ WARNING: This will permanently delete ALL data including:\n\n• All appointments\n• All patients (except default)\n• All medical history\n• All audit logs\n• All notifications\n\nDefault admin/staff accounts, services, doctors, and schedules will be restored.\n\nThis action CANNOT be undone. Are you absolutely sure?"
+        message="⚠️ WARNING: This will permanently delete ALL data including:\n\n• All appointments\n• All patients (except default)\n• All dental history\n• All audit logs\n• All notifications\n\nDefault admin/staff accounts, services, doctors, and schedules will be restored.\n\nThis action CANNOT be undone. Are you absolutely sure?"
         confirmText="Yes, Reset Everything"
         cancelText="Cancel"
         variant="danger"

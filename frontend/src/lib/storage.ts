@@ -1329,8 +1329,8 @@ export class StorageService {
       this.createNotification({
         id: `notif${Date.now()}`,
         type: 'medical_history_uploaded',
-        title: 'Medical History Updated',
-        message: `New medical history record has been added for your ${service?.name || record.treatment || 'treatment'} on ${record.date || new Date().toLocaleDateString()}. ${record.images && record.images.length > 0 ? `${record.images.length} image(s) included.` : ''}`,
+        title: 'Dental History Updated',
+        message: `New dental history record has been added for your ${service?.name || record.treatment || 'treatment'} on ${record.date || new Date().toLocaleDateString()}. ${record.images && record.images.length > 0 ? `${record.images.length} image(s) included.` : ''}`,
         userId: record.patientId,
         read: false,
         createdAt: new Date().toISOString(),

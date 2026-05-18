@@ -457,7 +457,7 @@ function PatientProfileModal({
               : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          Medical History
+          Dental History
         </button>
         <button
           type="button"
@@ -763,7 +763,7 @@ function MedicalHistorySection({
       {medicalHistory.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-black-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
           <div className="text-5xl mb-4">📋</div>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">No medical history records found</p>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">No dental history records found</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -820,7 +820,7 @@ function MedicalHistorySection({
               {/* Images */}
               {record.images && record.images.length > 0 && (
                 <div className="mt-4">
-                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Medical Images:</div>
+                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Dental Images:</div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {record.images.map((imageUrl, idx) => (
                       <div
@@ -840,7 +840,7 @@ function MedicalHistorySection({
                       >
                         <img
                           src={imageUrl}
-                          alt={`Medical record image ${idx + 1}`}
+                          alt={`Dental record image ${idx + 1}`}
                           className="w-full h-32 object-cover"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
@@ -1009,17 +1009,17 @@ function AddMedicalHistoryModal({
       if (result.success) {
         await onSuccess();
       } else {
-        setError(result.message || 'Failed to create medical history record');
+        setError(result.message || 'Failed to create dental history record');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create medical history record');
+      setError(err instanceof Error ? err.message : 'Failed to create dental history record');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add Medical History Record" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Add Dental History Record" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">

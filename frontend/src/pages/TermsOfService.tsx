@@ -120,7 +120,7 @@ export default function TermsOfService() {
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 ml-4">
                 <li>Provide accurate and complete health information</li>
-                <li>Inform us of any changes to your medical history</li>
+                <li>Inform us of any changes to your dental history</li>
                 <li>Follow pre and post-treatment instructions</li>
                 <li>Arrive on time for scheduled appointments</li>
                 <li>Treat our staff and other patients with respect</li>
