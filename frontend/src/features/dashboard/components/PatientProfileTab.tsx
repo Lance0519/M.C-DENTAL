@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import type { PatientProfile } from '@/types/user';
 import { useAuthStore } from '@/store/auth-store';
 import { PHAddressPicker } from '@/features/auth/components/PHAddressPicker';
+import { isValidEmailDomain } from '@/lib/validators';
 
 interface PatientProfileTabProps {
   user: PatientProfile;
@@ -128,9 +129,14 @@ export function PatientProfileTab({ user }: PatientProfileTabProps) {
 
     try {
       // Validate email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
       if (!emailRegex.test(formData.email)) {
-        setError('Please enter a valid email address');
+        setError('Invalid email format. Please enter a correct email address.');
+        setLoading(false);
+        return;
+      }
+      if (!isValidEmailDomain(formData.email.trim())) {
+        setError('Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).');
         setLoading(false);
         return;
       }

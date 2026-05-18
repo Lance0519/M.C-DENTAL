@@ -11,6 +11,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/auth-store';
 import type { PatientProfile } from '@/types/user';
 import type { Appointment, MedicalHistoryRecord } from '@/types/dashboard';
+import { isValidEmailDomain, ALLOWED_EMAIL_DOMAINS } from '@/lib/validators';
 
 interface PatientsTabProps {
   role?: 'admin' | 'staff';
@@ -389,6 +390,7 @@ function PatientProfileModal({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   // Medical history
@@ -400,18 +402,48 @@ function PatientProfileModal({
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setEmailError(null);
 
     try {
-      const result = await onUpdatePatient(patient.id || '', formData);
+      // Validate email format
+      if (formData.email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+        if (!emailRegex.test(formData.email.trim())) {
+          setEmailError('Invalid email format. Please enter a correct email address.');
+          setError('Invalid email format. Please enter a correct email address.');
+          setLoading(false);
+          return;
+        }
+        if (!isValidEmailDomain(formData.email.trim())) {
+          setEmailError('Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).');
+          setError('Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).');
+          setLoading(false);
+          return;
+        }
+      }
+
+      const result = await onUpdatePatient(patient.id || '', {
+        ...formData,
+        email: formData.email.trim(),
+      });
       if (result.success) {
         await onUpdate();
         setIsEditing(false);
         setShowSuccessModal(true);
       } else {
-        setError(result.message || 'Failed to update patient');
+        // Check if the backend returned a duplicate email error
+        const msg = result.message || 'Failed to update patient';
+        if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('already')) {
+          setEmailError(msg);
+        }
+        setError(msg);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update patient');
+      const msg = err instanceof Error ? err.message : 'Failed to update patient';
+      if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('already')) {
+        setEmailError(msg);
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -518,12 +550,36 @@ function PatientProfileModal({
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email</label>
               {isEditing ? (
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
-                />
+                <div>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      // Clear email error when user starts typing a valid email
+                      if (emailError) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+                        if (emailRegex.test(e.target.value.trim()) && isValidEmailDomain(e.target.value.trim())) {
+                          setEmailError(null);
+                          setError(null);
+                        }
+                      }
+                    }}
+                    className={`w-full rounded-lg border bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:ring-2 transition-colors ${
+                      emailError
+                        ? 'border-red-500 dark:border-red-400 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500/30 dark:focus:ring-red-400/30'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-gold-500/30 dark:focus:ring-gold-400/30'
+                    }`}
+                  />
+                  {emailError && (
+                    <div className="mt-2 bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg px-3 py-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-red-700 dark:text-red-300">{emailError}</span>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="text-gray-900 dark:text-gray-100">{formData.email || 'N/A'}</div>
               )}
@@ -609,6 +665,8 @@ function PatientProfileModal({
                     type="button"
                     onClick={() => {
                       setIsEditing(false);
+                      setEmailError(null);
+                      setError(null);
                       setFormData({
                         fullName: patient.fullName,
                         email: patient.email || '',
@@ -1211,6 +1269,7 @@ function CreatePatientModal({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -1233,8 +1292,26 @@ function CreatePatientModal({
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setEmailError(null);
 
     try {
+      // Validate email format
+      if (formData.email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+        if (!emailRegex.test(formData.email.trim())) {
+          setEmailError('Invalid email format. Please enter a correct email address.');
+          setError('Invalid email format. Please enter a correct email address.');
+          setLoading(false);
+          return;
+        }
+        if (!isValidEmailDomain(formData.email.trim())) {
+          setEmailError('Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).');
+          setError('Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).');
+          setLoading(false);
+          return;
+        }
+      }
+
       // Split full name into first and last name
       const nameParts = formData.fullName.split(' ');
       const firstName = nameParts[0] || '';
@@ -1247,7 +1324,7 @@ function CreatePatientModal({
         fullName: formData.fullName,
         firstName,
         lastName,
-        email: formData.email,
+        email: formData.email.trim(),
         phone: formData.phone,
         dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
@@ -1259,10 +1336,18 @@ function CreatePatientModal({
       if (result.success) {
         onSuccess();
       } else {
-        setError(result.message || 'Failed to create patient');
+        const msg = result.message || 'Failed to create patient';
+        if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('already')) {
+          setEmailError(msg);
+        }
+        setError(msg);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create patient');
+      const msg = err instanceof Error ? err.message : 'Failed to create patient';
+      if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('already')) {
+        setEmailError(msg);
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -1310,14 +1395,36 @@ function CreatePatientModal({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Email</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Email *</label>
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 dark:focus:ring-gold-400/30"
-            required
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                // Clear email error when user starts typing a valid email
+                if (emailError) {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+                  if (emailRegex.test(e.target.value.trim()) && isValidEmailDomain(e.target.value.trim())) {
+                    setEmailError(null);
+                    setError(null);
+                  }
+                }
+              }}
+              className={`w-full rounded-lg border bg-white dark:bg-black-800 text-gray-900 dark:text-white px-4 py-2 focus:ring-2 transition-colors ${
+                emailError
+                  ? 'border-red-500 dark:border-red-400 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500/30 dark:focus:ring-red-400/30'
+                  : 'border-gray-300 dark:border-gray-600 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-gold-500/30 dark:focus:ring-gold-400/30'
+              }`}
+              required
             />
+            {emailError && (
+              <div className="mt-2 bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg px-3 py-2 flex items-center gap-2">
+                <svg className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm font-medium text-red-700 dark:text-red-300">{emailError}</span>
+              </div>
+            )}
           </div>
 
           <div>

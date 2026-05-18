@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { isValidEmailDomain } from '@/lib/validators';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -68,8 +69,9 @@ export function formatTime(timeString: string): string {
 
 // Validate email
 export function validateEmail(email: string): boolean {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
+  const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+  if (!re.test(email)) return false;
+  return isValidEmailDomain(email);
 }
 
 // Validate phone

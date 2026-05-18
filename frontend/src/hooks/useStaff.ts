@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth-store';
 import type { StaffProfile } from '@/types/user';
+import { isValidEmailDomain } from '@/lib/validators';
 
 const normalizeStaff = (raw: Record<string, any>): StaffProfile => ({
   id: raw.id,
@@ -47,9 +48,12 @@ export function useStaff() {
   const createStaff = async (staffData: Omit<StaffProfile, 'id' | 'dateCreated' | 'role'> & { password: string }) => {
     try {
       // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
       if (!emailRegex.test(staffData.email)) {
-        return { success: false, message: 'Please enter a valid email address' };
+        return { success: false, message: 'Invalid email format. Please enter a correct email address.' };
+      }
+      if (!isValidEmailDomain(staffData.email.trim())) {
+        return { success: false, message: 'Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).' };
       }
 
       const payload = {
@@ -80,9 +84,12 @@ export function useStaff() {
     try {
       // Validate email format if email is being updated
       if (updates.email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
         if (!emailRegex.test(updates.email)) {
-          return { success: false, message: 'Please enter a valid email address' };
+          return { success: false, message: 'Invalid email format. Please enter a correct email address.' };
+        }
+        if (!isValidEmailDomain(updates.email.trim())) {
+          return { success: false, message: 'Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).' };
         }
       }
 

@@ -26,6 +26,37 @@ const suspiciousKeywords = [
   'randomuser'
 ];
 
+// Whitelist of accepted email domains
+export const ALLOWED_EMAIL_DOMAINS = [
+  'gmail.com',
+  'yahoo.com',
+  'yahoo.com.ph',
+  'outlook.com',
+  'hotmail.com',
+  'live.com',
+  'icloud.com',
+  'me.com',
+  'mac.com',
+  'aol.com',
+  'mail.com',
+  'protonmail.com',
+  'proton.me',
+  'zoho.com',
+  'ymail.com',
+  'msn.com',
+  'rocketmail.com',
+  'googlemail.com',
+];
+
+/**
+ * Check if an email has a valid domain from the allowed list.
+ * Used across the system for consistent email validation.
+ */
+export function isValidEmailDomain(email: string): boolean {
+  if (!email || !email.includes('@')) return false;
+  const domain = email.toLowerCase().trim().split('@')[1];
+  return ALLOWED_EMAIL_DOMAINS.includes(domain);
+}
 
 
 type EmailValidationOptions = {
@@ -40,13 +71,19 @@ export async function validateEmailFormat(email: string, options: EmailValidatio
   const normalized = email.toLowerCase();
   const [localPart, domain] = normalized.split('@');
 
-  const basicPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Basic format check (must have local@domain.tld structure)
+  const basicPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
   if (!basicPattern.test(email)) {
-    return { valid: false, message: 'Please enter a valid email address.' };
+    return { valid: false, message: 'Invalid email format. Please enter a correct email address.' };
   }
 
   if (!localPart || !domain) {
-    return { valid: false, message: 'Please enter a valid email address.' };
+    return { valid: false, message: 'Invalid email format. Please enter a correct email address.' };
+  }
+
+  // Check against allowed domains whitelist
+  if (!ALLOWED_EMAIL_DOMAINS.includes(domain)) {
+    return { valid: false, message: `Invalid email domain. Please use a valid email provider (e.g., @gmail.com, @yahoo.com, @outlook.com).` };
   }
 
   if (disposableDomains.some((d) => domain.includes(d))) {
@@ -64,7 +101,7 @@ export async function validateEmailFormat(email: string, options: EmailValidatio
 
   const tld = domain.split('.').pop();
   if (!tld || tld.length < 2 || tld.length > 6 || !/^[a-z]+$/.test(tld)) {
-    return { valid: false, message: 'Please enter a valid email address.' };
+    return { valid: false, message: 'Invalid email format. Please enter a correct email address.' };
   }
 
   if (!options.allowExisting) {
