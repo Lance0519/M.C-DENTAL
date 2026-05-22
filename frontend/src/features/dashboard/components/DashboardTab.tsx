@@ -290,6 +290,28 @@ export function DashboardTab({ role = 'staff' }: { role?: 'admin' | 'staff' }) {
         return aptDate >= today && aptDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000) && apt.status !== 'cancelled' && apt.status !== 'completed';
       })
       .sort((a, b) => {
+        const getPriority = (apt: Appointment) => {
+          const status = (apt as any).rescheduleRequested || apt.status === 'reschedule_requested' 
+            ? 'reschedule_requested' 
+            : apt.status || 'pending';
+
+          switch (status) {
+            case 'cancellation_requested': return 1;
+            case 'reschedule_requested': return 2;
+            case 'pending': return 3;
+            case 'confirmed': return 4;
+            case 'completed': return 5;
+            default: return 6;
+          }
+        };
+
+        const priorityA = getPriority(a);
+        const priorityB = getPriority(b);
+        
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
         const dateA = new Date(a.date || (a as any).appointmentDate);
         const dateB = new Date(b.date || (b as any).appointmentDate);
         return dateA.getTime() - dateB.getTime();

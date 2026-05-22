@@ -1324,7 +1324,7 @@ function CalendarView({
 
 // Appointments List View Component
 function AppointmentsListView({
-  appointments,
+  appointments: originalAppointments,
   patients,
   doctors,
   services,
@@ -1356,6 +1356,42 @@ function AppointmentsListView({
   const buttonRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
   const [expandedAptId, setExpandedAptId] = useState<string | null>(null);
+
+  // Sort appointments based on priority status
+  const appointments = [...originalAppointments].sort((a, b) => {
+    const getPriority = (apt: Appointment) => {
+      // If rescheduleRequested is true, it's essentially reschedule_requested
+      const status = (apt.rescheduleRequested || apt.status === 'reschedule_requested') 
+        ? 'reschedule_requested' 
+        : apt.status || 'pending';
+
+      switch (status) {
+        case 'cancellation_requested': return 1;
+        case 'reschedule_requested': return 2;
+        case 'pending': return 3;
+        case 'confirmed': return 4;
+        case 'completed': return 5;
+        default: return 6; // 'cancelled', 'no-show', etc.
+      }
+    };
+
+    const priorityA = getPriority(a);
+    const priorityB = getPriority(b);
+    
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    
+    // Secondary sort by date
+    const dateA = new Date(a.date || (a as any).appointmentDate).getTime();
+    const dateB = new Date(b.date || (b as any).appointmentDate).getTime();
+    if (dateA !== dateB) return dateA - dateB;
+
+    // Tertiary sort by time
+    const timeA = a.time || (a as any).appointmentTime || '00:00';
+    const timeB = b.time || (b as any).appointmentTime || '00:00';
+    return timeA.localeCompare(timeB);
+  });
 
   const getPatientDisplayName = (apt: Appointment): string => {
     const patientIdStr = typeof apt.patientId === 'string' ? apt.patientId : apt.patientId ? String(apt.patientId) : '';
